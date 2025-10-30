@@ -26,8 +26,9 @@ ALLOWED_HOSTS = []
 """ =============== APPLICATION DEFINITION =============== """
 
 INSTALLED_APPS = [
+    "jazzmin", 
     # Default Django Apps
-    'django.contrib.admin',
+    'django.contrib.admin', 
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
@@ -149,3 +150,63 @@ MEDIA_ROOT = BASE_DIR / 'media'
 """ =============== DEFAULT AUTO FIELD =============== """
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# ================= Jazzmin Admin Configuration =================
+
+JAZZMIN_SETTINGS = {
+    "site_title": "Footware Admin",
+    "site_header": "Footware Dashboard",
+    "welcome_sign": "Welcome to Footware Management System",
+    "site_brand": "Footware",
+    "copyright": "© 2025 Muhammad Nouman",
+    "site_logo": None,  # you can add 'images/logo.png' if available
+    "login_logo": None,
+    "login_logo_dark": None,
+    "site_icon": None,
+
+    # ================= Top Menu =================
+    "topmenu_links": [
+        {"name": "Dashboard", "url": "admin:index", "permissions": ["auth.view_user"]},
+        {"app": "users"},
+        {"app": "products"},
+        {"app": "orders"},
+    ],
+
+    # ================= Sidebar =================
+    "show_sidebar": True,
+    "navigation_expanded": True,
+    "hide_models": [],
+    "order_with_respect_to": ["users", "products", "orders"],
+
+    # ================= Icons =================
+    "icons": {
+        "auth": "fas fa-users-cog",
+        "users.User": "fas fa-user",
+        "users.Profile": "fas fa-id-card",
+        "users.Address": "fas fa-map-marker-alt",
+        "users.ContactDetail": "fas fa-phone",
+        "products": "fas fa-boxes",
+        "orders": "fas fa-shopping-cart",
+    },
+
+    # ================= UI Customization =================
+    "custom_css": None,
+    "custom_js": None,
+    "related_modal_active": True,
+}
+
+# ================= Jazzmin UI Theme =================
+JAZZMIN_UI_TWEAKS = {
+    "theme": "flatly",  # flatly / darkly / cyborg / litera etc.
+    "dark_mode_theme": "darkly",
+    "navbar": "navbar-dark bg-dark",
+    "sidebar": "sidebar-dark-primary",
+    "brand_colour": "navbar-dark",
+    "accent": "accent-info",
+    "navbar_fixed": True,
+    "sidebar_fixed": True,
+    "footer_fixed": False,
+    "body_small_text": True,
+    "sidebar_collapse": False,
+    "actions_sticky_top": True,
+}
