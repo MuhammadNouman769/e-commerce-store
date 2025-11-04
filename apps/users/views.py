@@ -15,7 +15,7 @@ class UserListCreateAPIView(generics.ListCreateAPIView):
     post:
      Create a new user account.
     """
-    queryset = User.objects.all().order_by('-created_at')
+    queryset = User.objects.all()
     serializer_class = UserSerializer
     permission_classes = [permissions.AllowAny]
 
