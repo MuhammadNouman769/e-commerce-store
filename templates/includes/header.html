@@ -31,20 +31,20 @@
 					<div class="row">
 						<div class="col-sm-12 text-left menu-1">
 							<ul>
-								<li class="active"><a href="index.html">Home</a></li>
+								<li class="active"><a href="{% url 'home' %}">Home</a></li>
 								<li class="has-dropdown">
-									<a href="men.html">Men</a>
+									<a href="{% url 'men' %}">Men</a>
 									<ul class="dropdown">
-										<li><a href="product-detail.html">Product Detail</a></li>
-										<li><a href="cart.html">Shopping Cart</a></li>
-										<li><a href="checkout.html">Checkout</a></li>
-										<li><a href="order-complete.html">Order Complete</a></li>
-										<li><a href="add-to-wishlist.html">Wishlist</a></li>
+										<li><a href="{% url 'products_details' %}">Product Detail</a></li>
+										<li><a href="{% url 'cart' %}">Shopping Cart</a></li>
+										<li><a href="{% url 'checkout' %}">Checkout</a></li>
+										<li><a href="{% url 'order_complete' %}">Order Complete</a></li>
+										<li><a href="{% url 'wishlist' %}">Wishlist</a></li>
 									</ul>
 								</li>
 								<li><a href="{% url 'women' %}">Women</a></li>
-								<li><a href="about.html">About</a></li>
-								<li><a href="contact.html">Contact</a></li>
+								<li><a href="{% url 'about_us' %}">About</a></li>
+								<li><a href="{% url 'contact' %}">Contact</a></li>
 								<li class="cart"><a href="cart.html"><i class="icon-shopping-cart"></i> Cart [0]</a></li>
 							</ul>
 						</div>
