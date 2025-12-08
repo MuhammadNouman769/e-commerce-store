@@ -56,6 +56,7 @@ urlpatterns = [
 
     # ===== App APIs =====
     path('api/users/', include('apps.users.urls')),
+    path('', include('apps.main.urls')),
     # path('api/inventory/', include('apps.inventory_tracking.urls')),
     # path('api/orders/', include('apps.order_fulfillment.urls')),
     # path('api/products/', include('apps.products.urls')),

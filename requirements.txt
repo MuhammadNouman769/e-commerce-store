@@ -4,3 +4,4 @@ django-tailwind==2.2.2
 djangorestframework==3.15.1
 drf-yasg==1.21.10
 Pillow==9.5.0
+django-jazzmin==2.6.2
