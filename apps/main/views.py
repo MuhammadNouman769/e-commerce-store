@@ -24,3 +24,5 @@ def order_complete(request):
     return render(request, 'order_complete/order-complete.html')
 def wishlist(request):
     return render(request, 'wish-list/add-to-wishlist.html')
+def login(request):
+    return render(request, 'users/login.html')
