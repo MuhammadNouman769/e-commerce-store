@@ -8,5 +8,6 @@ from . import views
 """ ========== URL Patterns =========== """
 
 urlpatterns = [
+    path('signup/', views.register, name='register'),
 
 ]

@@ -13,5 +13,5 @@ urlpatterns = [
     path('order_complete/', views.order_complete, name='order_complete'),
     path('wishlist/', views.wishlist, name='wishlist'),
     path('login/', views.login, name='login'),
-    path('signup/', views.signup, name='signup'),
+
 ]
