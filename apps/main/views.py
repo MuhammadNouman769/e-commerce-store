@@ -1,13 +1,24 @@
 from django.shortcuts import render
 from django.http import HttpResponse
-# Create your views here.
-def home(request):
-     return render(request, 'home/index.html')
-     
-     
-def women(request):
-     return render(request, 'products/women.html')
+from django.views.generic import TemplateView
 
+# Create your views here.
+class Home(TemplateView):
+    template_name = "home/index.html"
+    extra_context = {
+        "bredcrumb":'25% off (Almost) Everything! Use Code: Summer Sale',
+        "bredcrumb2":'Our biggest sale yet 50% off all summer shoes'
+
+    }
+
+
+
+
+class Women(TemplateView):
+    template_name = "products/women.html"
+     
+class AboutUs(TemplateView):
+    template_name = "about/about.html"
 def about_us(request):
     return render(request, 'about/about.html')
 def contact(request):
@@ -28,5 +39,3 @@ def wishlist(request):
 def login(request):
     return render(request, 'users/login.html')
 
-def signup(request):
-    return render(request, 'users/signup.html')
