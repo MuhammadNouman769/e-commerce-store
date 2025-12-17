@@ -98,10 +98,6 @@
             .left-side {
                 min-height: 40vh;
             }
-            .color-white {
-                color: white !important;
-        }
-
         }
     </style>
 </head>
@@ -128,7 +124,7 @@
         <div class="right-side">
             <div class="form-card">
                 <h2 class="text-white mb-2">Create an account</h2>
-                <p class="text-muted mb-4">Already have an account? <a href="{% url 'login' %}">Log in</a></p>
+                <p class="text-muted mb-4">Already have an account? <a href="{% url 'signup' %}">Log in</a></p>
 
                 <form>
                     <div class="row mb-3">
@@ -142,8 +138,14 @@
                     <div class="mb-3">
                         <input type="email" class="form-control" placeholder="Email" required>
                     </div>
+                     <div class="mb-3">
+                    <input type="text" class="form-control" placeholder="Enter your phone number" required>
+                    </div>
                     <div class="mb-3">
                         <input type="password" class="form-control" placeholder="Enter your password" required>
+                    </div>
+                    <div class="mb-3">
+                        <input type="password" class="form-control" placeholder="Confirm your password" required>
                     </div>
                     <div class="mb-4 form-check">
                         <input type="checkbox" class="form-check-input" id="terms" required>
@@ -154,7 +156,6 @@
                     <button type="submit" class="btn btn-primary w-100 rounded-pill mb-4">Create account</button>
 
                     <div class="text-center color-white small mb-3">Or register with</div>
-
                     <div class="row g-3">
                         <div class="col-6">
                             <button type="button" class="btn btn-social w-100 rounded-pill d-flex align-items-center justify-content-center gap-2">
