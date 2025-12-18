@@ -34,10 +34,9 @@ def register(request):
             last_name=last_name,
             email=email,
             phone=phone,
-            password=make_password(password),  # hash password
+            password=make_password(password),
         )
-        user.save()
         messages.success(request, "Account created successfully!")
-        return redirect("login")  # ya login page
+        return redirect("login")
 
     return render(request, "users/register.html")
