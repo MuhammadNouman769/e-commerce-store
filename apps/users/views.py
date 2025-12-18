@@ -1,22 +1,21 @@
-# apps/users/views.py
+
+
 from django.shortcuts import render, redirect
 from django.contrib import messages
-from .models import User  # ya jo aapka user model hai
+from .models import User
 from django.contrib.auth.hashers import make_password
 
 def register(request):
-    if request.method == "POST":
-        first_name = request.POST.get("first_name")
-        last_name = request.POST.get("last_name")
-        email = request.POST.get("email")
-        phone = request.POST.get("phone")
-        password = request.POST.get("password")
-        password2 = request.POST.get("password2")
-
-        # Password match check
-        if password != password2:
-            messages.error(request, "Passwords do not match!")
-            return redirect("register")  # ya render wapas form ke sath
+    if request.method == 'POST':
+        first_name = request.POST['first_name']
+        last_name = request.POST['last_name']
+        email = request.POST['email']
+        password = request.POST['password']
+        password2 = request.POST['password2']
+        phone = request.POST['phone']
+        if password2 != password:
+            messages.error(request,"dont match password")
+            return redirect('register')
 
         # Email already exists check
         if User.objects.filter(email=email).exists():
