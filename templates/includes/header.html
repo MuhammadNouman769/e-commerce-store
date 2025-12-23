@@ -1,7 +1,14 @@
-<!DOCTYPE HTML>
+{% load static %}
+
+<style>
+    .img {
+        max-width: 225px;
+        height: 30px;
+    }
+</style>
 <html>
 	<head>
-	<title>Footwear - Free Bootstrap 4 Template by Colorlib</title>
+	<title>BTR - Online Store</title>
    <meta charset="utf-8">
    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
@@ -17,7 +24,13 @@
 				<div class="container">
 					<div class="row">
 						<div class="col-sm-7 col-md-9">
-							<div id="colorlib-logo"><a href="index.html">Footwear</a></div>
+							<div id="colorlib-logo">
+                            <a href="#" class="prod-img logos-size">
+                                <img src="{% static 'images/title.png' %}"
+                                     class="img"
+                                     alt="Store Logo">
+                            </a>
+                        </div>
 						</div>
 						<div class="col-sm-5 col-md-3">
 			            <form action="#" class="search-wrap">
@@ -29,9 +42,9 @@
 			         </div>
 		         </div>
 					<div class="row">
-						<div class="col-sm-12 text-left menu-1">
+						<div class="col-sm-12 text-left menu-1 active ">
 							<ul>
-								<li class="active"><a href="{% url 'home' %}">Home</a></li>
+								<li class=""><a href="{% url 'home' %}">Home</a></li>
 								<li class="has-dropdown">
 									<a href="{% url 'men' %}">Men</a>
 									<ul class="dropdown">
