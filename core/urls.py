@@ -55,9 +55,8 @@ urlpatterns = [
     path('admin/', admin.site.urls),
 
     # ===== App APIs =====
-    path('api/users/', include('apps.users.urls')),
     path('', include('apps.main.urls')),
-    # path('api/inventory/', include('apps.inventory_tracking.urls')),
+    path('users/', include('apps.users.urls')),
     # path('api/orders/', include('apps.order_fulfillment.urls')),
     # path('api/products/', include('apps.products.urls')),
     # path('api/suppliers/', include('apps.supplier_monitoring.urls')),
