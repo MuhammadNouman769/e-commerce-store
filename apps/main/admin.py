@@ -1,3 +1,7 @@
+# apps/banners/admin.py
 from django.contrib import admin
+from apps.main.models import Banners
 
-# Register your models here.
+@admin.register(Banners)
+class BannerAdmin(admin.ModelAdmin):
+    list_display = ("title", "price", "discount_percentage", "is_active")

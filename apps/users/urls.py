@@ -1,7 +1,4 @@
 
-
-""" ========== Imports =========== """
-
 from django.urls import path
 from . import views
 
@@ -9,5 +6,6 @@ from . import views
 
 urlpatterns = [
     path('signup/', views.register, name='register'),
+    path('login/', views.user_login, name='login'),
 
 ]

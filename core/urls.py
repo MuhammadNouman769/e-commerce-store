@@ -7,8 +7,7 @@
 
     Author: Muhammad Nouman
     Version: v1.0
-================================================================ """
-
+"""
 """ ==============================
     Project URL Configuration
     Auto-generated API Docs using drf-yasg

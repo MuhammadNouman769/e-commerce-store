@@ -1,8 +1,11 @@
 from django.shortcuts import render
 from django.http import HttpResponse
-# Create your views here.
+from apps.main.models import Banners
+
+
 def home(request):
-     return render(request, 'home/index.html')
+    banners = Banners.objects.filter(is_active=True)
+    return render(request, 'home/index.html', {"banners": banners})
      
      
 def women(request):

@@ -1,10 +1,10 @@
-
-
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from .models import User
 from django.contrib.auth.hashers import make_password
+from django.contrib.auth import authenticate, login as auth_login
 
+""" ============= SignIn View ==============="""
 def register(request):
     if request.method == 'POST':
         first_name = request.POST['first_name']
@@ -39,3 +39,23 @@ def register(request):
         return redirect("login")
 
     return render(request, "users/register.html")
+
+""" ================ Login View ===================== """
+
+
+def user_login(request):
+    if request.method == 'POST':
+        email = request.POST.get('email')
+        password = request.POST.get('password')
+
+        user = authenticate(request, email=email, password=password)
+
+        if user is not None:
+            auth_login(request, user)
+            messages.success(request, "Login successfully!")
+            return redirect("home")
+        else:
+            messages.error(request, "Invalid email or password")
+            return redirect("login")
+
+    return render(request, "users/login.html")
