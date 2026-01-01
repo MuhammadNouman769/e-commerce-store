@@ -39,7 +39,7 @@ class Size(BaseModel):
     value = models.CharField(max_length=10)
     gender = models.CharField(max_length=10, choices=[('men', 'Men'), ('women', 'Women'), ('unisex', 'Unisex')])
 
-    class Meta:
+    class Meta: # type: ignore
         unique_together = ('value', 'gender')
         ordering = ['gender', 'value']
 
