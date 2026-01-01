@@ -7381,7 +7381,7 @@ h1, h2, h3, h4, h5,
     top: 0;
     right: -5px;
     padding: 0;
-    background: #37c3f9;
+    background: #091897;
     border: 1px solid #37c3f9; }
     .colorlib-nav .top-menu .search-wrap .submit-search i {
       padding: 0; }
@@ -7389,7 +7389,7 @@ h1, h2, h3, h4, h5,
 .colorlib-nav .sale {
   padding: 14px 0;
   margin-bottom: 0px;
-  background: #37c3f9; }
+  background: #091897; }
   .colorlib-nav .sale h3 {
     margin-bottom: 0;
     font-family: "Montserrat", Arial, sans-serif;
@@ -7554,7 +7554,7 @@ h1, h2, h3, h4, h5,
         position: relative; }
         #colorlib-hero .flexslider .slides li .overlay {
           position: absolute;
-          background-color: #2487a854;
+          background-color: rgba(44, 49, 64, 0.65);
           top: 0;
           bottom: 0;
           left: 0;
@@ -7574,7 +7574,7 @@ h1, h2, h3, h4, h5,
         #colorlib-hero .flexslider .flex-control-nav li a.flex-active {
           cursor: pointer;
           background: transparent;
-          background: #37c3f9; }
+          background: #091897; }
     #colorlib-hero .flexslider .flex-direction-nav {
       display: none; }
     #colorlib-hero .flexslider .slider-text {
@@ -7649,7 +7649,7 @@ h1, h2, h3, h4, h5,
       .breadcrumbs .bread span:first-child {
         padding-left: 0; }
       .breadcrumbs .bread span a {
-        color: #37c3f9; }
+        color: #091897; }
 
 .breadcrumbs-img {
   height: 300px;
@@ -7958,7 +7958,7 @@ h1, h2, h3, h4, h5,
         width: 32%; }
 
 .icon-addcart {
-  color: #88c8bc;
+  color: #091897;
   display: block;
   margin-bottom: 40px; }
   .icon-addcart span {
@@ -8023,7 +8023,7 @@ h1, h2, h3, h4, h5,
   .process.active p {
     border: 2px solid #f0f0f0; }
     .process.active p span {
-      color: #37c3f9; }
+      color: #091897; }
 
 .product-cart, .product-name {
   width: 100%;
@@ -8302,8 +8302,10 @@ h1, h2, h3, h4, h5,
       text-align: center;
       display: table-cell;
       vertical-align: middle;
-      font-size: 40px;
-      color: #fff; }
+      font-size: 50px;
+      color: #fff;
+      background-color: blue;
+      border-radius: inherit;}
   .colorlib-video .overlay {
     position: absolute;
     top: 0;
@@ -8727,7 +8729,7 @@ input[type="text"] {
     outline: none !important; }
 
 .btn-primary {
-  background-color:#17a2b8;
+  background-color:#091897;
   color: #fff;
   border: 1px solid #616161; }
   .btn-primary:hover, .btn-primary:focus, .btn-primary:active {
