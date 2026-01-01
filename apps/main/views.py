@@ -9,7 +9,7 @@ def home(request):
      
      
 def women(request):
-     return render(request, 'products/women.html')
+     return render(request, 'products/products.html')
 
 def about_us(request):
     return render(request, 'about/about.html')
