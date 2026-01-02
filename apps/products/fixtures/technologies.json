@@ -1,8 +1,0 @@
-[
-  {"model": "products.Technology", "fields": {"name": "Air Cushion"}},
-  {"model": "products.Technology", "fields": {"name": "Gel Padding"}},
-  {"model": "products.Technology", "fields": {"name": "BioBevel"}},
-  {"model": "products.Technology", "fields": {"name": "Groove"}},
-  {"model": "products.Technology", "fields": {"name": "FlexBevel"}},
-  {"model": "products.Technology", "fields": {"name": "Waterproof"}}
-]

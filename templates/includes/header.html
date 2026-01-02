@@ -49,18 +49,17 @@
 									<a href="{% url 'men' %}">Men</a>
 									<ul class="dropdown">
 										<li><a href="{% url 'products_details' %}">Product Detail</a></li>
-										<li><a href="{% url 'cart' %}">Shopping Cart</a></li>
 										<li><a href="{% url 'checkout' %}">Checkout</a></li>
 										<li><a href="{% url 'order_complete' %}">Order Complete</a></li>
 										<li><a href="{% url 'wishlist' %}">Wishlist</a></li>
 									</ul>
 								</li>
-								<li><a href="{% url 'women' %}">Women</a></li>
+								<li><a href="{% url 'products' %}">View All </a></li>
 								<li><a href="{% url 'about_us' %}">About</a></li>
 								<li><a href="{% url 'contact' %}">Contact</a></li>
 								<li class="login cart"><a href="{% url 'register' %}"><i class="icon-user "></i>login</a></li>
 
-                                <li class="cart"><a href="cart.html"><i class="icon-shopping-cart"></i> Cart [0]</a></li>
+                                <li class="cart"><a href="{% url 'cart' %}"><i class="icon-shopping-cart"></i> Cart [0]</a></li>
 							</ul>
 						</div>
 					</div>

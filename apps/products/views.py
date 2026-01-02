@@ -2,19 +2,21 @@
 """=============== Imports ==============="""
 from django.shortcuts import render, get_object_or_404
 from django.core.paginator import Paginator
-from .models import Product, Category, Brand, Color, Size
+from .models import Product, Category, Brand, Color, Size, Style, Material, Technology
 
 
 """=============== Product List with All Filters ==============="""
 def products_list(request):
-    brands = Brand.objects.all()
     products = Product.objects.filter(is_active=True)
 
-    """ ===== Get filter values from GET ===== """
+    # ===== Get filter values from GET =====
     brand_slug = request.GET.get('brand')
     category_slug = request.GET.get('category')
     color_id = request.GET.get('color')
     size_id = request.GET.get('size')
+    style_slug = request.GET.get('style')
+    material_id = request.GET.get('material')
+    technology_id = request.GET.get('technology')
 
     """ ===== Apply filters ===== """
     if brand_slug:
@@ -25,6 +27,12 @@ def products_list(request):
         products = products.filter(colors__id=color_id)
     if size_id:
         products = products.filter(sizes__id=size_id)
+    if style_slug:
+        products = products.filter(styles__slug=style_slug)
+    if material_id:
+        products = products.filter(materials__id=material_id)
+    if technology_id:
+        products = products.filter(technologies__id=technology_id)
 
     products = products.distinct().order_by('-created_at')
 
@@ -40,9 +48,11 @@ def products_list(request):
         'categories': Category.objects.all(),
         'colors': Color.objects.all(),
         'sizes': Size.objects.all(),
-        'selected_filters': request.GET,  # preserve selected filters
+        'styles': Style.objects.all(),
+        'materials': Material.objects.all(),
+        'technologies': Technology.objects.all(),
+        'selected_filters': request.GET,
     }
-
     return render(request, 'products/products.html', context)
 
 

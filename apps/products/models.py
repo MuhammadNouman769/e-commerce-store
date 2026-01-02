@@ -30,6 +30,7 @@ class Brand(BaseModel):
 class Color(BaseModel):
     name = models.CharField(max_length=50, unique=True)
 
+
     def __str__(self):
         return self.name
 
@@ -59,6 +60,7 @@ class Material(BaseModel):
 class Technology(BaseModel):
     name = models.CharField(max_length=100, unique=True)
 
+
     def __str__(self):
         return self.name
 
@@ -66,6 +68,7 @@ class Technology(BaseModel):
 """ ========== Style ========== """
 class Style(BaseModel):
     name = models.CharField(max_length=100, unique=True)
+    slug = models.SlugField(max_length=100, unique=True)
 
     def __str__(self):
         return self.name
@@ -134,7 +137,7 @@ class Product(BaseModel):
         super().save(*args, **kwargs)
 
     def get_absolute_url(self):
-        return reverse('products:product_detail', kwargs={'slug': self.slug})
+        return reverse('product_detail', kwargs={'slug': self.slug})
 
     def get_price(self):
         return self.sale_price if self.sale_price else self.price

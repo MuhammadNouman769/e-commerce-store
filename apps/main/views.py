@@ -8,8 +8,7 @@ def home(request):
     return render(request, 'home/index.html', {"banners": banners})
      
      
-def women(request):
-     return render(request, 'products/products.html')
+
 
 def about_us(request):
     return render(request, 'about/about.html')
