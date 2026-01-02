@@ -46,7 +46,8 @@ INSTALLED_APPS = [
     'apps.inventory_tracking',
     'apps.main',
     'apps.order_fulfillment',
-    'apps.products',
+    'apps.products.apps.ProductsConfig',
+
     'apps.shipment_monitoring',
     'apps.supplier_monitoring',
     'apps.supplychain',

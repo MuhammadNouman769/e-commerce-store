@@ -1,0 +1,44 @@
+[
+  {
+    "model": "products.Brand",
+    "fields": {
+      "name": "Nike",
+      "slug": "nike"
+    }
+  },
+  {
+    "model": "products.Brand",
+    "fields": {
+      "name": "Adidas",
+      "slug": "adidas"
+    }
+  },
+  {
+    "model": "products.Brand",
+    "fields": {
+      "name": "Puma",
+      "slug": "puma"
+    }
+  },
+  {
+    "model": "products.Brand",
+    "fields": {
+      "name": "Bata",
+      "slug": "bata"
+    }
+  },
+  {
+    "model": "products.Brand",
+    "fields": {
+      "name": "Skechers",
+      "slug": "skechers"
+    }
+  },
+  {
+    "model": "products.Brand",
+    "fields": {
+      "name": "Gucci",
+      "slug": "gucci"
+    }
+  }
+]

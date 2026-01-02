@@ -1,0 +1,8 @@
+[
+  {"model": "products.Material", "fields": {"name": "Leather"}},
+  {"model": "products.Material", "fields": {"name": "Suede"}},
+  {"model": "products.Material", "fields": {"name": "Mesh"}},
+  {"model": "products.Material", "fields": {"name": "Canvas"}},
+  {"model": "products.Material", "fields": {"name": "Rubber"}},
+  {"model": "products.Material", "fields": {"name": "Synthetic"}}
+]

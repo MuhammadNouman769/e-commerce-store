@@ -1,0 +1,10 @@
+[
+  {"model": "products.Style", "fields": {"name": "Sneakers"}},
+  {"model": "products.Style", "fields": {"name": "Boots"}},
+  {"model": "products.Style", "fields": {"name": "Sandals"}},
+  {"model": "products.Style", "fields": {"name": "Slip Ons"}},
+  {"model": "products.Style", "fields": {"name": "Lace Ups"}},
+  {"model": "products.Style", "fields": {"name": "Oxfords"}},
+  {"model": "products.Style", "fields": {"name": "Heels"}},
+  {"model": "products.Style", "fields": {"name": "Flats"}}
+]

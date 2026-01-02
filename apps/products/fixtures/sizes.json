@@ -1,0 +1,10 @@
+[
+  {"model": "products.Size", "fields": {"size": "40", "gender": "M"}},
+  {"model": "products.Size", "fields": {"size": "41", "gender": "M"}},
+  {"model": "products.Size", "fields": {"size": "42", "gender": "M"}},
+  {"model": "products.Size", "fields": {"size": "38", "gender": "F"}},
+  {"model": "products.Size", "fields": {"size": "39", "gender": "F"}},
+  {"model": "products.Size", "fields": {"size": "S", "gender": "U"}},
+  {"model": "products.Size", "fields": {"size": "M", "gender": "U"}},
+  {"model": "products.Size", "fields": {"size": "L", "gender": "U"}}
+]
