@@ -1,10 +1,9 @@
 """=============== Imports ==============="""
 from django.urls import path
-from . import views
+from .views import ProductListView, ProductDetailView
 
 """=============== URL Patterns ==============="""
 urlpatterns = [
-    # Product List with filters
-    path('', views.products_list, name='products'),
-    path('<slug:slug>/', views.product_detail, name='product_detail'),
+    path('', ProductListView.as_view(), name='products'),
+    path('<slug:slug>/', ProductDetailView.as_view(), name='product_detail'),
 ]

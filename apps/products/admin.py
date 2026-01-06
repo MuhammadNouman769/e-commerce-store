@@ -49,11 +49,17 @@ class ProductImageInline(admin.TabularInline):
     readonly_fields = ('is_primary',)
     fields = ('image', 'alt_text', 'is_primary')
 
+@admin.register(ProductImage)
+class ProductImageAdmin(admin.ModelAdmin):
+    list_display = ('product', 'alt_text', 'is_primary')
+    list_filter = ('is_primary',)
+
+
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
     list_display = (
         'title', 'category', 'brand', 'price', 'sale_price',
-        'stock_quantity', 'is_active', 'is_featured'
+        'stock_quantity', 'is_active', 'is_featured',
     )
     list_filter = (
         'category', 'brand', 'is_active', 'is_featured',
@@ -64,7 +70,3 @@ class ProductAdmin(admin.ModelAdmin):
     inlines = [ProductImageInline]
     filter_horizontal = ('colors', 'sizes', 'materials', 'styles', 'technologies')
 
-@admin.register(ProductImage)
-class ProductImageAdmin(admin.ModelAdmin):
-    list_display = ('product', 'alt_text', 'is_primary')
-    list_filter = ('is_primary',)

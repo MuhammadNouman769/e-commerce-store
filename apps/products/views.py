@@ -1,63 +1,79 @@
-
-"""=============== Imports ==============="""
 from django.shortcuts import render, get_object_or_404
+from django.views.generic import ListView, DetailView
 from django.core.paginator import Paginator
-from .models import Product, Category, Brand, Color, Size, Style, Material, Technology
 
+from .models import (
+    Product, Category, Brand,
+    Color, Size, Style, Material, Technology
+)
 
-"""=============== Product List with All Filters ==============="""
-def products_list(request):
-    products = Product.objects.filter(is_active=True)
+"""=============== Product List View ==============="""
+class ProductListView(ListView):
+    model = Product
+    template_name = 'products/products.html'
+    context_object_name = 'products'
+    paginate_by = 12
 
-    # ===== Get filter values from GET =====
-    brand_slug = request.GET.get('brand')
-    category_slug = request.GET.get('category')
-    color_id = request.GET.get('color')
-    size_id = request.GET.get('size')
-    style_slug = request.GET.get('style')
-    material_id = request.GET.get('material')
-    technology_id = request.GET.get('technology')
+    def get_queryset(self):
+        products = Product.objects.filter(is_active=True)
+        request = self.request
 
-    """ ===== Apply filters ===== """
-    if brand_slug:
-        products = products.filter(brand__slug=brand_slug)
-    if category_slug:
-        products = products.filter(category__slug=category_slug)
-    if color_id:
-        products = products.filter(colors__id=color_id)
-    if size_id:
-        products = products.filter(sizes__id=size_id)
-    if style_slug:
-        products = products.filter(styles__slug=style_slug)
-    if material_id:
-        products = products.filter(materials__id=material_id)
-    if technology_id:
-        products = products.filter(technologies__id=technology_id)
+        if request.GET.get('brand'):
+            products = products.filter(brand__slug=request.GET.get('brand'))
 
-    products = products.distinct().order_by('-created_at')
+        if request.GET.get('category'):
+            products = products.filter(category__slug=request.GET.get('category'))
 
-    """ ===== Pagination ===== """
-    paginator = Paginator(products, 12)  # 12 products per page
-    page_number = request.GET.get('page')
-    products = paginator.get_page(page_number)
+        if request.GET.get('color'):
+            products = products.filter(colors__id=request.GET.get('color'))
 
-    """ ===== Context for template ====="""
-    context = {
-        'products': products,
-        'brands': Brand.objects.all(),
-        'categories': Category.objects.all(),
-        'colors': Color.objects.all(),
-        'sizes': Size.objects.all(),
-        'styles': Style.objects.all(),
-        'materials': Material.objects.all(),
-        'technologies': Technology.objects.all(),
-        'selected_filters': request.GET,
-    }
-    return render(request, 'products/products.html', context)
+        if request.GET.get('size'):
+            products = products.filter(sizes__id=request.GET.get('size'))
+
+        if request.GET.get('style'):
+            products = products.filter(styles__slug=request.GET.get('style'))
+
+        if request.GET.get('material'):
+            products = products.filter(materials__id=request.GET.get('material'))
+
+        if request.GET.get('technology'):
+            products = products.filter(technologies__id=request.GET.get('technology'))
+
+        return products.distinct().order_by('-created_at')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        context['brand'] = Brand.objects.all()
+        context['categories'] = Category.objects.all()
+        context['colors'] = Color.objects.all()
+        context['sizes'] = Size.objects.all()
+        context['styles'] = Style.objects.all()
+        context['materials'] = Material.objects.all()
+        context['technologies'] = Technology.objects.all()
+        context['selected_filters'] = self.request.GET
+
+        return context
 
 
 """=============== Product Detail View ==============="""
-def product_detail(request, slug):
-    product = get_object_or_404(Product, slug=slug, is_active=True)
-    context = {'product': product}
-    return render(request, 'products/product-detail.html', context)
+class ProductDetailView(DetailView):
+    model = Product
+    template_name = 'products/product-detail.html'
+    context_object_name = 'product'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        product = self.object
+
+        context['sizes'] = product.sizes.all()
+        context['colors'] = product.colors.all()
+        context['styles'] = product.styles.all()
+        context['materials'] = product.materials.all()
+        context['technologies'] = product.technologies.all()
+        context['images'] = product.images.all() if hasattr(product, 'images') else []
+
+
+        context['reviews'] = []
+
+        return context
