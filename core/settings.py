@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'tailwind',
     'drf_yasg',
 
+
     # Custom Apps
     'apps.admin_panel',
     'apps.inventory_tracking',

@@ -52,7 +52,11 @@ html {
   width: device-width; }
 
 article, aside, figcaption, figure, footer, header, hgroup, main, nav, section {
-  display: block; }
+  display: block;
+  background: #3737e7;
+
+}
+
 
 body {
   margin: 0;
@@ -7381,8 +7385,8 @@ h1, h2, h3, h4, h5,
     top: 0;
     right: -5px;
     padding: 0;
-    background: #091897;
-    border: 1px solid #37c3f9; }
+    background:  #3737e7;
+    border: 1px solid #fdffff; }
     .colorlib-nav .top-menu .search-wrap .submit-search i {
       padding: 0; }
 
@@ -7436,7 +7440,9 @@ h1, h2, h3, h4, h5,
     .colorlib-nav ul li a {
       position: relative;
       padding: 10px 12px;
-      color: black;
+      color: #f5eeee;
+      font-weight: 900;
+      font-size: 13px;
       -moz-transition: all 0.5s ease;
       -o-transition: all 0.5s ease;
       -webkit-transition: all 0.5s ease;
@@ -7548,10 +7554,12 @@ h1, h2, h3, h4, h5,
       overflow: hidden; }
       #colorlib-hero .flexslider .slides li {
         background-repeat: no-repeat;
-        background-size: cover;
-        background-position: center center;
+        background-size: contain;
+        background-position: center;
         height: 600px;
-        position: relative; }
+        margin-top: -22px;
+        position: relative !important;
+       }
         #colorlib-hero .flexslider .slides li .overlay {
           position: absolute;
           background-color: rgba(44, 49, 64, 0.65);
@@ -8354,8 +8362,8 @@ h1, h2, h3, h4, h5,
   border: none !important;
   font-size: 13px !important;
   font-weight: 300;
-  background: #fff !important;
-  border: 1px solid rgba(0, 0, 0, 0.05) !important;
+  background:  #3737e7 !important;
+  border: 1px solid rgb(255, 251, 251) !important;
   -webkit-border-radius: 2px;
   -moz-border-radius: 2px;
   -ms-border-radius: 2px;

@@ -8,30 +8,7 @@
             <ul class="slides">
               {% for banner in banners %}
               <li style="background-image: url('{{ banner.image.url }}');">
-                <div class="overlay"></div>
-                <div class="container-fluid">
-                  <div class="row">
-                    <div class="col-sm-6 offset-sm-3 text-center slider-text">
-                      <div class="slider-text-inner">
-                        <div class="desc">
-                          <h1 class="head-1">{{ banner.title }}</h1>
-                          <h2 class="head-2">{{ banner.sub_title }}</h2>
-                          <h2 class="head-3">
-                            {% if banner.discount_percentage > 0 %}
-                              <strong class="font-weight-bold">{{ banner.discount_percentage }}%</strong> Off
-                            {% endif %}
-                          </h2>
-                          <p class="category"><h3 class="btn btn-primary">{{ banner.category }}</h3></p>
-                          <p>
-                            <a href="{{ banner.button_link }}" class="btn btn-primary">
-                              {{ banner.button_text }}
-                            </a>
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
+
               </li>
               {% endfor %}
             </ul>

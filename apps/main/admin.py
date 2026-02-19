@@ -4,4 +4,4 @@ from apps.main.models import Banners
 
 @admin.register(Banners)
 class BannerAdmin(admin.ModelAdmin):
-    list_display = ("title", "price", "discount_percentage", "is_active")
+    list_display = ("image", "is_active")
