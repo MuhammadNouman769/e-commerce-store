@@ -1,152 +1,148 @@
-from django.urls import reverse
 from django.db import models
-from django.utils.text import slugify
-from apps.utilities.models import BaseModel
 
-
-""" ========= Brand ========= """
-class Brand(BaseModel):
-    SIZE_SYSTEM_CHOICES = (
-        ('EU', 'EU'),
-        ('UK', 'UK'),
-        ('KIDS', 'Kids'),
+class Product(models.Model):
+    shop = models.ForeignKey(
+        "Shop",
+        on_delete=models.CASCADE,
+        related_name="products"
     )
 
-    name = models.CharField(max_length=50, unique=True)
-    slug = models.SlugField(max_length=50, unique=True)
-    logo = models.ImageField(upload_to='products/logos/%Y/%m', blank=True)
-    size_system = models.CharField(max_length=10, choices=SIZE_SYSTEM_CHOICES, default='EU')
+    title = models.CharField(max_length=255)
+    handle = models.SlugField(max_length=255)
+    description_html = models.TextField(blank=True)
 
-    def __str__(self):
-        return self.name
+    vendor = models.CharField(max_length=255, blank=True)
+    product_type = models.CharField(max_length=255, blank=True)
 
-    def save(self, *args, **kwargs):
-        if not self.slug:
-            self.slug = slugify(self.name)
-        super().save(*args, **kwargs)
+    status = models.PositiveSmallIntegerField()
+    published_at = models.DateTimeField(null=True, blank=True)
 
-
-""" ============== Color =============== """
-class Color(BaseModel):
-    name = models.CharField(max_length=50, unique=True)
-
-
-    def __str__(self):
-        return self.name
-
-
-""" ============= Size ============== """
-class Size(BaseModel):
-    value = models.CharField(max_length=10)
-    gender = models.CharField(max_length=10, choices=[('men', 'Men'), ('women', 'Women'), ('unisex', 'Unisex')])
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
-        unique_together = ('value', 'gender')
-        ordering = ['gender', 'value']
-
-    def __str__(self):
-        return f"{self.value} ({self.gender})"
-
-
-""" =========== Material ========== """
-class Material(BaseModel):
-    name = models.CharField(max_length=100, unique=True)
-
-    def __str__(self):
-        return self.name
+        unique_together = ("shop", "handle")
+        indexes = [
+            models.Index(fields=["shop", "status"]),
+        ]
 
 
-""" ========== Technology ========== """
-class Technology(BaseModel):
-    name = models.CharField(max_length=100, unique=True)
+class ProductOption(models.Model):
+    product = models.ForeignKey(
+        Product,
+        on_delete=models.CASCADE,
+        related_name="options"
+    )
 
-
-    def __str__(self):
-        return self.name
-
-
-""" ========== Style ========== """
-class Style(BaseModel):
-    name = models.CharField(max_length=100, unique=True)
-    def __str__(self):
-        return self.name
-
-
-""" =========== Category =========== """
-class Category(BaseModel):
     name = models.CharField(max_length=100)
-    slug = models.SlugField(max_length=120, unique=True, blank=True)
-    parent = models.ForeignKey('self', null=True, blank=True, on_delete=models.CASCADE, related_name='children')
-    image = models.ImageField(upload_to='categories/', null=True, blank=True)
-    banner_image = models.ImageField(upload_to='banners/', null=True, blank=True)
+    position = models.PositiveSmallIntegerField()
 
-    def __str__(self):
-        path = [self.name]
-        p = self.parent
-        while p:
-            path.insert(0, p.name)
-            p = p.parent
-        return ' → '.join(path)
-
-    def save(self, *args, **kwargs):
-        if not self.slug:
-            self.slug = slugify(self.name)
-        super().save(*args, **kwargs)
-
-    def get_absolute_url(self):
-        return reverse('products:category_detail', kwargs={'slug': self.slug})
-
-
-""" ============ Product ============ """
-class Product(BaseModel):
-    title = models.CharField(max_length=200)
-    slug = models.SlugField(max_length=220, unique=True, blank=True)
-    description = models.TextField(blank=True)
-    price = models.DecimalField(max_digits=10, decimal_places=2)
-    sale_price = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
-    sku = models.CharField(max_length=50, unique=True, blank=True)
-
-    category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name='products')
-    brand = models.ForeignKey(Brand, on_delete=models.SET_NULL, null=True, blank=True)
-
-    colors = models.ManyToManyField(Color, blank=True)
-    sizes = models.ManyToManyField(Size, blank=True)
-    materials = models.ManyToManyField(Material, blank=True)
-    styles = models.ManyToManyField(Style, blank=True)
-    technologies = models.ManyToManyField(Technology, blank=True)
-
-    is_featured = models.BooleanField(default=False)
-    is_new_arrival = models.BooleanField(default=False)
-    is_best_seller = models.BooleanField(default=False)
-    is_on_sale = models.BooleanField(default=False)
-
-    stock_quantity = models.PositiveIntegerField(default=0)
-    is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        unique_together = ("product", "name")
+        ordering = ["position"]
+
+
+
+class ProductOptionValue(models.Model):
+    option = models.ForeignKey(
+        ProductOption,
+        on_delete=models.CASCADE,
+        related_name="values"
+    )
+
+    value = models.CharField(max_length=100)
+    position = models.PositiveSmallIntegerField()
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        unique_together = ("option", "value")
+        ordering = ["position"]
+
+
+
+
+class ProductVariant(models.Model):
+    product = models.ForeignKey(
+        "Product",
+        on_delete=models.CASCADE,
+        related_name="variants"
+    )
+
+    # Identity
+    sku = models.CharField(max_length=100)
+    barcode = models.CharField(max_length=100, blank=True)
+
+    # Pricing
+    price = models.DecimalField(max_digits=12, decimal_places=2)
+    compare_at_price = models.DecimalField(
+        max_digits=12,
+        decimal_places=2,
+        null=True,
+        blank=True
+    )
+
+    # Physical properties
+    weight = models.DecimalField(
+        max_digits=10,
+        decimal_places=3,
+        null=True,
+        blank=True
+    )
+
+    # Option combination (denormalized for performance)
+    option1 = models.CharField(max_length=100, blank=True)
+    option2 = models.CharField(max_length=100, blank=True)
+    option3 = models.CharField(max_length=100, blank=True)
+
+    position = models.PositiveSmallIntegerField(default=1)
+
+    is_active = models.BooleanField(default=True)
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        unique_together = (
+            "product",
+            "option1",
+            "option2",
+            "option3",
+        )
+        indexes = [
+            models.Index(fields=["sku"]),
+            models.Index(fields=["product"]),
+        ]
 
     def __str__(self):
-        return self.title
-
-    def save(self, *args, **kwargs):
-        if not self.slug:
-            self.slug = slugify(self.title)
-        if not self.sku:
-            self.sku = f"PROD-{self.pk or 'TEMP'}-{slugify(self.title)[:8]}".upper()
-        super().save(*args, **kwargs)
-
-    def get_absolute_url(self):
-        return reverse('product_detail', kwargs={'slug': self.slug})
-
-    def get_price(self):
-        return self.sale_price if self.sale_price else self.price
+        return f"{self.product.title} - {self.sku}"
+    
 
 
-""" ============ Product Image ============= """
-class ProductImage(BaseModel):
-    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='images')
-    image = models.ImageField(upload_to='products/')
-    alt_text = models.CharField(max_length=200, blank=True)
-    is_primary = models.BooleanField(default=False)
+# --------------------------
+# Inventory Item (links variant to stock)
+# --------------------------
+class InventoryItem(models.Model):
+    variant = models.OneToOneField(ProductVariant, related_name='inventory_item', on_delete=models.CASCADE)
+    sku = models.CharField(max_length=100)  # can mirror variant SKU
+    barcode = models.CharField(max_length=100, blank=True)
+    tracked = models.BooleanField(default=True)
+    cost_price = models.DecimalField(max_digits=12, decimal_places=2, null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
-    def __str__(self):
-        return f"{self.product.title} - Image"
+# --------------------------
+# Inventory Level (per location)
+# --------------------------
+class InventoryLevel(models.Model):
+    inventory_item = models.ForeignKey(InventoryItem, related_name='levels', on_delete=models.CASCADE)
+    location = models.ForeignKey("Warehouse", on_delete=models.CASCADE)  # assume Warehouse model exists
+    available_quantity = models.IntegerField(default=0)
+    incoming_quantity = models.IntegerField(default=0)
+
+    class Meta:
+        unique_together = ('inventory_item', 'location')
