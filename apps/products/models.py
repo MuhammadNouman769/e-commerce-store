@@ -1,6 +1,10 @@
+''' =============== Imports =============== '''
 from django.db import models
+from apps.utilities.models import BaseModel
 
-class Product(models.Model):
+
+''' ============== Start Product Model =============== '''
+class Product(BaseModel):
     shop = models.ForeignKey(
         "Shop",
         on_delete=models.CASCADE,
@@ -17,17 +21,18 @@ class Product(models.Model):
     status = models.PositiveSmallIntegerField()
     published_at = models.DateTimeField(null=True, blank=True)
 
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
-
     class Meta:
         unique_together = ("shop", "handle")
         indexes = [
             models.Index(fields=["shop", "status"]),
         ]
+        
+''' ------------- End Product Model --------------- '''
 
 
-class ProductOption(models.Model):
+
+''' =============== Start ProductOption Model ============== '''
+class ProductOption(BaseModel):
     product = models.ForeignKey(
         Product,
         on_delete=models.CASCADE,
@@ -37,16 +42,16 @@ class ProductOption(models.Model):
     name = models.CharField(max_length=100)
     position = models.PositiveSmallIntegerField()
 
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
         unique_together = ("product", "name")
         ordering = ["position"]
 
+''' ------------ End ProductOption Model ------------- '''
 
 
-class ProductOptionValue(models.Model):
+''' ============ Start ProductOptionValue Model ============ '''
+class ProductOptionValue(BaseModel):
     option = models.ForeignKey(
         ProductOption,
         on_delete=models.CASCADE,
@@ -56,26 +61,25 @@ class ProductOptionValue(models.Model):
     value = models.CharField(max_length=100)
     position = models.PositiveSmallIntegerField()
 
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
         unique_together = ("option", "value")
         ordering = ["position"]
 
+''' ------------- End ProductOptionValue Model ------------ '''
 
 
 
-class ProductVariant(models.Model):
+''' ============= Start ProductVariant Model ============== '''
+class ProductVariant(BaseModel):
     product = models.ForeignKey(
         "Product",
         on_delete=models.CASCADE,
         related_name="variants"
     )
-
     # Identity
-    sku = models.CharField(max_length=100)
     barcode = models.CharField(max_length=100, blank=True)
+    sku = models.CharField(max_length=100)
 
     # Pricing
     price = models.DecimalField(max_digits=12, decimal_places=2)
@@ -85,7 +89,6 @@ class ProductVariant(models.Model):
         null=True,
         blank=True
     )
-
     # Physical properties
     weight = models.DecimalField(
         max_digits=10,
@@ -93,19 +96,11 @@ class ProductVariant(models.Model):
         null=True,
         blank=True
     )
-
     # Option combination (denormalized for performance)
     option1 = models.CharField(max_length=100, blank=True)
     option2 = models.CharField(max_length=100, blank=True)
     option3 = models.CharField(max_length=100, blank=True)
-
     position = models.PositiveSmallIntegerField(default=1)
-
-    is_active = models.BooleanField(default=True)
-
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
-
     class Meta:
         unique_together = (
             "product",
@@ -121,24 +116,30 @@ class ProductVariant(models.Model):
     def __str__(self):
         return f"{self.product.title} - {self.sku}"
     
+''' ------------- End ProductVariant ------------- '''
+
+'''
 
 
-# --------------------------
-# Inventory Item (links variant to stock)
-# --------------------------
-class InventoryItem(models.Model):
+
+---------------------------------------
+Inventory Item (links variant to stock)
+----------------------------------------
+'''
+class InventoryItem(BaseModel):
     variant = models.OneToOneField(ProductVariant, related_name='inventory_item', on_delete=models.CASCADE)
-    sku = models.CharField(max_length=100)  # can mirror variant SKU
     barcode = models.CharField(max_length=100, blank=True)
+    sku = models.CharField(max_length=100)
+
     tracked = models.BooleanField(default=True)
     cost_price = models.DecimalField(max_digits=12, decimal_places=2, null=True, blank=True)
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
 
-# --------------------------
-# Inventory Level (per location)
-# --------------------------
-class InventoryLevel(models.Model):
+'''
+--------------------------------
+ Inventory Level (per location)
+--------------------------------
+'''
+class InventoryLevel(BaseModel):
     inventory_item = models.ForeignKey(InventoryItem, related_name='levels', on_delete=models.CASCADE)
     location = models.ForeignKey("Warehouse", on_delete=models.CASCADE)  # assume Warehouse model exists
     available_quantity = models.IntegerField(default=0)
