@@ -1,6 +1,7 @@
 ''' =============== Imports =============== '''
 from django.db import models
 from apps.utilities.models import BaseModel
+from django.utils.text import slugify
 
 
 ''' ============== Start Product Model =============== '''
@@ -147,3 +148,41 @@ class InventoryLevel(BaseModel):
 
     class Meta:
         unique_together = ('inventory_item', 'location')
+
+
+class Category(BaseModel):
+    name = models.CharField(max_length=255)
+    slug = models.SlugField(unique=True, blank=True)
+
+    # Self-referencing parent for hierarchy
+    parent = models.ForeignKey(
+        "self",
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        related_name="children"
+    )
+
+    # Whether the category is active
+    is_active = models.BooleanField(default=True)
+
+    # Optional fields for SEO / navigation
+    description = models.TextField(blank=True)
+    image = models.ImageField(upload_to="category_images/", null=True, blank=True)
+
+    # Position/order for sorting
+    position = models.PositiveSmallIntegerField(default=0)
+
+
+    class Meta:
+        verbose_name_plural = "Categories"
+        ordering = ["position", "name"]
+
+    def __str__(self):
+        return self.name
+
+    # Auto-generate slug if blank
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = slugify(self.name)
+        super().save(*args, **kwargs)
