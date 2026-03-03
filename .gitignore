@@ -36,3 +36,5 @@ media/
 
 # Config files (optional)
 .config
+.venv
+venv
