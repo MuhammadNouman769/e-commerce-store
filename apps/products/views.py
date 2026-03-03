@@ -28,7 +28,7 @@ class CategoryListView(APIView):
         Empty list is returned if no categories exist.
         """
         categories = Category.objects.all()
-        serializer = CategorySerializer(categories, many=True, context={'request': request})
+        serializer = CategorySerializer(categories, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
@@ -52,5 +52,5 @@ class CategoryDetailView(APIView):
         Returns 404 if the category does not exist.
         """
         category = get_object_or_404(Category, pk=pk)
-        serializer = CategorySerializer(category, context={'request': request})
+        serializer = CategorySerializer(category)
         return Response(serializer.data, status=status.HTTP_200_OK)
