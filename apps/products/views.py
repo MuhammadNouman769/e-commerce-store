@@ -1,79 +1,56 @@
-from django.shortcuts import render, get_object_or_404
-from django.views.generic import ListView, DetailView
-from django.core.paginator import Paginator
-
-from .models import (
-    Product, Category, Brand,
-    Color, Size, Style, Material, Technology
-)
-
-"""=============== Product List View ==============="""
-class ProductListView(ListView):
-    model = Product
-    template_name = 'products/products.html'
-    context_object_name = 'products'
-    paginate_by = 12
-
-    def get_queryset(self):
-        products = Product.objects.filter(is_active=True)
-        request = self.request
-
-        if request.GET.get('brand'):
-            products = products.filter(brand__slug=request.GET.get('brand'))
-
-        if request.GET.get('category'):
-            products = products.filter(category__slug=request.GET.get('category'))
-
-        if request.GET.get('color'):
-            products = products.filter(colors__id=request.GET.get('color'))
-
-        if request.GET.get('size'):
-            products = products.filter(sizes__id=request.GET.get('size'))
-
-        if request.GET.get('style'):
-            products = products.filter(styles__slug=request.GET.get('style'))
-
-        if request.GET.get('material'):
-            products = products.filter(materials__id=request.GET.get('material'))
-
-        if request.GET.get('technology'):
-            products = products.filter(technologies__id=request.GET.get('technology'))
-
-        return products.distinct().order_by('-created_at')
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-
-        context['brand'] = Brand.objects.all()
-        context['categories'] = Category.objects.all()
-        context['colors'] = Color.objects.all()
-        context['sizes'] = Size.objects.all()
-        context['styles'] = Style.objects.all()
-        context['materials'] = Material.objects.all()
-        context['technologies'] = Technology.objects.all()
-        context['selected_filters'] = self.request.GET
-
-        return context
+from .models import Category
+from .serializer import CategorySerializer
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import status
+from django.shortcuts import get_object_or_404
+from drf_yasg.utils import swagger_auto_schema
+from drf_yasg import openapi
 
 
-"""=============== Product Detail View ==============="""
-class ProductDetailView(DetailView):
-    model = Product
-    template_name = 'products/product-detail.html'
-    context_object_name = 'product'
+''' ===================== Category List View ===================== '''
+class CategoryListView(APIView):
+    @swagger_auto_schema(
+        operation_summary="List all categories",
+        operation_description="Returns a list of all product categories"
+                              ". Each category includes its name, slug, parent category (if any),"
+                              " active status, position, description, and image URL.",
+        responses={
+            200: openapi.Response(
+                description="A list of categories",
+                schema=CategorySerializer(many=True)
+            )
+        }
+    )
+    def get(self, request):
+        """
+        Returns all categories as a list.
+        Empty list is returned if no categories exist.
+        """
+        categories = Category.objects.all()
+        serializer = CategorySerializer(categories, many=True, context={'request': request})
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        product = self.object
 
-        context['sizes'] = product.sizes.all()
-        context['colors'] = product.colors.all()
-        context['styles'] = product.styles.all()
-        context['materials'] = product.materials.all()
-        context['technologies'] = product.technologies.all()
-        context['images'] = product.images.all() if hasattr(product, 'images') else []
-
-
-        context['reviews'] = []
-
-        return context
+''' ===================== Category Detail View ===================== '''
+class CategoryDetailView(APIView):
+    @swagger_auto_schema(
+        operation_summary="Retrieve a category by ID",
+        operation_description="Returns a single category based on its primary key (id)."
+                              " If the category does not exist, a 404 error is returned.",
+        responses={
+            200: openapi.Response(
+                description="A single category",
+                schema=CategorySerializer()
+            ),
+            404: "Category not found"
+        }
+    )
+    def get(self, request, pk):
+        """
+        Returns a single category by primary key (id).
+        Returns 404 if the category does not exist.
+        """
+        category = get_object_or_404(Category, pk=pk)
+        serializer = CategorySerializer(category, context={'request': request})
+        return Response(serializer.data, status=status.HTTP_200_OK)
