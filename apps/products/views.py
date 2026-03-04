@@ -1,56 +1,123 @@
-from .models import Category
-from .serializer import CategorySerializer
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework import status
+from rest_framework import status, permissions
+from .models import Category
+from apps.products.serializer import CategorySerializer, CategoryChildernSerializer, RecursiveCategorySerializer
 from django.shortcuts import get_object_or_404
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
 
-
-''' ===================== Category List View ===================== '''
-class CategoryListView(APIView):
+''' ---------------- List Categories ---------------- '''
+class CategoryListAPIView(APIView):
+    permission_classes = [permissions.AllowAny]
     @swagger_auto_schema(
-        operation_summary="List all categories",
-        operation_description="Returns a list of all product categories"
-                              ". Each category includes its name, slug, parent category (if any),"
-                              " active status, position, description, and image URL.",
-        responses={
-            200: openapi.Response(
-                description="A list of categories",
-                schema=CategorySerializer(many=True)
+        manual_parameters=[
+            openapi.Parameter(
+                'shop',
+                openapi.IN_QUERY,
+                description="Filter categories by shop ID",
+                type=openapi.TYPE_INTEGER
             )
-        }
+        ]
     )
-    def get(self, request):
-        """
-        Returns all categories as a list.
-        Empty list is returned if no categories exist.
-        """
-        categories = Category.objects.all()
-        serializer = CategorySerializer(categories, many=True)
+
+    def get(self, request, format=None):
+        shop_id = request.query_params.get("shop")
+        queryset = Category.objects.all().select_related("parent").prefetch_related("children")
+        if shop_id:
+            queryset = queryset.filter(shop_id=shop_id)
+      #  serializer = CategorySerializer(queryset, many=True)
+        serializer = RecursiveCategorySerializer(queryset, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
-''' ===================== Category Detail View ===================== '''
-class CategoryDetailView(APIView):
+''' ---------------- Category Detail ---------------- '''
+class CategoryDetailAPIView(APIView):
+    permission_classes = [permissions.AllowAny]
     @swagger_auto_schema(
-        operation_summary="Retrieve a category by ID",
-        operation_description="Returns a single category based on its primary key (id)."
-                              " If the category does not exist, a 404 error is returned.",
+        manual_parameters=[
+            openapi.Parameter(
+                'id',
+                openapi.IN_PATH,
+                description="ID of the category to retrieve",
+                type=openapi.TYPE_INTEGER
+            )
+        ]
+    )
+
+    def get(self, request, id, format=None):
+        category = get_object_or_404(Category.objects.prefetch_related("children"), id=id)
+        serializer = RecursiveCategorySerializer(category)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+''' ---------------- Create Category ---------------- '''
+class CategoryCreateAPIView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+    @swagger_auto_schema(
+        request_body=CategorySerializer,
         responses={
-            200: openapi.Response(
-                description="A single category",
-                schema=CategorySerializer()
-            ),
-            404: "Category not found"
+            201: CategorySerializer,
+            400: "Bad Request"
         }
     )
-    def get(self, request, pk):
-        """
-        Returns a single category by primary key (id).
-        Returns 404 if the category does not exist.
-        """
-        category = get_object_or_404(Category, pk=pk)
-        serializer = CategorySerializer(category)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    def post(self, request, format=None):
+        serializer = CategorySerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+''' ---------------- Update Category ---------------- '''
+class CategoryUpdateAPIView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+    @swagger_auto_schema(
+        manual_parameters=[
+            openapi.Parameter(
+                'id',
+                openapi.IN_PATH,
+                description="ID of the category to update",
+                type=openapi.TYPE_INTEGER
+            )
+        ],
+        request_body=CategorySerializer,
+        responses={
+            200: CategorySerializer,
+            400: "Bad Request",
+            404: "Not Found"
+        }
+    )
+
+    def put(self, request, id, format=None):
+        category = get_object_or_404(Category, id=id)
+        serializer = CategorySerializer(category, data=request.data, partial=True)  # partial=True allows partial update
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+''' ---------------- Delete Category ---------------- '''
+class CategoryDeleteAPIView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+    @swagger_auto_schema(
+        manual_parameters=[
+            openapi.Parameter(
+                'id',
+                openapi.IN_PATH,
+                description="ID of the category to delete",
+                type=openapi.TYPE_INTEGER
+            )
+        ],
+        responses={
+            204: "No Content",
+            404: "Not Found"
+        }
+    )
+
+    def delete(self, request, id, format=None):
+        category = get_object_or_404(Category, id=id)
+        category.delete()
+        return Response({"detail": "Category deleted"}, status=status.HTTP_204_NO_CONTENT)
