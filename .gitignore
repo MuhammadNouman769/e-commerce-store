@@ -21,7 +21,7 @@ Thumbs.db
 *.env
 
 # Database
-db.sqlite3
+#db.sqlite3
 
 # Django migrations (optional, but sometimes ignored)
 */migrations/*.py
