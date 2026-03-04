@@ -1,46 +1,104 @@
-''' =============== Imports =============== '''
+""" =========== Products App Models ==========="""
+from contextlib import nullcontext
+
 from django.db import models
 from apps.utilities.models import BaseModel
 from django.utils.text import slugify
-from django.utils.crypto import get_random_string
+from django.core.exceptions import ValidationError
+# from apps.inventory_tracking.models import Warehouse, InventoryItem, InventoryLevel
 
+""" ========== Shop ========== """
+class Shop(BaseModel):
+    name = models.CharField(max_length=255)
+    domain = models.CharField(max_length=255, unique=True)
+    description = models.TextField(blank=True)
 
-''' ============== Start Product Model =============== '''
+    def __str__(self):
+        return self.name
+
+""" =========== Category =========== """
+class Category(BaseModel):
+    shop = models.ForeignKey(
+        Shop,
+        on_delete=models.CASCADE,
+        related_name="categories",
+        null=True,blank=True
+    )
+    name = models.CharField(max_length=255)
+    slug = models.SlugField(blank=True)
+    parent = models.ForeignKey(
+        "self",
+        null=True,
+        blank=True,
+        on_delete=models.CASCADE,
+        related_name="children"
+    )
+    position = models.PositiveSmallIntegerField(default=0)
+
+    class Meta:
+        unique_together = ("shop", "slug")
+        ordering = ["position", "name"]
+        indexes = [
+            models.Index(fields=["shop"]),
+            models.Index(fields=["parent"]),
+        ]
+
+    def __str__(self):
+        return self.name
+
+    def clean(self):
+        if self.parent == self:
+            raise ValidationError("Category cannot be parent of itself")
+        parent = self.parent
+        while parent:
+            if parent == self:
+                raise ValidationError("Circular category structure detected")
+            parent = parent.parent
+
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            base_slug = slugify(self.name)
+            slug = base_slug
+            counter = 1
+            while Category.objects.filter(shop=self.shop, slug=slug).exists():
+                slug = f"{base_slug}-{counter}"
+                counter += 1
+            self.slug = slug
+        super().save(*args, **kwargs)
+
+""" ========== Product =========== """
 class Product(BaseModel):
+    shop = models.ForeignKey(
+        Shop,
+        on_delete=models.CASCADE,
+        related_name="products"
+    )
 
-    # === Improvement: Product Status Choices Added ===
-    class ProductStatus(models.IntegerChoices):
-        DRAFT = 1, "Draft"
-        ACTIVE = 2, "Active"
-        ARCHIVED = 3, "Archived"
-
+    class ProductStatus(models.TextChoices):
+        DRAFT = "draft", "Draft"
+        ACTIVE = "active", "Active"
+        ARCHIVED = "archived", "Archived"
 
     title = models.CharField(max_length=255)
-
-    # === Improvement: Auto Slug Handle ===
     handle = models.SlugField(max_length=255, blank=True)
-
     description_html = models.TextField(blank=True)
-
     vendor = models.CharField(max_length=255, blank=True)
     product_type = models.CharField(max_length=255, blank=True)
-
-    status = models.PositiveSmallIntegerField(
+    status = models.CharField(
+        max_length=20,
         choices=ProductStatus.choices,
         default=ProductStatus.DRAFT
     )
-
     published_at = models.DateTimeField(null=True, blank=True)
+    categories = models.ManyToManyField(Category, related_name="products", blank=True)
 
     class Meta:
         unique_together = ("shop", "handle")
         indexes = [
             models.Index(fields=["shop", "status"]),
-            # === Improvement: Performance Index Added ===
-            models.Index(fields=["shop", "published_at"]),
+            models.Index(fields=["shop", "handle"]),
         ]
 
-    # === Improvement: Auto Generate Unique Handle ===
     def save(self, *args, **kwargs):
         if not self.handle:
             base_slug = slugify(self.title)
@@ -52,19 +110,13 @@ class Product(BaseModel):
             self.handle = slug
         super().save(*args, **kwargs)
 
+    def __str__(self):
+        return f"{self.title}"
 
-''' ------------- End Product Model --------------- '''
 
-
-
-''' =============== Start ProductOption Model ============== '''
+""" ======== Product Options and Variants ========== """
 class ProductOption(BaseModel):
-    product = models.ForeignKey(
-        Product,
-        on_delete=models.CASCADE,
-        related_name="options"
-    )
-
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name="options")
     name = models.CharField(max_length=100)
     position = models.PositiveSmallIntegerField()
 
@@ -72,18 +124,9 @@ class ProductOption(BaseModel):
         unique_together = ("product", "name")
         ordering = ["position"]
 
-''' ------------ End ProductOption Model ------------- '''
-
-
-
-''' ============ Start ProductOptionValue Model ============ '''
+""" =========== Product Option Values =========== """
 class ProductOptionValue(BaseModel):
-    option = models.ForeignKey(
-        ProductOption,
-        on_delete=models.CASCADE,
-        related_name="values"
-    )
-
+    option = models.ForeignKey(ProductOption, on_delete=models.CASCADE, related_name="values")
     value = models.CharField(max_length=100)
     position = models.PositiveSmallIntegerField()
 
@@ -91,162 +134,25 @@ class ProductOptionValue(BaseModel):
         unique_together = ("option", "value")
         ordering = ["position"]
 
-''' ------------- End ProductOptionValue Model ------------ '''
-
-
-
-''' ============= Start ProductVariant Model ============== '''
+""" =========== Product Variant ========== """
 class ProductVariant(BaseModel):
-    product = models.ForeignKey(
-        "Product",
-        on_delete=models.CASCADE,
-        related_name="variants"
-    )
-
-    # Identity
-    barcode = models.CharField(max_length=100, blank=True)
-    sku = models.CharField(max_length=100)
-
-    # Pricing
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name="variants")
+    barcode = models.CharField(max_length=100, unique=True, null=True, blank=True)
+    sku = models.CharField(max_length=100, unique=True, null=True, blank=True)
     price = models.DecimalField(max_digits=12, decimal_places=2)
-    compare_at_price = models.DecimalField(
-        max_digits=12,
-        decimal_places=2,
-        null=True,
-        blank=True
-    )
-
-    # Physical properties
-    weight = models.DecimalField(
-        max_digits=10,
-        decimal_places=3,
-        null=True,
-        blank=True
-    )
-
-    # Option combination
+    compare_at_price = models.DecimalField(max_digits=12, decimal_places=2, null=True, blank=True)
+    weight = models.DecimalField(max_digits=10, decimal_places=3, null=True, blank=True)
     option1 = models.CharField(max_length=100, blank=True)
     option2 = models.CharField(max_length=100, blank=True)
     option3 = models.CharField(max_length=100, blank=True)
-
-    # === Improvement: Removed default=1 to avoid duplicate positions ===
     position = models.PositiveSmallIntegerField()
 
     class Meta:
-        unique_together = (
-            "product",
-            "option1",
-            "option2",
-            "option3",
-        )
+        unique_together = ("product", "option1", "option2", "option3")
         indexes = [
             models.Index(fields=["sku"]),
             models.Index(fields=["product"]),
         ]
 
     def __str__(self):
-        return f"{self.product.title} - {self.sku}"
-
-
-''' ------------- End ProductVariant ------------- '''
-
-
-
-'''
----------------------------------------
-Inventory Item (links variant to stock)
-----------------------------------------
-'''
-class InventoryItem(BaseModel):
-    variant = models.OneToOneField(
-        ProductVariant,
-        related_name='inventory_item',
-        on_delete=models.CASCADE
-    )
-
-    # === Improvement: Removed Duplicate SKU & Barcode ===
-    tracked = models.BooleanField(default=True)
-    cost_price = models.DecimalField(
-        max_digits=12,
-        decimal_places=2,
-        null=True,
-        blank=True
-    )
-
-
-
-'''
---------------------------------
- Inventory Level (per location)
---------------------------------
-'''
-class InventoryLevel(BaseModel):
-    inventory_item = models.ForeignKey(
-        InventoryItem,
-        related_name='levels',
-        on_delete=models.CASCADE
-    )
-
-    location = models.ForeignKey(
-        "Warehouse",
-        on_delete=models.CASCADE
-    )
-
-    available_quantity = models.IntegerField(default=0)
-    incoming_quantity = models.IntegerField(default=0)
-
-    class Meta:
-        unique_together = ('inventory_item', 'location')
-
-
-
-''' ============= Category Model ============== '''
-class Category(BaseModel):
-    name = models.CharField(max_length=255)
-
-    # === Improvement: Slug Auto Generate with Collision Handling ===
-    slug = models.SlugField(unique=True, blank=True)
-
-    parent = models.ForeignKey(
-        "self",
-        on_delete=models.CASCADE,
-        null=True,
-        blank=True,
-        related_name="children"
-    )
-
-    is_active = models.BooleanField(default=True)
-
-    description = models.TextField(blank=True)
-    image = models.ImageField(
-        upload_to="category_images/",
-        null=True,
-        blank=True
-    )
-
-    position = models.PositiveSmallIntegerField(default=0)
-
-    class Meta:
-        verbose_name_plural = "Categories"
-        ordering = ["position", "name"]
-        # === Improvement: Performance Index Added ===
-        indexes = [
-            models.Index(fields=["parent"]),
-        ]
-
-    def __str__(self):
-        return self.name
-
-    # === Improvement: Unique Slug Generator ===
-    def save(self, *args, **kwargs):
-        if not self.slug:
-            base_slug = slugify(self.name)
-            slug = base_slug
-            counter = 1
-            while Category.objects.filter(slug=slug).exists():
-                slug = f"{base_slug}-{counter}"
-                counter += 1
-            self.slug = slug
-        super().save(*args, **kwargs)
-
-''' ------------- End Category ------------- '''
+        return f"{self.product.title} - {self.sku or 'N/A'}"
