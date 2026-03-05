@@ -39,13 +39,16 @@ class ProductVariantInline(admin.TabularInline):
 
 # ===== Product Admin =====
 class ProductAdmin(admin.ModelAdmin):
-    list_display = ("title", "shop", "status", "published_at")
-    list_filter = ("shop", "status", "categories")
+    list_display = ("title", "shop", "display_categories", "status", "published_at")
+    list_filter = ("shop", "status")  # Remove 'categories' from list_filter
     search_fields = ("title", "handle", "vendor")
     prepopulated_fields = {"handle": ("title",)}
     inlines = [ProductOptionInline, ProductVariantInline]
-    filter_horizontal = ("categories",)  # nice UI for many-to-many
+    filter_horizontal = ("categories",)  # nice UI for ManyToMany
 
+    def display_categories(self, obj):
+        return ", ".join([cat.name for cat in obj.categories.all()])
+    display_categories.short_description = "Categories"
 admin.site.register(Product, ProductAdmin)
 
 

@@ -1,4 +1,12 @@
-from .views import CategoryListAPIView, CategoryDetailAPIView, CategoryCreateAPIView, CategoryUpdateAPIView, CategoryDeleteAPIView
+from .views import (CategoryListAPIView,
+                    CategoryDetailAPIView,
+                    CategoryUpdateAPIView,
+                    CategoryCreateAPIView,
+                    CategoryDeleteAPIView,
+                    ProductListAPIView,
+                    ProductDetailAPIView,
+                    )
+
 from django.urls import path
 
 urlpatterns = [
@@ -7,5 +15,7 @@ urlpatterns = [
     path('categories/create/', CategoryCreateAPIView.as_view(), name='category-create'),
     path('categories/<int:id>/update/', CategoryUpdateAPIView.as_view(), name='category-update'),
     path('categories/<int:id>/delete/', CategoryDeleteAPIView.as_view(), name='category-delete'),
+    path('products/', ProductListAPIView.as_view(), name='product-list'),
+    path('products/<int:id>/', ProductDetailAPIView.as_view(), name='product-detail'),
 
 ]
