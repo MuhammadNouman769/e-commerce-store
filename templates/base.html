@@ -1,0 +1,53 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- Mobile Specific Meta -->
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <!-- Favicon-->
+
+    <!-- Author Meta -->
+    <meta name="author" content="CodePixar">
+    <!-- Meta Description -->
+    <meta name="description" content="">
+    <!-- Meta Keyword -->
+    <meta name="keywords" content="">
+    <!-- meta character set -->
+    <meta charset="UTF-8">
+    <!-- Site Title -->
+    <title>{% block title %}Btr Store{% endblock %}</title>
+    
+    <!-- CSS -->
+<link rel="stylesheet" href="{% static 'css/bootstrap.css' %}">
+<link rel="stylesheet" href="{% static 'css/availability-calendar.css' %}">
+<link rel="stylesheet" href="{% static 'css/font-awesome.min.css' %}">
+<link rel="stylesheet" href="{% static 'css/ion.rangeSlider.css' %}">
+<link rel="stylesheet" href="{% static 'css/ion.rangeSlider.skinFlat.css' %}">
+<link rel="stylesheet" href="{% static 'css/jqueryscripttop.css' %}">
+<link rel="stylesheet" href="{% static 'css/linearicons.css' %}">
+<link rel="stylesheet" href="{% static 'css/magnific-popup.css' %}">
+<link rel="stylesheet" href="{% static 'css/nice-select.css' %}">
+<link rel="stylesheet" href="{% static 'css/nouislider.min.css' %}">
+<link rel="stylesheet" href="{% static 'css/owl.carousel.css' %}">
+<link rel="stylesheet" href="{% static 'css/themify-icons.css' %}">
+<link rel="stylesheet" href="{% static 'css/main.css' %}">
+</head>
+<body>
+
+    <!-- Header iclude -->
+    {% include 'includes/header.html' %}
+    
+    <!--  Main Content -->
+<main>      
+    {% block content %}{% endblock %}
+</main>   
+
+<!--  Footer Include -->
+{% include 'includes/footer.html' %}
+
+
+<!--  Scripts Include -->
+{% include 'includes/scripts.html' %}
+
+</body>
+</html>

@@ -1,0 +1,9 @@
+Django==6.0.2
+django-crispy-forms==2.5
+django-jazzmin==3.0.2
+django-tailwind==4.4.2
+djangorestframework==3.16.1
+drf-spectacular==0.29.0
+drf-yasg==1.21.14
+pillow==12.1.1
+
