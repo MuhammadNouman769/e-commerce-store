@@ -2,10 +2,13 @@ from django.shortcuts import render
 
 
 def home(request):
-    return render(request, 'index.html')
+    return render(request, 'home/index.html')    
      
-     
+def category(request):
+    return render(request, 'shop/category.html')
 
+def product_detail(request):
+    return render(request, 'shop/single-product.html')
 
 # def about_us(request):
 #     return render(request, 'about/about.html')
@@ -13,8 +16,7 @@ def home(request):
 #     return render(request, 'contacts/contact.html')
 # def men(request):
 #     return render(request, 'products/men.html')
-# def products_details(request):
-#     return render(request, 'products/product-detail.html')
+
 # def cart(request):
 #     return render(request, 'cart/cart.html')
 # def checkout(request):

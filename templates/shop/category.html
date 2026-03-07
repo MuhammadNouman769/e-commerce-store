@@ -1,6 +1,8 @@
-
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}BtrStore - Category{% endblock %}
+{% block content %}
 <body id="category">
-
 	<!-- Start Banner Area -->
 	<section class="banner-area organic-breadcrumb">
 		<div class="container">
@@ -8,8 +10,8 @@
 				<div class="col-first">
 					<h1>Shop Category page</h1>
 					<nav class="d-flex align-items-center">
-						<a href="index.html">Home<span class="lnr lnr-arrow-right"></span></a>
-						<a href="#">Shop<span class="lnr lnr-arrow-right"></span></a>
+						<a href="{%url 'home'%}">Home<span class="lnr lnr-arrow-right"></span></a>
+						<a href="{%url 'category'%}">Shop<span class="lnr lnr-arrow-right"></span></a>
 						<a href="category.html">Fashon Category</a>
 					</nav>
 				</div>
@@ -206,7 +208,7 @@
 						<!-- single product -->
 						<div class="col-lg-4 col-md-6">
 							<div class="single-product">
-								<img class="img-fluid" src="staticg/product/p1.jpg" alt="">
+								<img class="img-fluid" src="{%static 'img/product/p1.jpg'%}" alt="">
 								<div class="product-details">
 									<h6>addidas New Hammer sole
 										for Sports person</h6>
@@ -239,7 +241,7 @@
 						<!-- single product -->
 						<div class="col-lg-4 col-md-6">
 							<div class="single-product">
-								<img class="img-fluid" src="staticg/product/p2.jpg" alt="">
+								<img class="img-fluid" src="{%static 'img/produc'%}t/p2.jpg" alt="">
 								<div class="product-details">
 									<h6>addidas New Hammer sole
 										for Sports person</h6>
@@ -272,7 +274,7 @@
 						<!-- single product -->
 						<div class="col-lg-4 col-md-6">
 							<div class="single-product">
-								<img class="img-fluid" src="staticg/product/p3.jpg" alt="">
+								<img class="img-fluid" src="{%static 'img/produc'%}t/p3.jpg" alt="">
 								<div class="product-details">
 									<h6>addidas New Hammer sole
 										for Sports person</h6>
@@ -305,7 +307,7 @@
 						<!-- single product -->
 						<div class="col-lg-4 col-md-6">
 							<div class="single-product">
-								<img class="img-fluid" src="staticg/product/p4.jpg" alt="">
+								<img class="img-fluid" src="{%static 'img/produc'%}t/p4.jpg" alt="">
 								<div class="product-details">
 									<h6>addidas New Hammer sole
 										for Sports person</h6>
@@ -338,7 +340,7 @@
 						<!-- single product -->
 						<div class="col-lg-4 col-md-6">
 							<div class="single-product">
-								<img class="img-fluid" src="staticg/product/p5.jpg" alt="">
+								<img class="img-fluid" src="{%static 'img/produc'%}t/p5.jpg" alt="">
 								<div class="product-details">
 									<h6>addidas New Hammer sole
 										for Sports person</h6>
@@ -371,7 +373,7 @@
 						<!-- single product -->
 						<div class="col-lg-4 col-md-6">
 							<div class="single-product">
-								<img class="img-fluid" src="staticg/product/p6.jpg" alt="">
+								<img class="img-fluid" src="{%static 'img/produc'%}t/p6.jpg" alt="">
 								<div class="product-details">
 									<h6>addidas New Hammer sole
 										for Sports person</h6>
@@ -445,7 +447,7 @@
 					<div class="row">
 						<div class="col-lg-4 col-md-4 col-sm-6 mb-20">
 							<div class="single-related-product d-flex">
-								<a href="#"><img src="staticg/r1.jpg" alt=""></a>
+								<a href="#"><img src="{%static 'img/r1.jpg'%}" alt=""></a>
 								<div class="desc">
 									<a href="#" class="title">Black lace Heels</a>
 									<div class="price">
@@ -457,7 +459,7 @@
 						</div>
 						<div class="col-lg-4 col-md-4 col-sm-6 mb-20">
 							<div class="single-related-product d-flex">
-								<a href="#"><img src="staticg/r2.jpg" alt=""></a>
+								<a href="#"><img src="{%static 'img/r2.jpg'%}" alt=""></a>
 								<div class="desc">
 									<a href="#" class="title">Black lace Heels</a>
 									<div class="price">
@@ -469,7 +471,7 @@
 						</div>
 						<div class="col-lg-4 col-md-4 col-sm-6 mb-20">
 							<div class="single-related-product d-flex">
-								<a href="#"><img src="staticg/r3.jpg" alt=""></a>
+								<a href="#"><img src="{%static 'img/r3.jpg'%}" alt=""></a>
 								<div class="desc">
 									<a href="#" class="title">Black lace Heels</a>
 									<div class="price">
@@ -481,7 +483,7 @@
 						</div>
 						<div class="col-lg-4 col-md-4 col-sm-6 mb-20">
 							<div class="single-related-product d-flex">
-								<a href="#"><img src="staticg/r5.jpg" alt=""></a>
+								<a href="#"><img src="{%static 'img/r5.jpg'%}" alt=""></a>
 								<div class="desc">
 									<a href="#" class="title">Black lace Heels</a>
 									<div class="price">
@@ -493,7 +495,7 @@
 						</div>
 						<div class="col-lg-4 col-md-4 col-sm-6 mb-20">
 							<div class="single-related-product d-flex">
-								<a href="#"><img src="staticg/r6.jpg" alt=""></a>
+								<a href="#"><img src="{%static 'img/r6.jpg'%}" alt=""></a>
 								<div class="desc">
 									<a href="#" class="title">Black lace Heels</a>
 									<div class="price">
@@ -505,7 +507,7 @@
 						</div>
 						<div class="col-lg-4 col-md-4 col-sm-6 mb-20">
 							<div class="single-related-product d-flex">
-								<a href="#"><img src="staticg/r7.jpg" alt=""></a>
+								<a href="#"><img src="{%static 'img/r7.jpg'%}" alt=""></a>
 								<div class="desc">
 									<a href="#" class="title">Black lace Heels</a>
 									<div class="price">
@@ -517,7 +519,7 @@
 						</div>
 						<div class="col-lg-4 col-md-4 col-sm-6">
 							<div class="single-related-product d-flex">
-								<a href="#"><img src="staticg/r9.jpg" alt=""></a>
+								<a href="#"><img src="{%static 'img/r9.jpg'%}" alt=""></a>
 								<div class="desc">
 									<a href="#" class="title">Black lace Heels</a>
 									<div class="price">
@@ -529,7 +531,8 @@
 						</div>
 						<div class="col-lg-4 col-md-4 col-sm-6">
 							<div class="single-related-product d-flex">
-								<a href="#"><img src="staticg/r10.jpg" alt=""></a>
+								<a href="#">
+									<img src="{% static 'img/r10.jpg' %}" alt=""></a>
 								<div class="desc">
 									<a href="#" class="title">Black lace Heels</a>
 									<div class="price">
@@ -541,7 +544,7 @@
 						</div>
 						<div class="col-lg-4 col-md-4 col-sm-6">
 							<div class="single-related-product d-flex">
-								<a href="#"><img src="staticg/r11.jpg" alt=""></a>
+								<a href="#"><img src="{% static 'img/r11.jpg' s%}" alt=""></a>
 								<div class="desc">
 									<a href="#" class="title">Black lace Heels</a>
 									<div class="price">
@@ -556,7 +559,7 @@
 				<div class="col-lg-3">
 					<div class="ctg-right">
 						<a href="#" target="_blank">
-							<img class="img-fluid d-block mx-auto" src="staticg/category/c5.jpg" alt="">
+							<img class="img-fluid d-block mx-auto" src="{% static 'img/category/c5.jpg '%}" alt="">
 						</a>
 					</div>
 				</div>
@@ -576,13 +579,13 @@
 					<div class="row align-items-center">
 						<div class="col-lg-6">
 							<div class="quick-view-carousel">
-								<div class="item" style="background: url(../static/img/organic-food/q1.jpg);">
+								<div class="item" style="background: url({%static 'img/organic-food/q1.jpg'%});">
 
 								</div>
-								<div class="item" style="background: url(../static/img/organic-food/q1.jpg);">
+								<div class="item" style="background: url({%static 'img/organic-food/q1.jpg'%});">
 
 								</div>
-								<div class="item" style="background: url(../static/img/organic-food/q1.jpg);">
+								<div class="item" style="background: url({%static 'img/organic-food/q1.jpg'%});">
 
 								</div>
 							</div>
@@ -631,8 +634,6 @@
 			</div>
 		</div>
 	</div>
-
-
-
 </body>
 
+{% endblock %}
