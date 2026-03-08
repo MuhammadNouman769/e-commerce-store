@@ -1,4 +1,7 @@
-
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}BtrStore - elements{% endblock %}
+{% block content %}
 <body>
 	
 	<!-- Start Banner Area -->
@@ -8,7 +11,7 @@
 				<div class="col-first">
 					<h1>Element Page</h1>
 					<nav class="d-flex align-items-center">
-						<a href="index.html">Home<span class="lnr lnr-arrow-right"></span></a>
+						<a href="{% url 'home' %}">Home<span class="lnr lnr-arrow-right"></span></a>
 						<a href="category.html">Element</a>
 					</nav>
 				</div>
@@ -139,7 +142,7 @@
 				<h3 class="mb-30">Left Aligned</h3>
 				<div class="row">
 					<div class="col-md-3">
-						<img src="staticg/elements/d.jpg" alt="" class="img-fluid">
+						<img src="{% static 'img/elements/d.jpg' %}" alt="" class="img-fluid">
 					</div>
 					<div class="col-md-9 mt-sm-20">
 						<p>Recently, the US Federal government banned online casinos from operating in America by making it illegal to
@@ -168,7 +171,7 @@
 							talk a little about what symptoms</p>
 					</div>
 					<div class="col-md-3">
-						<img src="staticg/elements/d.jpg" alt="" class="img-fluid">
+						<img src="{% static 'img/elements/d.jpg' %}" alt="" class="img-fluid">
 					</div>
 				</div>
 			</div>
@@ -230,7 +233,7 @@
 						</div>
 						<div class="table-row">
 							<div class="serial">01</div>
-							<div class="country"> <img src="staticg/elements/f1.jpg" alt="flag">Canada</div>
+							<div class="country"> <img src="{% static 'img/elements/f1.jpg' %}" alt="flag">Canada</div>
 							<div class="visit">645032</div>
 							<div class="percentage">
 								<div class="progress">
@@ -241,7 +244,7 @@
 						</div>
 						<div class="table-row">
 							<div class="serial">02</div>
-							<div class="country"> <img src="staticg/elements/f2.jpg" alt="flag">Canada</div>
+							<div class="country"> <img src="{% static 'img/elements/f2.jpg' %}" alt="flag">Canada</div>
 							<div class="visit">645032</div>
 							<div class="percentage">
 								<div class="progress">
@@ -252,7 +255,7 @@
 						</div>
 						<div class="table-row">
 							<div class="serial">03</div>
-							<div class="country"> <img src="staticg/elements/f3.jpg" alt="flag">Canada</div>
+							<div class="country"> <img src="{% static 'img/elements/f3.jpg' %}" alt="flag">Canada</div>
 							<div class="visit">645032</div>
 							<div class="percentage">
 								<div class="progress">
@@ -263,7 +266,7 @@
 						</div>
 						<div class="table-row">
 							<div class="serial">04</div>
-							<div class="country"> <img src="staticg/elements/f4.jpg" alt="flag">Canada</div>
+							<div class="country"> <img src="{% static 'img/elements/f4.jpg' %}" alt="flag">Canada</div>
 							<div class="visit">645032</div>
 							<div class="percentage">
 								<div class="progress">
@@ -274,7 +277,7 @@
 						</div>
 						<div class="table-row">
 							<div class="serial">05</div>
-							<div class="country"> <img src="staticg/elements/f5.jpg" alt="flag">Canada</div>
+							<div class="country"> <img src="{% static 'img/elements/f5.jpg' %}" alt="flag">Canada</div>
 							<div class="visit">645032</div>
 							<div class="percentage">
 								<div class="progress">
@@ -285,7 +288,7 @@
 						</div>
 						<div class="table-row">
 							<div class="serial">06</div>
-							<div class="country"> <img src="staticg/elements/f6.jpg" alt="flag">Canada</div>
+							<div class="country"> <img src="{% static 'img/elements/f6.jpg' %}" alt="flag">Canada</div>
 							<div class="visit">645032</div>
 							<div class="percentage">
 								<div class="progress">
@@ -296,7 +299,7 @@
 						</div>
 						<div class="table-row">
 							<div class="serial">07</div>
-							<div class="country"> <img src="staticg/elements/f7.jpg" alt="flag">Canada</div>
+							<div class="country"> <img src="{% static 'img/elements/f7.jpg' %}" alt="flag">Canada</div>
 							<div class="visit">645032</div>
 							<div class="percentage">
 								<div class="progress">
@@ -307,7 +310,7 @@
 						</div>
 						<div class="table-row">
 							<div class="serial">08</div>
-							<div class="country"> <img src="staticg/elements/f8.jpg" alt="flag">Canada</div>
+							<div class="country"> <img src="{% static 'img/elements/f8.jpg' %}" alt="flag">Canada</div>
 							<div class="visit">645032</div>
 							<div class="percentage">
 								<div class="progress">
@@ -324,42 +327,42 @@
 				<div class="row gallery-item">
 					<div class="col-md-4">
 						<a href="staticg/elements/g1.jpg" class="img-pop-up">
-							<div class="single-gallery-image" style="background: url(../static/img/elements/g1.jpg);"></div>
+							<div class="single-gallery-image" style="background: url({% static 'img/elements/g1.jpg' %});"></div>
 						</a>
 					</div>
 					<div class="col-md-4">
 						<a href="staticg/elements/g2.jpg" class="img-pop-up">
-							<div class="single-gallery-image" style="background: url(../static/img/elements/g2.jpg);"></div>
+							<div class="single-gallery-image" style="background: url({% static 'img/elements/g2.jpg' %});"></div>
 						</a>
 					</div>
 					<div class="col-md-4">
 						<a href="staticg/elements/g3.jpg" class="img-pop-up">
-							<div class="single-gallery-image" style="background: url(../static/img/elements/g3.jpg);"></div>
+							<div class="single-gallery-image" style="background: url({% static 'img/elements/g3.jpg' %});"></div>
 						</a>
 					</div>
 					<div class="col-md-6">
 						<a href="staticg/elements/g4.jpg" class="img-pop-up">
-							<div class="single-gallery-image" style="background: url(../static/img/elements/g4.jpg);"></div>
+							<div class="single-gallery-image" style="background: url({% static 'img/elements/g4.jpg' %});"></div>
 						</a>
 					</div>
 					<div class="col-md-6">
 						<a href="staticg/elements/g5.jpg" class="img-pop-up">
-							<div class="single-gallery-image" style="background: url(../static/img/elements/g5.jpg);"></div>
+							<div class="single-gallery-image" style="background: url({% static 'img/elements/g5.jpg' %});"></div>
 						</a>
 					</div>
 					<div class="col-md-4">
 						<a href="staticg/elements/g6.jpg" class="img-pop-up">
-							<div class="single-gallery-image" style="background: url(../static/img/elements/g6.jpg);"></div>
+							<div class="single-gallery-image" style="background: url({% static 'img/elements/g6.jpg' %});"></div>
 						</a>
 					</div>
 					<div class="col-md-4">
 						<a href="staticg/elements/g7.jpg" class="img-pop-up">
-							<div class="single-gallery-image" style="background: url(../static/img/elements/g7.jpg);"></div>
+							<div class="single-gallery-image" style="background: url({% static 'img/elements/g7.jpg' %});"></div>
 						</a>
 					</div>
 					<div class="col-md-4">
 						<a href="staticg/elements/g8.jpg" class="img-pop-up">
-							<div class="single-gallery-image" style="background: url(../static/img/elements/g8.jpg);"></div>
+							<div class="single-gallery-image" style="background: url({% static 'img/elements/g8.jpg' %});"></div>
 						</a>
 					</div>
 				</div>
@@ -616,7 +619,5 @@
 		</div>
 	</div>
 	<!-- End Align Area -->
-
-
 </body>
-
+{% endblock %}

@@ -1,4 +1,7 @@
-
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}BtrStore - Contact Us{% endblock %}
+{% block content %}
 <body>
 
 	<!-- Start Banner Area -->
@@ -8,8 +11,8 @@
 				<div class="col-first">
 					<h1>Contact Us</h1>
 					<nav class="d-flex align-items-center">
-						<a href="index.html">Home<span class="lnr lnr-arrow-right"></span></a>
-						<a href="category.html">Contact</a>
+						<a href="{% url 'home'%}">Home<span class="lnr lnr-arrow-right"></span></a>
+						<a href="{%url 'contact_us'%}">Contact</a>
 					</nav>
 				</div>
 			</div>
@@ -104,3 +107,4 @@
 	<!--================End Contact Success and Error message Area =================-->
 
 </body>
+{% endblock %}

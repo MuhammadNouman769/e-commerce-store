@@ -1,3 +1,5 @@
+from urllib import request
+
 from django.shortcuts import render
 
 
@@ -12,11 +14,10 @@ def product_detail(request):
 
 def blog(request):
     return render(request, 'blog/blog.html')
-# def contact(request):
-#     return render(request, 'contacts/contact.html')
+def contact(request):
+    return render(request, 'contact.html')
 def single_blog(request):
     return render(request, 'blog/single-blog.html')
-
 def cart(request):
     return render(request, 'shop/cart.html')
 def checkout(request):
@@ -25,6 +26,9 @@ def confirm(request):
     return render(request, 'shop/confirmation.html')
 # def wishlist(request):
 #     return render(request, 'wish-list/add-to-wishlist.html')
-
-# def login(request):
-#     return render(request, 'users/login.html')
+def login(request):
+    return render(request, 'logins/login.html')
+def tracking(request):
+    return render(request, 'logins/tracking.html')
+def element(request):
+    return render(request, 'logins/elements.html')
