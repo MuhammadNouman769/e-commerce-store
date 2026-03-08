@@ -1,4 +1,7 @@
-
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Product - confirm{% endblock %}
+{% block content %}
 <body>
 	<!-- Start Banner Area -->
 	<section class="banner-area organic-breadcrumb">
@@ -7,8 +10,8 @@
 				<div class="col-first">
 					<h1>Confirmation</h1>
 					<nav class="d-flex align-items-center">
-						<a href="index.html">Home<span class="lnr lnr-arrow-right"></span></a>
-						<a href="category.html">Confirmation</a>
+						<a href="{% url 'home' %}">Home<span class="lnr lnr-arrow-right"></span></a>
+						<a href="{% url 'confirm' %}">Confirmation</a>
 					</nav>
 				</div>
 			</div>
@@ -141,3 +144,4 @@
 	</section>
 	<!--================End Order Details Area =================-->
 </body>
+{% endblock %}

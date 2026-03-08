@@ -10,19 +10,19 @@ def category(request):
 def product_detail(request):
     return render(request, 'shop/single-product.html')
 
-# def about_us(request):
-#     return render(request, 'about/about.html')
+def blog(request):
+    return render(request, 'blog/blog.html')
 # def contact(request):
 #     return render(request, 'contacts/contact.html')
-# def men(request):
-#     return render(request, 'products/men.html')
+def single_blog(request):
+    return render(request, 'blog/single-blog.html')
 
 def cart(request):
     return render(request, 'shop/cart.html')
 def checkout(request):
     return render(request, 'shop/checkout.html')
-# def order_complete(request):
-#     return render(request, 'order_complete/order-complete.html')
+def confirm(request):
+    return render(request, 'shop/confirmation.html')
 # def wishlist(request):
 #     return render(request, 'wish-list/add-to-wishlist.html')
 
