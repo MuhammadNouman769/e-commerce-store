@@ -1,4 +1,7 @@
-
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Product - checkout{% endblock %}
+{% block content %}
 <body>
 
     <!-- Start Banner Area -->
@@ -8,8 +11,8 @@
                 <div class="col-first">
                     <h1>Checkout</h1>
                     <nav class="d-flex align-items-center">
-                        <a href="index.html">Home<span class="lnr lnr-arrow-right"></span></a>
-                        <a href="single-product.html">Checkout</a>
+                        <a href="{% url 'home'%}">Home<span class="lnr lnr-arrow-right"></span></a>
+                        <a href="{% url 'checkout'%}">Checkout</a>
                     </nav>
                 </div>
             </div>
@@ -170,3 +173,4 @@
 
 </body>
 
+{% endblock %}

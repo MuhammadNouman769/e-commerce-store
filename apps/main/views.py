@@ -17,10 +17,10 @@ def product_detail(request):
 # def men(request):
 #     return render(request, 'products/men.html')
 
-# def cart(request):
-#     return render(request, 'cart/cart.html')
-# def checkout(request):
-#     return render(request, 'check_out/checkout.html')
+def cart(request):
+    return render(request, 'shop/cart.html')
+def checkout(request):
+    return render(request, 'shop/checkout.html')
 # def order_complete(request):
 #     return render(request, 'order_complete/order-complete.html')
 # def wishlist(request):
