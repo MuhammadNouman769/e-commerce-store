@@ -153,9 +153,9 @@ class ProductVariant(BaseModel):
     price = models.DecimalField(max_digits=12, decimal_places=2)
     compare_at_price = models.DecimalField(max_digits=12, decimal_places=2, null=True, blank=True)
     weight = models.DecimalField(max_digits=10, decimal_places=3, null=True, blank=True)
-    option1 = models.CharField(max_length=100, blank=True)
-    option2 = models.CharField(max_length=100, blank=True)
-    option3 = models.CharField(max_length=100, blank=True)
+    option1 = models.ForeignKey(ProductOptionValue, on_delete=models.CASCADE, related_name="variants_option1", null=True, blank=True)
+    option2 = models.ForeignKey(ProductOptionValue, on_delete=models.CASCADE, related_name="variants_option2", null=True, blank=True)
+    option3 = models.ForeignKey(ProductOptionValue, on_delete=models.CASCADE, related_name="variants_option3", null=True , blank=True)
     position = models.PositiveSmallIntegerField()
 
     class Meta:
