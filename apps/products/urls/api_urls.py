@@ -1,12 +1,10 @@
-from .views import (CategoryListAPIView,
+from ..views.apis.category_api import (CategoryListAPIView,
                     CategoryDetailAPIView,
                     CategoryUpdateAPIView,
                     CategoryCreateAPIView,
                     CategoryDeleteAPIView,
-                    ProductListAPIView,
-                    ProductDetailAPIView,
                     )
-
+from ..views.apis.product_api import ProductListAPIView, ProductDetailAPIView  
 from django.urls import path
 
 urlpatterns = [
