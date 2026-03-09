@@ -2,7 +2,7 @@
 
 from django.urls import path
 from ..views.web.product_views import ProductListView, ProductDetailView
-from ..views.web.category_views import CategoryListView, CategoryDetailView
+from ..views.web.category_views import CategoryListView
 
 urlpatterns = [
     path("products/", ProductListView.as_view(), name="product_list"),
