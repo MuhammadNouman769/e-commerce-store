@@ -1,8 +1,9 @@
 from django.contrib import admin
 from .models import (
     Shop, Category, Product, ProductOption,
-    ProductOptionValue, ProductVariant
+    ProductOptionValue, ProductVariant, ProductImages   
 )
+
 
 
 
@@ -37,13 +38,19 @@ class ProductVariantInline(admin.TabularInline):
     extra = 1
 
 
+
+class ProductImageInline(admin.TabularInline):
+    model = ProductImages
+    extra = 1
+
+
 # ===== Product Admin =====
 class ProductAdmin(admin.ModelAdmin):
     list_display = ("title", "shop", "display_categories", "status", "published_at")
     list_filter = ("shop", "status")  # Remove 'categories' from list_filter
     search_fields = ("title", "handle", "vendor")
     prepopulated_fields = {"handle": ("title",)}
-    inlines = [ProductOptionInline, ProductVariantInline]
+    inlines = [ProductOptionInline, ProductVariantInline, ProductImageInline]
     filter_horizontal = ("categories",)  # nice UI for ManyToMany
 
     def display_categories(self, obj):

@@ -16,7 +16,7 @@ class ProductListView(ListView):
         # Get the category filter from the query parameters
         shop_id = self.request.GET.get("shop")
         vendor = self.request.GET.get("vendor")
-        category_id = self.request.GET.get("category")
+        category_id = self.request.GET.get("category", "images")
 
         if shop_id:
             queryset = queryset.filter(shop_id=shop_id)
@@ -37,7 +37,7 @@ class ProductDetailView(DetailView):
     '''process the context data to include categories'''
     def get_queryset(self):
         # Prefetch categories and variants to optimize queries
-        return Product.objects.select_related("shop").prefetch_related("categories", "variants")
+        return Product.objects.select_related("shop").prefetch_related("categories", "variants", "images")
 
 
           

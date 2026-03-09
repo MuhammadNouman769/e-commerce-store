@@ -114,6 +114,17 @@ class Product(BaseModel):
         return f"{self.title}"
 
 
+""" ============= ProductImages Model ============= """
+class ProductImages(BaseModel):
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name="images")
+    images = models.ImageField(upload_to="product_images/", null=True, blank=True)
+    alt_text = models.CharField(max_length=255, blank=True)
+    position = models.PositiveSmallIntegerField()
+
+    class Meta:
+        ordering = ["position"]
+
+
 """ ======== Product Options and Variants ========== """
 class ProductOption(BaseModel):
     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name="options")
