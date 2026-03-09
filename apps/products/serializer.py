@@ -1,4 +1,4 @@
-from .models import Category, Product
+from .models import Category, Product, ProductImages
 from rest_framework import serializers
 
 from .scripts.create_test_categories import shop_name
@@ -51,6 +51,8 @@ class ProductSerializer(serializers.ModelSerializer):
             "published_at",
             "created_at",
             "updated_at",
+            "images",
+
        ]
         read_only_fields = ["handle", "created_at", "updated_at"]
     def get_category_names(self, obj):
