@@ -55,3 +55,4 @@ htmlcov/
 # Type checking
 # ===============================
 .mypy_cache/
+*.pyc
