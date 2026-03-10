@@ -12,11 +12,11 @@ class ProductListView(ListView):
 
     '''process the context data to include categories'''
     def get_queryset(self):
-        queryset = Product.objects.select_related("shop").prefetch_related("categories").all()
+        queryset = Product.objects.select_related("shop").prefetch_related("categories", "images").all()
         # Get the category filter from the query parameters
         shop_id = self.request.GET.get("shop")
         vendor = self.request.GET.get("vendor")
-        category_id = self.request.GET.get("category", "images")
+        category_id = self.request.GET.get("category")
 
         if shop_id:
             queryset = queryset.filter(shop_id=shop_id)
