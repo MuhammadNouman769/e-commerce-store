@@ -16,7 +16,7 @@ class ProductListView(ListView):
         # Get the category filter from the query parameters
         shop_id = self.request.GET.get("shop")
         vendor = self.request.GET.get("vendor")
-        category_id = self.request.GET.get("category", "images")
+        category_id = self.request.GET.get("category")
 
         if shop_id:
             queryset = queryset.filter(shop_id=shop_id)
