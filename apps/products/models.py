@@ -60,12 +60,19 @@ class Category(BaseModel):
             base_slug = slugify(self.name)
             slug = base_slug
             counter = 1
-            while Category.objects.filter(shop=self.shop, slug=slug).exists():
+
+            while Category.objects.filter(
+                shop=self.shop,
+                slug=slug
+            ).exclude(id=self.id).exists():
+
                 slug = f"{base_slug}-{counter}"
                 counter += 1
-            self.slug = slug
-        super().save(*args, **kwargs)
 
+            self.slug = slug
+
+        super().save(*args, **kwargs)
+    
 """ ========== Product =========== """
 class Product(BaseModel):
     shop = models.ForeignKey(
@@ -100,18 +107,36 @@ class Product(BaseModel):
         ]
 
     def save(self, *args, **kwargs):
-        if not self.handle:
-            base_slug = slugify(self.title)
-            slug = base_slug
-            counter = 1
-            while Product.objects.filter(shop=self.shop, handle=slug).exists():
-                slug = f"{base_slug}-{counter}"
-                counter += 1
-            self.handle = slug
+        """
+        Auto-update handle (slug) from title.
+        Ensures uniqueness within the same shop.
+        """
+        base_slug = slugify(self.title)
+        slug = base_slug
+        counter = 1
+
+        # Exclude self when checking existing handles
+        while Product.objects.filter(shop=self.shop, handle=slug).exclude(pk=self.pk).exists():
+            slug = f"{base_slug}-{counter}"
+            counter += 1
+
+        self.handle = slug
         super().save(*args, **kwargs)
 
     def __str__(self):
         return f"{self.title}"
+
+
+
+""" ============= ProductImages Model ============= """
+class ProductImages(BaseModel):
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name="images")
+    images = models.ImageField(upload_to="product_images/", null=True, blank=True)
+    alt_text = models.CharField(max_length=255, blank=True)
+    position = models.PositiveSmallIntegerField(default=0)
+
+    class Meta:
+        ordering = ["position"]
 
 
 """ ======== Product Options and Variants ========== """
@@ -142,9 +167,9 @@ class ProductVariant(BaseModel):
     price = models.DecimalField(max_digits=12, decimal_places=2)
     compare_at_price = models.DecimalField(max_digits=12, decimal_places=2, null=True, blank=True)
     weight = models.DecimalField(max_digits=10, decimal_places=3, null=True, blank=True)
-    option1 = models.CharField(max_length=100, blank=True)
-    option2 = models.CharField(max_length=100, blank=True)
-    option3 = models.CharField(max_length=100, blank=True)
+    option1 = models.ForeignKey(ProductOptionValue, on_delete=models.CASCADE, related_name="variants_option1", null=True, blank=True)
+    option2 = models.ForeignKey(ProductOptionValue, on_delete=models.CASCADE, related_name="variants_option2", null=True, blank=True)
+    option3 = models.ForeignKey(ProductOptionValue, on_delete=models.CASCADE, related_name="variants_option3", null=True , blank=True)
     position = models.PositiveSmallIntegerField()
 
     class Meta:

@@ -16,7 +16,7 @@ class ProductListView(ListView):
         # Get the category filter from the query parameters
         shop_id = self.request.GET.get("shop")
         vendor = self.request.GET.get("vendor")
-        category_id = self.request.GET.get("category")
+        category_id = self.request.GET.get("category", "images")
 
         if shop_id:
             queryset = queryset.filter(shop_id=shop_id)
@@ -32,12 +32,43 @@ class ProductListView(ListView):
 class ProductDetailView(DetailView):
     model = Product
     template_name = "shop/single-product.html"
-    context_object_name = "product"     
+    context_object_name = "product"
 
-    '''process the context data to include categories'''
     def get_queryset(self):
-        # Prefetch categories and variants to optimize queries
-        return Product.objects.select_related("shop").prefetch_related("categories", "variants")
+        """
+        Optimize queries by prefetching related data:
+        - shop (ForeignKey)
+        - categories (ManyToMany)
+        - images (ForeignKey)
+        - options + option values (inlines)
+        - variants
+        """
+        return Product.objects.select_related("shop").prefetch_related(
+            "categories",
+            "images",
+            "options__values",
+            "variants__option1",
+            "variants__option2",
+            "variants__option3",
+        )
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        product = self.get_object
 
+        '''prefetch otions with their values'''
+        options = product.options.prefetch_related("values").all()
+        context["options"] = options
 
-          
+        '''prefetch variants with their options'''
+        variants = product.variants.select_related("option1", "option2", "option3").all()
+        context["variants"] = variants
+
+        '''prefetch images'''
+        images = product.images.all()
+        context["images"] = images
+
+        '''prefetch categories'''
+        categories = product.categories.all()
+        context["categories"] = categories
+        
+        return context  
