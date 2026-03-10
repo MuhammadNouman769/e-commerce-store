@@ -72,7 +72,7 @@ class Category(BaseModel):
             self.slug = slug
 
         super().save(*args, **kwargs)
-
+    
 """ ========== Product =========== """
 class Product(BaseModel):
     shop = models.ForeignKey(
@@ -107,18 +107,25 @@ class Product(BaseModel):
         ]
 
     def save(self, *args, **kwargs):
-        if not self.handle:
-            base_slug = slugify(self.title)
-            slug = base_slug
-            counter = 1
-            while Product.objects.filter(shop=self.shop, handle=slug).exists():
-                slug = f"{base_slug}-{counter}"
-                counter += 1
-            self.handle = slug
+        """
+        Auto-update handle (slug) from title.
+        Ensures uniqueness within the same shop.
+        """
+        base_slug = slugify(self.title)
+        slug = base_slug
+        counter = 1
+
+        # Exclude self when checking existing handles
+        while Product.objects.filter(shop=self.shop, handle=slug).exclude(pk=self.pk).exists():
+            slug = f"{base_slug}-{counter}"
+            counter += 1
+
+        self.handle = slug
         super().save(*args, **kwargs)
 
     def __str__(self):
         return f"{self.title}"
+
 
 
 """ ============= ProductImages Model ============= """
