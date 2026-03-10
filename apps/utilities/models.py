@@ -1,21 +1,40 @@
+
+""" =========== apps/utilities/models.py ============ """
 from django.db import models
 
+""" =========== BaseModel with Soft Delete =========== """
+class SoftDeleteQuerySet(models.QuerySet):
+
+    def delete(self):
+        return super().update(is_active=False)
+
+    def hard_delete(self):
+        return super().delete()
+
+    def active(self):
+        return self.filter(is_active=True)
+
+    def inactive(self):
+        return self.filter(is_active=False)
+
+""" BaseModel with soft delete functionality """
+class SoftDeleteManager(models.Manager):
+
+    def get_queryset(self):
+        return SoftDeleteQuerySet(self.model, using=self._db).filter(is_active=True)
+
+""" BaseModel with common fields and soft delete """
 class BaseModel(models.Model):
-    """
-    Abstract base model with common fields:
-    - id
-    - created_at / updated_at
-    - is_active (soft delete)
-    - Optional shop field for multi-tenant systems
-    """
 
     id = models.BigAutoField(primary_key=True)
+
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+
     is_active = models.BooleanField(default=True)
 
-    # Optional shop field placeholder
-    shop = None  # child models can override
+    objects = SoftDeleteManager()
+    all_objects = models.Manager()
 
     class Meta:
         abstract = True
@@ -24,7 +43,11 @@ class BaseModel(models.Model):
     def __str__(self):
         return f"{self.__class__.__name__} (ID: {self.id})"
 
-    def deactivate(self):
-        """Soft delete record"""
+    def delete(self, using=None, keep_parents=False):
+        """Soft delete"""
         self.is_active = False
         self.save()
+
+    def hard_delete(self):
+        """Permanent delete"""
+        super().delete()

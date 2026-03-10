@@ -60,10 +60,17 @@ class Category(BaseModel):
             base_slug = slugify(self.name)
             slug = base_slug
             counter = 1
-            while Category.objects.filter(shop=self.shop, slug=slug).exists():
+
+            while Category.objects.filter(
+                shop=self.shop,
+                slug=slug
+            ).exclude(id=self.id).exists():
+
                 slug = f"{base_slug}-{counter}"
                 counter += 1
+
             self.slug = slug
+
         super().save(*args, **kwargs)
 
 """ ========== Product =========== """
@@ -119,7 +126,7 @@ class ProductImages(BaseModel):
     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name="images")
     images = models.ImageField(upload_to="product_images/", null=True, blank=True)
     alt_text = models.CharField(max_length=255, blank=True)
-    position = models.PositiveSmallIntegerField()
+    position = models.PositiveSmallIntegerField(default=0)
 
     class Meta:
         ordering = ["position"]

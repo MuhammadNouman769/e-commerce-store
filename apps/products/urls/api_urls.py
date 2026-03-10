@@ -4,7 +4,8 @@ from ..views.apis.category_api import (CategoryListAPIView,
                     CategoryCreateAPIView,
                     CategoryDeleteAPIView,
                     )
-from ..views.apis.product_api import ProductListAPIView, ProductDetailAPIView  
+from ..views.apis.product_api import ProductListAPIView
+from ..views.apis.product_detail_api import ProductDetailAPIView  
 from django.urls import path
 
 urlpatterns = [

@@ -26,6 +26,7 @@ ALLOWED_HOSTS = []
 """ =============== APPLICATION DEFINITION =============== """
 
 INSTALLED_APPS = [
+    'jazzmin',
     # Default Django Apps
     'django.contrib.admin', 
     'django.contrib.auth',
@@ -35,7 +36,6 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
 
     # Third-Party Apps
-    'jazzmin',
     'rest_framework',
     'crispy_forms',
     'tailwind',

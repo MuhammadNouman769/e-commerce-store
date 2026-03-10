@@ -1,4 +1,4 @@
-from .models import Category, Product, ProductImages
+from .models import Category, Product, ProductImages, ProductOption, ProductOptionValue, ProductVariant
 from rest_framework import serializers
 
 from .scripts.create_test_categories import shop_name
@@ -17,6 +17,7 @@ class CategorySerializer(serializers.ModelSerializer):
         fields = ['id', 'name', 'slug', 'parent',  'position', 'children', 'shop']
         read_only_fields = ["slug"]
 
+""" ===================== Recursive Category Serializer ===================== """
 class RecursiveCategorySerializer(serializers.ModelSerializer):
     children = serializers.SerializerMethodField()
 
@@ -29,6 +30,39 @@ class RecursiveCategorySerializer(serializers.ModelSerializer):
         if obj.children.exists():
             return RecursiveCategorySerializer(obj.children.all(), many=True).data
         return []
+
+
+""" ===================== ProductOptionValue Serializer ===================== """
+class ProductOptionValueSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ProductOptionValue
+        fields = ['id', 'option', 'value', 'position']
+
+""" ===================== ProductOption Serializer ===================== """
+class ProductOptionSerializer(serializers.ModelSerializer):
+    values = ProductOptionValueSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = ProductOption
+        fields = ['id', 'product', 'name', 'position', 'values']
+
+
+""" ===================== ProductVariant Serializer ===================== """
+class ProductVariantSerializer(serializers.ModelSerializer):
+    option1 = ProductOptionSerializer(read_only=True)
+    option2 = ProductOptionSerializer(read_only=True)
+    option3 = ProductOptionSerializer(read_only=True)
+
+    class Meta:
+        model = ProductVariant
+        fields = ['id', 'sku', 'barcode', 'price', 'compare_at_price', 'weight', 'option1', 'option2', 'option3', 'position',]
+
+""" ===================== ProductImage Serializer ===================== """
+class ProductImageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ProductImages
+        fields = ['id', 'product', 'images', 'alt_text', 'position']
+
 
 
 """ ===================== Product Serializer ===================== """

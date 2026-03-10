@@ -57,7 +57,7 @@ urlpatterns = [
     path('', include('apps.main.urls')),
     path('users/', include('apps.users.urls')),
     # path('api/orders/', include('apps.order_fulfillment.urls')),
-    path('products/', include('apps.products.urls.api_urls')),
+    path('api/', include('apps.products.urls.api_urls')),
     path('products/', include('apps.products.urls.template_urls')),
     # path('api/suppliers/', include('apps.supplier_monitoring.urls')),
     # path('api/shipments/', include('apps.shipment_monitoring.urls')),
