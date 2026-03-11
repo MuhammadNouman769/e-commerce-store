@@ -72,6 +72,17 @@ class Category(BaseModel):
             self.slug = slug
 
         super().save(*args, **kwargs)
+
+    def get_full_path(self):
+        path = [self.name]
+        parent = self.parent
+        while parent:
+            path.append(parent.name)
+            parent = parent.parent
+        return " > ".join(reversed(path))
+
+    def __str__(self):
+        return self.name    
     
 """ ========== Product =========== """
 class Product(BaseModel):
@@ -138,6 +149,9 @@ class ProductImages(BaseModel):
     class Meta:
         ordering = ["position"]
 
+    def __str__(self):
+        return f"{self.product.title} - Image {self.position + 1}"    
+
 
 """ ======== Product Options and Variants ========== """
 class ProductOption(BaseModel):
@@ -149,6 +163,9 @@ class ProductOption(BaseModel):
         unique_together = ("product", "name")
         ordering = ["position"]
 
+    def __str__(self):
+        return f"{self.product.title} - {self.name}"    
+
 """ =========== Product Option Values =========== """
 class ProductOptionValue(BaseModel):
     option = models.ForeignKey(ProductOption, on_delete=models.CASCADE, related_name="values")
@@ -158,6 +175,9 @@ class ProductOptionValue(BaseModel):
     class Meta:
         unique_together = ("option", "value")
         ordering = ["position"]
+
+    def __str__(self):
+        return f"{self.option.product.title} - {self.option.name}: {self.value}"    
 
 """ =========== Product Variant ========== """
 class ProductVariant(BaseModel):
