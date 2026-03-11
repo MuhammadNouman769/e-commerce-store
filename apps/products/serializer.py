@@ -3,34 +3,23 @@ from rest_framework import serializers
 
 from .scripts.create_test_categories import shop_name
 
-''' ===================== Category Childern Serializer ===================== '''
-class CategoryChildernSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Category
-        fields = '__all__'
-
 
 ''' ===================== Category Serializer ===================== '''
 class CategorySerializer(serializers.ModelSerializer):
+
+    children_count = serializers.IntegerField(read_only=True)
     class Meta:
         model = Category
-        fields = ['id', 'name', 'slug', 'parent',  'position', 'children', 'shop']
-        read_only_fields = ["slug"]
-
-""" ===================== Recursive Category Serializer ===================== """
-class RecursiveCategorySerializer(serializers.ModelSerializer):
-    children = serializers.SerializerMethodField()
-
-    class Meta:
-        model = Category
-        fields = ['id', 'name', 'slug', 'parent',  'position', 'children', 'shop']
-        read_only_fields = ["slug"]
-
-    def get_children(self, obj):
-        if obj.children.exists():
-            return RecursiveCategorySerializer(obj.children.all(), many=True).data
-        return []
-
+        fields = [
+            'id',
+            'name', 
+            'slug', 
+            'parent',  
+            'position', 
+            'shop',
+            'children_count'
+        ]
+        
 # ---------------- Product Option Value Serializer ----------------
 class ProductOptionValueSerializer(serializers.ModelSerializer):
     class Meta:
