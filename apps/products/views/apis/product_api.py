@@ -4,7 +4,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status, permissions
 from ...models import Product
-from apps.products.serializer import (RecursiveCategorySerializer,ProductSerializer)
+from apps.products.serializer import (ProductSerializer)
 from django.shortcuts import get_object_or_404
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
