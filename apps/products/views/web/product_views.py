@@ -10,6 +10,19 @@ class ProductListView(ListView):
     context_object_name = "products"
     paginate_by = 12
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        categories = (
+            Category.objects
+            .filter(parent=None)
+            .prefetch_related("children")
+        )
+
+        context["categories"] = categories
+        return context
+
+
     '''process the context data to include categories'''
     def get_queryset(self):
         queryset = Product.objects.select_related("shop").prefetch_related("categories", "images").all()
