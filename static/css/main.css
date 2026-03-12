@@ -5807,7 +5807,7 @@ label {
 
 .product-img {
     width: 100%;
-    height: 220px;
+    height: 150px;
     position: relative;
     overflow: hidden;
     margin-bottom: 15px;
@@ -5863,3 +5863,94 @@ label {
 }
 
 
+.filter-list label {
+    cursor: pointer;  /* pointer cursor */
+    transition: background 0.3s;
+    padding: 5px 10px;
+    display: block;
+    border-radius: 5px;
+}
+
+.filter-list label:hover {
+    background: #f0f0f0;  /* subtle hover */
+}
+
+
+
+
+.sidebar-categories {
+    background: #fff;
+    padding: 4px 10px;
+    border-radius: 6px;
+    box-shadow: 0 3px 8px rgba(0,0,0,0.08);
+    width: 180px;
+    font-family: "Segoe UI", sans-serif;
+}
+
+.sidebar-categories .head {
+    font-size: 16px!important;
+    line-height: 56px!important;
+    padding: 2px 6px!important;
+    font-weight: 600!important;
+    margin-bottom: 10px!important;
+    color: #333!important;
+}
+
+.main-categories {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.main-categories .main-nav-list {
+    position: relative;
+    margin-bottom: 5px;
+}
+
+.main-categories .main-nav-list > a.parent-cat {
+    display: block;
+    padding: 8px 12px;
+    color: #444;
+    font-weight: 500;
+    text-decoration: none;
+    border-radius: 4px;
+    transition: all 0.3s ease;
+}
+
+.main-categories .main-nav-list:hover > a.parent-cat {
+    background: #f5f5f5;
+    color: #000;
+}
+
+/* Child categories as side menu */
+.main-categories .child-categories {
+    position: absolute;
+    top: 0;
+    left: 100%;
+    background: #fff;
+    min-width: 200px;
+    display: none;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    padding: 10px 0;
+    border-radius: 6px;
+    z-index: 999;
+}
+
+.main-categories .child-categories .child-nav-list a {
+    display: block;
+    padding: 6px 15px;
+    color: #555;
+    font-size: 14px;
+    text-decoration: none;
+    transition: all 0.2s ease;
+}
+
+.main-categories .child-categories .child-nav-list a:hover {
+    background: #f0f0f0;
+    color: #000;
+}
+
+/* Show child menu on parent hover */
+.main-categories .main-nav-list:hover > .child-categories {
+    display: block;
+}

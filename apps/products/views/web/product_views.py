@@ -2,6 +2,7 @@
 from django.shortcuts import render
 from apps.products.models import Product, Category
 from django.views.generic import ListView, DetailView
+from django.db.models import Count
 
 """ =========== Product List View =========== """
 class ProductListView(ListView):
@@ -10,26 +11,23 @@ class ProductListView(ListView):
     context_object_name = "products"
     paginate_by = 12
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-
-        categories = (
-            Category.objects
-            .filter(parent=None)
-            .prefetch_related("children")
-        )
-
-        context["categories"] = categories
-        return context
-
-
+    
     '''process the context data to include categories'''
     def get_queryset(self):
-        queryset = Product.objects.select_related("shop").prefetch_related("categories", "images").all()
+        queryset = Product.objects.select_related("shop").prefetch_related("categories", "images", "variants").all()
         # Get the category filter from the query parameters
         shop_id = self.request.GET.get("shop")
         vendor = self.request.GET.get("vendor")
         category_id = self.request.GET.get("category")
+        min_price = self.request.GET.get("min_price")
+        max_price = self.request.GET.get("max_price")
+
+            # Price values as integers
+        try:
+            min_price = int(self.request.GET.get("min_price")) if self.request.GET.get("min_price") else None
+            max_price = int(self.request.GET.get("max_price")) if self.request.GET.get("max_price") else None
+        except ValueError:
+            min_price = max_price = None
 
         if shop_id:
             queryset = queryset.filter(shop_id=shop_id)
@@ -38,8 +36,32 @@ class ProductListView(ListView):
         if category_id:
             queryset = queryset.filter(categories__id=category_id)
 
-        return queryset
+        # Filter by price safely
+        if min_price is not None:
+            queryset = queryset.filter(variants__price__gte=min_price)
+        if max_price is not None:
+            queryset = queryset.filter(variants__price__lte=max_price)
 
+        return queryset.distinct()
+
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        
+        ''' category for sidebar '''
+        categories = (
+            Category.objects
+            .filter(parent=None)
+            .prefetch_related("children")
+        )
+        context["categories"] = categories
+            
+            # Correct vendors query
+        vendors_qs = Product.objects.values('vendor').annotate(count=Count('id')).order_by('vendor')
+        context['vendors'] = [v['vendor'] for v in vendors_qs]
+        context['vendor_counts'] = {v['vendor']: v['count'] for v in vendors_qs}
+
+        return context
 
 
 """ =========== Product Detail View =========== """
