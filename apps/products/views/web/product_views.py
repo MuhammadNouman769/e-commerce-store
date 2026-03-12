@@ -41,6 +41,7 @@ class ProductListView(ListView):
         return queryset
 
 
+
 """ =========== Product Detail View =========== """
 class ProductDetailView(DetailView):
     model = Product

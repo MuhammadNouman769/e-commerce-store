@@ -3290,9 +3290,9 @@ label {
         color: #fff; }
 
 .sidebar-categories .head {
-  line-height: 60px;
+  line-height: 59px;
   background: #828bb3;
-  padding: 0 30px;
+  padding: 1px 9px;
   font-size: 16px;
   font-weight: 400;
   color: #fff; }
@@ -3320,9 +3320,9 @@ label {
 .sidebar-filter {
   margin-top: 50px; }
   .sidebar-filter .top-filter-head {
-    line-height: 60px;
+    line-height: 59px;
     background: #828bb3;
-    padding: 0 30px;
+    padding: 1px 20px;
     font-size: 16px;
     font-weight: 400;
     color: #fff; }
@@ -5791,3 +5791,75 @@ label {
     color: #ffba00; }
 
 /*# sourceMappingURL=main.css.map */
+.single-product {
+    background: #fff;
+    border: 1px solid #eaeaea;
+    border-radius: 10px;
+    padding: 15px;
+    margin-bottom: 30px;
+    transition: box-shadow 0.3s ease;
+    text-align: center;
+}
+
+.single-product:hover {
+    box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+}
+
+.product-img {
+    width: 100%;
+    height: 220px;
+    position: relative;
+    overflow: hidden;
+    margin-bottom: 15px;
+}
+
+.product-img img {
+  object-fit: cover;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    transition: opacity 0.3s ease, transform 0.3s ease;
+    position: absolute;
+    top: 16px;
+    left: 16px;
+}
+
+.hover-img {
+    opacity: 0; /* initially hidden */
+}
+
+.single-product:hover .hover-img {
+    opacity: 1; /* show second image on hover */
+}
+
+.single-product:hover .default-img {
+    opacity: 0; /* hide first image */
+}
+
+.product-title {
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 10px;
+    color: #333;
+}
+
+.price {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+}
+
+.current-price {
+    font-size: 16px;
+    font-weight: 700;
+    color: #ff4c3b;
+}
+
+.old-price {
+    font-size: 14px;
+    color: #888;
+    text-decoration: line-through;
+}
+
+
