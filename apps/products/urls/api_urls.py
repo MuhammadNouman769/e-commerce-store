@@ -1,10 +1,10 @@
 from django.urls import path
-from ..views.apis.category_api import (
+from apps.products.views.apis.category_api import (
     CategoryListAPIView,
     CategoryDetailAPIView
 )
-from ..views.apis.product_api import ProductListAPIView
-from ..views.apis.product_detail_api import ProductDetailAPIView  
+from apps.products.views.apis.product_api import ProductListAPIView
+from apps.products.views.apis.product_detail_api import ProductDetailAPIView
 
 urlpatterns = [
     # ===================== Categories =====================

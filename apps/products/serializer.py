@@ -1,7 +1,6 @@
 from .models import Category, Product, ProductImages, ProductOption, ProductOptionValue, ProductVariant
 from rest_framework import serializers
 
-from .scripts.create_test_categories import shop_name
 
 
 ''' ===================== Category Serializer ===================== '''
