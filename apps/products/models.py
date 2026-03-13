@@ -120,6 +120,7 @@ class Product(BaseModel):
     def save(self, *args, **kwargs):
         """
         Auto-update handle (slug) from title.
+        Auto-update handle (slug) from title.
         Ensures uniqueness within the same shop.
         """
         base_slug = slugify(self.title)

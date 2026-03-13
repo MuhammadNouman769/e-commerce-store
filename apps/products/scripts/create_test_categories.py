@@ -72,6 +72,6 @@ def create_categories(shop_obj, category_list, parent=None):
 
 # ----- Step 4: Run the creation -----
 for shop_name, cat_list in categories_data.items():
-    create_categories(shops[shop_name], cat_list)
-
+    if __name__ == "__main__":
+        create_categories(shops[shop_name], cat_list)
 print(" Test categories created successfully!")

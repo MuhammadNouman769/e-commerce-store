@@ -154,40 +154,48 @@ slider.noUiSlider.on('update', function(values, handle){
 				</div>
 				<!-- End Filter Bar -->
 				<!-- Start Best Seller -->
-			<section class="lattest-product-area pb-40 category-list">
-				<div class="row">
-					{% for product in products %}
-					<div class="col-lg-3 col-md-6">
-						<div class="single-product">
-							{% with product.images.all as imgs %}
-							{% if imgs|length >= 1 %}
-							<div class="product-img">
-								<img class="img-fluid default-img" src="{{ imgs.0.images.url }}" alt="{{ product.title }}">
-								{% if imgs|length > 1 %}
-								<img class="img-fluid hover-img" src="{{ imgs.1.images.url }}" alt="{{ product.title }}">
-								{% endif %}
-							</div>
-							{% endif %}
-							{% endwith %}
-							<!-- Product Title & Price -->
-							<div class="product-details text-center">
-								<h6 class="product-title">{{ product.title }}</h6>
-								{% with product.variants.first as variant %}
-								{% if variant %}
-								<div class="price">
-									<h6 class="current-price">Rs.{{ variant.price }}</h6>
-									{% if variant.compare_at_price %}
-									<h6 class="old-price">Rs.{{ variant.compare_at_price }}</h6>
-									{% endif %}
-								</div>
-								{% endif %}
-								{% endwith %}
-							</div>
-						</div>
-					</div>
-					{% endfor %}
-				</div>
-			</section><!-- End Best Seller -->		
+		<section class="lattest-product-area pb-40 category-list">
+    <div class="row">
+        {% for product in products %}
+        <div class="col-lg-3 col-md-6">
+            <div class="single-product">
+
+                {% with product.images.all as imgs %}
+                {% if imgs|length > 0 and imgs.0.images %}
+                <div class="product-img">
+                    <img class="img-fluid default-img" src="{{ imgs.0.images.url }}" alt="{{ product.title }}">
+
+                    {% if imgs|length > 1 and imgs.1.images %}
+                    <img class="img-fluid hover-img" src="{{ imgs.1.images.url }}" alt="{{ product.title }}">
+                    {% endif %}
+                </div>
+                {% endif %}
+                {% endwith %}
+
+                <!-- Product Title & Price -->
+                <div class="product-details text-center">
+                    <h6 class="product-title">{{ product.title }}</h6>
+
+                    {% with product.variants.first as variant %}
+                    {% if variant %}
+                    <div class="price">
+                        <h6 class="current-price">Rs.{{ variant.price }}</h6>
+
+                        {% if variant.compare_at_price %}
+                        <h6 class="old-price">Rs.{{ variant.compare_at_price }}</h6>
+                        {% endif %}
+
+                    </div>
+                    {% endif %}
+                    {% endwith %}
+
+                </div>
+
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</section><!-- End Best Seller -->		
 			</div>
 		</div>
 	</div>
