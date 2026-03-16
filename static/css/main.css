@@ -5954,3 +5954,46 @@ label {
 .main-categories .main-nav-list:hover > .child-categories {
     display: block;
 }
+
+/* Caret icon for parent categories */
+.main-categories .main-nav-list > a.parent-cat::after {
+    content: "\f105";
+    font-family: "FontAwesome";
+    float: right;
+    font-size: 12px;
+    margin-top: 3px;
+    color: #999;
+}
+
+/* Second-level (grand-child) flyout */
+.main-categories .sub-child-categories {
+    position: absolute;
+    top: 0;
+    left: 100%;
+    background: #fff;
+    min-width: 220px;
+    display: none;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    padding: 10px 0;
+    border-radius: 6px;
+    z-index: 1000;
+}
+
+.main-categories .sub-child-categories .sub-child-nav-list a {
+    display: block;
+    padding: 6px 18px;
+    color: #555;
+    font-size: 13px;
+    text-decoration: none;
+    transition: all 0.2s ease;
+}
+
+.main-categories .sub-child-categories .sub-child-nav-list a:hover {
+    background: #f7f7f7;
+    color: #000;
+}
+
+/* Show grand-children when hovering child */
+.main-categories .child-nav-list:hover > .sub-child-categories {
+    display: block;
+}

@@ -30,18 +30,37 @@
     <ul class="main-categories">
         {% for category in categories %}
         <li class="main-nav-list">
-            <a href="#" class="parent-cat">
+            <a href="?category={{ category.id }}" class="parent-cat">
                 {{ category.name }}
             </a>
-            {% if category.children.all %}
+
+            {# Level 1 children #}
+            {% with category.children.all as level1_children %}
+            {% if level1_children %}
             <ul class="child-categories">
-                {% for child in category.children.all %}
+                {% for child in level1_children %}
                 <li class="child-nav-list">
                     <a href="?category={{ child.id }}">{{ child.name }}</a>
+
+                    {# Level 2 children (grand-children) #}
+                    {% with child.children.all as level2_children %}
+                    {% if level2_children %}
+                    <ul class="sub-child-categories">
+                        {% for sub_child in level2_children %}
+                        <li class="sub-child-nav-list">
+                            <a href="?category={{ sub_child.id }}">{{ sub_child.name }}</a>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                    {% endif %}
+                    {% endwith %}
+
                 </li>
                 {% endfor %}
             </ul>
             {% endif %}
+            {% endwith %}
+
         </li>
         {% endfor %}
     </ul>
@@ -348,13 +367,13 @@ slider.noUiSlider.on('update', function(values, handle){
 					<div class="row align-items-center">
 						<div class="col-lg-6">
 							<div class="quick-view-carousel">
-								<div class="item" style="background: url({%static 'img/organic-food/q1.jpg'%});">
+								<div class="item" style="background-image: url('{% static 'img/organic-food/q1.jpg' %}');">
 
 								</div>
-								<div class="item" style="background: url({%static 'img/organic-food/q1.jpg'%});">
+								<div class="item" style="background-image: url('{% static 'img/organic-food/q1.jpg' %}');">
 
 								</div>
-								<div class="item" style="background: url({%static 'img/organic-food/q1.jpg'%});">
+								<div class="item" style="background-image: url('{% static 'img/organic-food/q1.jpg' %}');">
 
 								</div>
 							</div>

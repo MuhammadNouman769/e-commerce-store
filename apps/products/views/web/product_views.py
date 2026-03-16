@@ -48,11 +48,15 @@ class ProductListView(ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         
-        ''' category for sidebar '''
+        ''' category for sidebar (multi-level) '''
         categories = (
             Category.objects
             .filter(parent=None)
-            .prefetch_related("children")
+            .prefetch_related(
+                "children",                # level 1
+                "children__children",      # level 2
+                "children__children__children",  # level 3 (safety)
+            )
         )
         context["categories"] = categories
             
