@@ -65,84 +65,11 @@
         {% endfor %}
     </ul>
 </div>
-				<div class="sidebar-filter mt-50">
-					<div class="top-filter-head">Product Filters</div>
-					<div class="common-filter">
-						<div class="head">Brands</div>
-						<form id="vendor-form" method="get" action=".">
-							<ul>
-							{% for vendor in vendors %}
-            <li class="filter-list">
-                <input type="radio" id="{{ vendor }}" name="vendor" value="{{ vendor }}"
-                       {% if request.GET.vendor == vendor %} checked {% endif %}>
-                <label for="{{ vendor }}">{{ vendor }}<span>({{ vendor_counts.vendor }})</span></label>
-            </li>
-		</ul>
-            {% endfor %}
-						</form>
-					</div>
-					<script>
-const form = document.getElementById('vendor-form');
-
-document.querySelectorAll('input[name="vendor"]').forEach(radio => {
-    radio.addEventListener('change', function() {
-        // Change cursor to loading
-        document.body.style.cursor = 'progress';  
-
-        // Small delay for smooth UX (optional)
-        setTimeout(() => {
-            form.submit(); // submit form to reload page
-        }, 150); 
-    });
-});
-</script>
-					<div class="common-filter">
-    <div class="head">Price</div>
-    <form method="get" action=".">
-        <div class="price-range-area">
-            <div id="price-range"></div>
-            <div class="value-wrapper d-flex mt-2">
-                <div class="price">Price:</div>
-                <span>Rs.</span>
-                <input type="text" id="lower-value" name="min_price" readonly style="width:50px; border:none; background:none;">
-                <div class="to mx-1">to</div>
-                <span>Rs.</span>
-                <input type="text" id="upper-value" name="max_price" readonly style="width:50px; border:none; background:none;">
-            </div>
-        </div>
-        <button type="submit" class="btn btn-primary mt-2">Apply</button>
-    </form>
-</div>
-
+	
 <!-- Include noUiSlider -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/noUiSlider/15.7.0/nouislider.min.css">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/noUiSlider/15.7.0/nouislider.min.js"></script>
 
-<script>
-var slider = document.getElementById('price-range');
-
-noUiSlider.create(slider, {
-    start: [0, 200000],        // default min & max
-    connect: true,
-    range: {
-        'min': 0,
-        'max': 200000
-    },
-    step: 1,
-    tooltips: true
-});
-
-var lowerInput = document.getElementById('lower-value');
-var upperInput = document.getElementById('upper-value');
-
-slider.noUiSlider.on('update', function(values, handle){
-    lowerInput.value = Math.round(values[0]);
-    upperInput.value = Math.round(values[1]);
-});
-</script>
 				
 					
-				</div>
 			</div>
 			<div class="col-xl-10 col-lg-8 col-md-7">
 				<!-- Start Filter Bar -->
