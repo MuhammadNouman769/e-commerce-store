@@ -138,12 +138,18 @@
 							<input type="hidden" name="cols" value="{{ cols }}">
 
 							<ul class="brand-list">
-								{% for v in vendors %}
+								{% for item in vendor_items %}
 									<li class="brand-item">
 										<label class="brand-row">
-											<input type="checkbox" name="vendor" value="{{ v }}" {% if v in selected_vendors %}checked{% endif %}>
-											<span class="brand-row__text">{{ v }}</span>
-											<span class="brand-row__badge" aria-hidden="true">{{ v|slice:":1"|upper }}</span>
+											<input type="checkbox" name="vendor" value="{{ item.name }}" {% if item.name in selected_vendors %}checked{% endif %}>
+											<span class="brand-row__text">{{ item.name }}</span>
+											<span class="brand-row__badge" aria-hidden="true">
+												{% if item.logo %}
+													<img class="brand-logo" src="{% static item.logo %}" alt="{{ item.name }}">
+												{% else %}
+													{{ item.name|slice:":1"|upper }}
+												{% endif %}
+											</span>
 										</label>
 									</li>
 								{% endfor %}

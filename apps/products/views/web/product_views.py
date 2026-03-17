@@ -96,9 +96,32 @@ class ProductListView(ListView):
             .annotate(count=Count("id"))
             .order_by("vendor")
         )
-        context['vendors'] = [v['vendor'] for v in vendors_qs]
-        context['vendor_counts'] = {v['vendor']: v['count'] for v in vendors_qs}
+        vendors = [v["vendor"] for v in vendors_qs]
+        context["vendors"] = vendors
+        context["vendor_counts"] = {v["vendor"]: v["count"] for v in vendors_qs}
         context["selected_vendors"] = [v for v in self.request.GET.getlist("vendor") if v]
+
+        # Static brand logos (optional)
+        known_logos = {
+            "apple": "img/brands/apple.svg",
+            "samsung": "img/brands/samsung.svg",
+            "oppo": "img/brands/oppo.svg",
+            "vivo": "img/brands/vivo.svg",
+            "xiaomi": "img/brands/xiaomi.svg",
+            "infinix": "img/brands/infinix.svg",
+            "tecno": "img/brands/tecno.svg",
+            "nothing": "img/brands/nothing.svg",
+        }
+        vendor_items = []
+        for name in vendors:
+            key = (name or "").strip().lower()
+            vendor_items.append(
+                {
+                    "name": name,
+                    "logo": known_logos.get(key),
+                }
+            )
+        context["vendor_items"] = vendor_items
 
         # Pagination helpers (preserve filters across page/per_page changes)
         context["per_page"] = self.get_paginate_by(self.get_queryset())
