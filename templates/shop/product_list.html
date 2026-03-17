@@ -26,44 +26,47 @@
 		<div class="row">
 			<div class="col-xl-2 col-lg-4 col-md-5">
 				<div class="sidebar-categories daraz-sidebar">
-    <div class="head">Browse Categories</div>
-    <ul class="main-categories">
-        {% for category in categories %}
-        <li class="main-nav-list">
-            <a href="?category={{ category.id }}" class="parent-cat">
-                {{ category.name }}
-            </a>
-
-            {# Level 1 children #}
-            {% with category.children.all as level1_children %}
-            {% if level1_children %}
-            <ul class="child-categories">
-                {% for child in level1_children %}
-                <li class="child-nav-list">
-                    <a href="?category={{ child.id }}">{{ child.name }}</a>
-
-                    {# Level 2 children (grand-children) #}
-                    {% with child.children.all as level2_children %}
-                    {% if level2_children %}
-                    <ul class="sub-child-categories">
-                        {% for sub_child in level2_children %}
-                        <li class="sub-child-nav-list">
-                            <a href="?category={{ sub_child.id }}">{{ sub_child.name }}</a>
-                        </li>
-                        {% endfor %}
-                    </ul>
-                    {% endif %}
-                    {% endwith %}
-
-                </li>
-                {% endfor %}
-            </ul>
-            {% endif %}
-            {% endwith %}
-
-        </li>
-        {% endfor %}
-    </ul>
+					<div class="head">Browse Categories</div>
+					<div class="cat-search">
+						<input id="category-search" type="text" placeholder="Search categories..." autocomplete="off">
+					</div>
+					<div class="cat-accordion" id="category-accordion">
+						{% for category in categories %}
+							{% with category.children.all as level1_children %}
+								{% if level1_children %}
+									<details class="cat-item" data-name="{{ category.name|lower }}">
+										<summary class="cat-item__summary">
+											<span class="cat-item__title">{{ category.name }}</span>
+										</summary>
+										<div class="cat-item__panel">
+											<a class="cat-link cat-link--all" href="?category={{ category.id }}">View all</a>
+											{% for child in level1_children %}
+												{% with child.children.all as level2_children %}
+													{% if level2_children %}
+														<details class="cat-subitem" data-name="{{ child.name|lower }}">
+															<summary class="cat-subitem__summary">
+																<span class="cat-subitem__title">{{ child.name }}</span>
+															</summary>
+															<div class="cat-subitem__panel">
+																<a class="cat-link cat-link--all" href="?category={{ child.id }}">View all</a>
+																{% for sub_child in level2_children %}
+																	<a class="cat-link" href="?category={{ sub_child.id }}" data-name="{{ sub_child.name|lower }}">{{ sub_child.name }}</a>
+																{% endfor %}
+															</div>
+														</details>
+													{% else %}
+														<a class="cat-link" href="?category={{ child.id }}" data-name="{{ child.name|lower }}">{{ child.name }}</a>
+													{% endif %}
+												{% endwith %}
+											{% endfor %}
+										</div>
+									</details>
+								{% else %}
+									<a class="cat-link cat-link--root" href="?category={{ category.id }}" data-name="{{ category.name|lower }}">{{ category.name }}</a>
+								{% endif %}
+							{% endwith %}
+						{% endfor %}
+					</div>
 </div>
 	
 <!-- Include noUiSlider -->

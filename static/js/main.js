@@ -608,4 +608,85 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // Fallback: show loader right before navigation
     window.addEventListener("beforeunload", showLoader);
+
+    // Categories: show 8 items + "Load more" (works for main/child/sub-child)
+    const batchSize = 8;
+    const listSelectors = [
+        ".daraz-sidebar ul.main-categories",
+        ".daraz-sidebar ul.child-categories",
+        ".daraz-sidebar ul.sub-child-categories",
+    ];
+
+    const paginateList = (ul) => {
+        if (!ul) return;
+        if (ul.dataset.paginated === "1") return;
+
+        const items = Array.from(ul.children).filter((el) => el.tagName === "LI");
+        if (items.length <= batchSize) return;
+
+        ul.dataset.paginated = "1";
+        let visibleCount = 0;
+
+        const moreLi = document.createElement("li");
+        moreLi.className = "daraz-load-more-li";
+        const moreBtn = document.createElement("button");
+        moreBtn.type = "button";
+        moreBtn.className = "daraz-load-more";
+        moreBtn.textContent = "Load more";
+        moreLi.appendChild(moreBtn);
+        ul.appendChild(moreLi);
+
+        const render = () => {
+            items.forEach((li, idx) => {
+                li.style.display = idx < visibleCount ? "" : "none";
+            });
+            moreLi.style.display = visibleCount >= items.length ? "none" : "";
+        };
+
+        visibleCount = Math.min(batchSize, items.length);
+        render();
+
+        moreBtn.addEventListener("click", () => {
+            visibleCount = Math.min(visibleCount + batchSize, items.length);
+            render();
+        });
+    };
+
+    document.querySelectorAll(listSelectors.join(",")).forEach(paginateList);
+
+    // Category search (sidebar accordion)
+    const catSearch = document.getElementById("category-search");
+    const catRoot = document.getElementById("category-accordion");
+    if (catSearch && catRoot) {
+        const getName = (el) => (el.getAttribute("data-name") || "").toLowerCase();
+
+        const filter = () => {
+            const q = (catSearch.value || "").trim().toLowerCase();
+            if (!q) {
+                catRoot.querySelectorAll("[data-name]").forEach((el) => (el.style.display = ""));
+                return;
+            }
+
+            // Show only matching nodes; also keep parents visible if a child matches
+            const all = Array.from(catRoot.querySelectorAll("[data-name]"));
+            all.forEach((el) => (el.style.display = "none"));
+
+            all.forEach((el) => {
+                if (getName(el).includes(q)) {
+                    el.style.display = "";
+                    // reveal ancestor details
+                    let p = el.parentElement;
+                    while (p && p !== catRoot) {
+                        if (p.hasAttribute && p.hasAttribute("data-name")) {
+                            p.style.display = "";
+                            if (p.tagName === "DETAILS") p.open = true;
+                        }
+                        p = p.parentElement;
+                    }
+                }
+            });
+        };
+
+        catSearch.addEventListener("input", filter);
+    }
 });
