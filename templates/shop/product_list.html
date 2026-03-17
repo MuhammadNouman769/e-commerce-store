@@ -14,7 +14,7 @@
 					<h1>Products</h1>
 					<nav class="d-flex align-items-center">
 						<a href="{%url 'home'%}">Home<span class="lnr lnr-arrow-right"></span></a>
-						<a href="{%url 'product_list'%}">Products</span></a>
+						<a href="{%url 'products:product_list'%}">Products</span></a>
 
 					</nav>
 				</div>
@@ -105,7 +105,7 @@
         {% for product in products %}
         <div class="col-lg-3 col-md-6">
             <div class="single-product">
-
+                <a href="{% url 'products:product_detail' pk=product.pk %}">
                 {% with product.images.all as imgs %}
                 {% if imgs|length > 0 and imgs.0.images %}
                 <div class="product-img">
@@ -136,6 +136,7 @@
                     {% endwith %}
 
                 </div>
+                </a>
 
             </div>
         </div>

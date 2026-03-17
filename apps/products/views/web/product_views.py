@@ -93,14 +93,14 @@ class ProductDetailView(DetailView):
         )
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        product = self.get_object
+        product = self.get_object()
 
-        '''prefetch otions with their values'''
+        '''prefetch options with their values'''
         options = product.options.prefetch_related("values").all()
         context["options"] = options
 
         '''prefetch variants with their options'''
-        variants = product.variants.select_related("option1", "option2", "option3").all()
+        variants = product.variants.select_related("option1", "option2", "option3").order_by("position").all()
         context["variants"] = variants
 
         '''prefetch images'''
@@ -110,5 +110,23 @@ class ProductDetailView(DetailView):
         '''prefetch categories'''
         categories = product.categories.all()
         context["categories"] = categories
-        
-        return context  
+
+        '''related products (same category, exclude current, limit 6) - for accessories/get yours'''
+        category_ids = product.categories.values_list("id", flat=True)
+        related = (
+            Product.objects.filter(categories__id__in=category_ids, status=Product.ProductStatus.ACTIVE)
+            .exclude(pk=product.pk)
+            .select_related("shop")
+            .prefetch_related("images", "variants")
+            .distinct()[:6]
+        )
+        context["related_products"] = related
+
+        '''discount % for first variant (for display)'''
+        first_variant = variants.first()
+        discount_pct = 0
+        if first_variant and first_variant.compare_at_price and first_variant.compare_at_price > first_variant.price:
+            discount_pct = round((1 - float(first_variant.price) / float(first_variant.compare_at_price)) * 100)
+        context["discount_pct"] = discount_pct
+
+        return context
