@@ -6219,6 +6219,7 @@ label {
     display: flex;
     align-items: center;
     justify-content: center;
+    position: relative;
 }
 
 .daraz-product-list .daraz-card__img img {
@@ -6229,6 +6230,26 @@ label {
     padding: 0;
     margin: 0 auto;
     display: block;
+}
+
+/* Re-enable 2nd image swap on hover (Daraz cards only) */
+.daraz-product-list .daraz-card__img .default-img,
+.daraz-product-list .daraz-card__img .hover-img {
+    position: absolute;
+    inset: 0;
+}
+
+.daraz-product-list .daraz-card__img .hover-img {
+    display: block !important;
+    opacity: 0;
+}
+
+.daraz-product-list .daraz-card:hover .daraz-card__img .hover-img {
+    opacity: 1;
+}
+
+.daraz-product-list .daraz-card:hover .daraz-card__img .default-img {
+    opacity: 0 !important;
 }
 
 .daraz-product-list .daraz-card__details {
@@ -6314,4 +6335,39 @@ label {
     font-size: 14px;
     font-weight: 400;
     color: #222;
+}
+
+/* Global loader overlay */
+.page-loader {
+    position: fixed;
+    inset: 0;
+    background: rgba(255,255,255,0.75);
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transition: opacity 0.15s ease, visibility 0.15s ease;
+    z-index: 99999;
+    cursor: progress;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.page-loader.is-active {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: all;
+}
+
+.page-loader__spinner {
+    width: 44px;
+    height: 44px;
+    border-radius: 999px;
+    border: 4px solid #e9e9e9;
+    border-top-color: #f57224;
+    animation: pageLoaderSpin 0.8s linear infinite;
+}
+
+@keyframes pageLoaderSpin {
+    to { transform: rotate(360deg); }
 }

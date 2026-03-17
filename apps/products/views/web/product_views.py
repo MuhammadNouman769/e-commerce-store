@@ -2,7 +2,8 @@
 from django.shortcuts import render
 from apps.products.models import Product, Category
 from django.views.generic import ListView, DetailView
-from django.db.models import Count
+from django.db.models import Count, Min
+from urllib.parse import urlencode
 
 """ =========== Product List View =========== """
 class ProductListView(ListView):
@@ -10,6 +11,7 @@ class ProductListView(ListView):
     template_name = "shop/product_list.html"
     context_object_name = "products"
     paginate_by = 12
+    allowed_per_page = (4, 8, 12)
 
     
     '''process the context data to include categories'''
@@ -21,6 +23,7 @@ class ProductListView(ListView):
         category_id = self.request.GET.get("category")
         min_price = self.request.GET.get("min_price")
         max_price = self.request.GET.get("max_price")
+        sort = (self.request.GET.get("sort") or "").strip()
 
             # Price values as integers
         try:
@@ -42,7 +45,28 @@ class ProductListView(ListView):
         if max_price is not None:
             queryset = queryset.filter(variants__price__lte=max_price)
 
+        # Sorting (vendor / price)
+        if sort in ("price_asc", "price_desc"):
+            queryset = queryset.annotate(_min_price=Min("variants__price"))
+            queryset = queryset.order_by(("_min_price" if sort == "price_asc" else "-_min_price"), "-id")
+        elif sort == "vendor_asc":
+            queryset = queryset.order_by("vendor", "-id")
+        else:
+            # default: newest first
+            queryset = queryset.order_by("-id")
+
         return queryset.distinct()
+
+    def get_paginate_by(self, queryset):
+        try:
+            per_page = int(self.request.GET.get("per_page") or self.paginate_by)
+        except (TypeError, ValueError):
+            per_page = self.paginate_by
+
+        if per_page not in self.allowed_per_page:
+            per_page = self.paginate_by
+
+        return per_page
 
 
     def get_context_data(self, **kwargs):
@@ -64,6 +88,22 @@ class ProductListView(ListView):
         vendors_qs = Product.objects.values('vendor').annotate(count=Count('id')).order_by('vendor')
         context['vendors'] = [v['vendor'] for v in vendors_qs]
         context['vendor_counts'] = {v['vendor']: v['count'] for v in vendors_qs}
+
+        # Pagination helpers (preserve filters across page/per_page changes)
+        context["per_page"] = self.get_paginate_by(self.get_queryset())
+        context["allowed_per_page"] = self.allowed_per_page
+        context["sort"] = (self.request.GET.get("sort") or "").strip() or "default"
+
+        preserved_filters = [(k, v) for k, v in self.request.GET.items() if k not in ("page", "per_page")]
+        context["preserved_filters"] = preserved_filters
+
+        qs_no_page = self.request.GET.copy()
+        qs_no_page.pop("page", None)
+        context["querystring_without_page"] = qs_no_page.urlencode()
+
+        qs_no_page_per_page = qs_no_page.copy()
+        qs_no_page_per_page.pop("per_page", None)
+        context["querystring_without_page_and_per_page"] = qs_no_page_per_page.urlencode()
 
         return context
 

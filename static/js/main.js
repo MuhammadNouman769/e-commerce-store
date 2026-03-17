@@ -64,7 +64,7 @@ $(document).ready(function(){
     $(".active-product-area").owlCarousel({
         items:1,
         autoplay:false,
-        autoplayTimeout: 5000,
+        autoplayTimeout: 50000,
         loop:true,
         nav:true,
         navText:["<img src='img/product/prev.png'>","<img src='img/product/next.png'>"],
@@ -572,4 +572,40 @@ document.addEventListener("DOMContentLoaded", function () {
             link.parentElement.classList.add("active");
         }
     });
+
+    // Global loader for pagination / filter submits
+    const loader = document.getElementById("page-loader");
+    const showLoader = () => {
+        if (!loader) return;
+        loader.classList.add("is-active");
+        loader.setAttribute("aria-hidden", "false");
+    };
+    const hideLoader = () => {
+        if (!loader) return;
+        loader.classList.remove("is-active");
+        loader.setAttribute("aria-hidden", "true");
+    };
+
+    // Hide loader when page is restored from bfcache
+    window.addEventListener("pageshow", hideLoader);
+
+    // Show on pagination click
+    document.addEventListener("click", (e) => {
+        const a = e.target.closest && e.target.closest(".pagination a");
+        if (!a) return;
+        const href = a.getAttribute("href") || "";
+        if (href === "#" || href.trim() === "") return;
+        showLoader();
+    });
+
+    // Show on GET form submit (e.g., per_page dropdown)
+    document.addEventListener("submit", (e) => {
+        const form = e.target;
+        if (!(form instanceof HTMLFormElement)) return;
+        if ((form.getAttribute("method") || "").toLowerCase() !== "get") return;
+        showLoader();
+    }, true);
+
+    // Fallback: show loader right before navigation
+    window.addEventListener("beforeunload", showLoader);
 });
