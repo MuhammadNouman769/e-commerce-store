@@ -5807,33 +5807,37 @@ label {
 
 .product-img {
     width: 100%;
-    height: 150px;
+    height: 180px;
     position: relative;
     overflow: hidden;
     margin-bottom: 15px;
+    border-radius: 10px;
+    background: #f7f7f7;
 }
 
 .product-img img {
-  object-fit: cover;
     width: 100%;
-    height: 120%;
+    height: 100%;
     object-fit: contain;
+    object-position: center;
     transition: opacity 0.3s ease, transform 0.3s ease;
-    position: absolute;
-    top: 16px;
-    left: 16px;
+    position: static;
+    display: block;
+    padding: 10px;
 }
 
 .hover-img {
-    opacity: 0; /* initially hidden */
+    display: none !important; /* disable second image */
+    opacity: 0;
 }
 
-.single-product:hover .hover-img {
-    opacity: 1; /* show second image on hover */
+/* keep the first image always visible (no swap on hover) */
+.default-img {
+    opacity: 1 !important;
 }
 
-.single-product:hover .default-img {
-    opacity: 0; /* hide first image */
+.single-product:hover .product-img img {
+    transform: scale(1.03);
 }
 
 .product-title {
@@ -5841,6 +5845,12 @@ label {
     font-weight: 600;
     margin-bottom: 10px;
     color: #333;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    overflow: hidden;
+    min-height: 40px;
 }
 
 .price {
@@ -5860,6 +5870,140 @@ label {
     font-size: 14px;
     color: #888;
     text-decoration: line-through;
+}
+
+/* Cart polish overrides (keep template intact) */
+.cart_inner {
+    background: #fff;
+    border: 1px solid #eeeeee;
+    border-radius: 14px;
+    padding: 8px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.06);
+}
+
+.cart_inner .table {
+    margin-bottom: 0;
+    border-collapse: separate;
+    border-spacing: 0 12px;
+}
+
+.cart_inner .table thead tr th {
+    padding: 14px 18px;
+    background: #fafafa;
+    border-bottom: 0 !important;
+    color: #444;
+}
+
+.cart_inner .table tbody tr {
+    background: #fff;
+}
+
+.cart_inner .table tbody tr td {
+    padding: 18px 18px;
+    border-top: 1px solid #f0f0f0;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.cart_inner .table tbody tr td:first-child {
+    border-left: 1px solid #f0f0f0;
+    border-top-left-radius: 12px;
+    border-bottom-left-radius: 12px;
+}
+
+.cart_inner .table tbody tr td:last-child {
+    border-right: 1px solid #f0f0f0;
+    border-top-right-radius: 12px;
+    border-bottom-right-radius: 12px;
+}
+
+.cart_inner .table tbody tr td .media .d-flex img {
+    width: 100%;
+    max-width: 220px;
+    height: 220px;
+    object-fit: contain;
+    border-radius: 10px;
+    border: 1px solid #eeeeee;
+    background: #f7f7f7;
+}
+
+.cart_inner .table tbody tr td .media .media-body p {
+    font-weight: 500;
+    color: #222;
+}
+
+/* Cart: image on top, title/price below */
+.cart_inner .table tbody tr td .media {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.cart_inner .table tbody tr td .media .d-flex {
+    padding-right: 0;
+    margin-bottom: 12px;
+    width: 100%;
+}
+
+.cart_inner .table tbody tr td .media .media-body {
+    width: 100%;
+}
+
+/* Remove awkward negative offsets on smaller screens */
+@media (max-width: 991px) {
+    .cart_inner .table tbody tr.bottom_button td .cupon_text {
+        margin-left: 0;
+        flex-wrap: wrap;
+        gap: 10px;
+        justify-content: flex-end;
+    }
+
+    .cart_inner .table tbody tr.shipping_area .shipping_box {
+        margin-left: 0;
+        text-align: left;
+    }
+
+    .cart_inner .table tbody tr.out_button_area .checkout_btn_inner {
+        margin-left: 0;
+        justify-content: flex-end;
+        gap: 12px;
+        flex-wrap: wrap;
+    }
+}
+
+@media (max-width: 575px) {
+    .product-img {
+        height: 160px;
+    }
+
+    .cart_inner {
+        padding: 6px;
+    }
+
+    .cart_inner .table thead {
+        display: none;
+    }
+
+    .cart_inner .table,
+    .cart_inner .table tbody,
+    .cart_inner .table tr,
+    .cart_inner .table td {
+        display: block;
+        width: 100%;
+    }
+
+    .cart_inner .table tbody tr {
+        margin-bottom: 12px;
+    }
+
+    .cart_inner .table tbody tr td {
+        border-radius: 12px;
+        border-left: 1px solid #f0f0f0;
+        border-right: 1px solid #f0f0f0;
+    }
+
+    .cart_inner .table tbody tr td + td {
+        margin-top: 10px;
+    }
 }
 
 
@@ -5996,4 +6140,178 @@ label {
 /* Show grand-children when hovering child */
 .main-categories .child-nav-list:hover > .sub-child-categories {
     display: block;
+}
+
+/* =========================================================
+   Daraz-style UI (Product list + Categories + Cart)
+   Scoped via template wrapper classes:
+   - product list: .daraz-product-list, .daraz-card
+   - sidebar: .daraz-sidebar
+   - cart: .daraz-cart
+   ========================================================= */
+
+.daraz-sidebar {
+    width: 100%;
+    background: transparent;
+    padding: 0;
+    border-radius: 0;
+    box-shadow: none;
+}
+
+.daraz-sidebar .head {
+    font-size: 14px !important;
+    line-height: 22px !important;
+    padding: 0 !important;
+    margin: 0 0 10px 0 !important;
+    font-weight: 600 !important;
+    color: #111 !important;
+}
+
+.daraz-sidebar .main-categories .main-nav-list > a.parent-cat {
+    padding: 4px 0;
+    color: #666;
+    font-size: 12px;
+    font-weight: 400;
+    border-radius: 0;
+}
+
+.daraz-sidebar .main-categories .main-nav-list:hover > a.parent-cat {
+    background: transparent;
+    color: #f57224;
+}
+
+.daraz-sidebar .main-categories .main-nav-list > a.parent-cat::after {
+    display: none;
+}
+
+.daraz-product-list .row {
+    margin-left: -8px;
+    margin-right: -8px;
+}
+
+.daraz-product-list .row > [class*="col-"] {
+    padding-left: 8px;
+    padding-right: 8px;
+}
+
+.daraz-product-list .daraz-card {
+    border: 1px solid #eff0f5;
+    border-radius: 2px;
+    padding: 0;
+    margin-bottom: 16px;
+    text-align: left;
+    box-shadow: none;
+    overflow: hidden;
+    transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.daraz-product-list .daraz-card:hover {
+    box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+    transform: translateY(-1px);
+}
+
+.daraz-product-list .daraz-card__img {
+    height: 190px;
+    margin-bottom: 0;
+    background: #fff;
+    border-bottom: 1px solid #eff0f5;
+    border-radius: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.daraz-product-list .daraz-card__img img {
+    height: 100%!important;
+    width: 100%!important;
+    object-fit: contain;
+    object-position: center;
+    padding: 0;
+    margin: 0 auto;
+    display: block;
+}
+
+.daraz-product-list .daraz-card__details {
+    padding: 10px 10px 12px;
+    text-align: left;
+}
+
+.daraz-product-list .daraz-card__details .product-title {
+    font-size: 12px;
+    font-weight: 400;
+    color: #222;
+    margin-bottom: 6px;
+    min-height: 34px;
+}
+
+.daraz-product-list .daraz-card__details .price {
+    align-items: flex-start;
+    gap: 2px;
+}
+
+.daraz-product-list .daraz-card__details .current-price {
+    color: #f57224;
+    font-size: 16px;
+    font-weight: 700;
+    line-height: 1.1;
+}
+
+.daraz-product-list .daraz-card__details .old-price {
+    font-size: 12px;
+    color: #9e9e9e;
+}
+
+/* Cart: Daraz-like flat table rows */
+.daraz-cart .cart_inner {
+    background: #fff;
+    border: 1px solid #eff0f5;
+    border-radius: 2px;
+    padding: 0;
+    box-shadow: none;
+}
+
+.daraz-cart .cart_inner .table {
+    border-spacing: 0;
+}
+
+.daraz-cart .cart_inner .table thead tr th {
+    background: #fafafa;
+    color: #666;
+    font-weight: 500;
+}
+
+.daraz-cart .cart_inner .table tbody tr td {
+    border-top: 1px solid #eff0f5;
+    border-bottom: 0;
+}
+
+.daraz-cart .cart_inner .table tbody tr td:first-child,
+.daraz-cart .cart_inner .table tbody tr td:last-child {
+    border-radius: 0;
+}
+
+.daraz-cart .cart_inner .table tbody tr td .media {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 12px;
+}
+
+.daraz-cart .cart_inner .table tbody tr td .media .d-flex {
+    padding-right: 0;
+}
+
+.daraz-cart .cart_inner .table tbody tr td .media .d-flex img {
+    width: 80px;
+    height: 80px;
+    object-fit: contain;
+    background: #fff;
+    border: 1px solid #eff0f5;
+    border-radius: 2px;
+}
+
+.daraz-cart .cart_inner .table tbody tr td .media .media-body p {
+    font-size: 14px;
+    font-weight: 400;
+    color: #222;
 }
