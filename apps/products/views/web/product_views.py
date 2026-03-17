@@ -2,7 +2,7 @@
 from django.shortcuts import render
 from apps.products.models import Product, Category
 from django.views.generic import ListView, DetailView
-from django.db.models import Count, Min
+from django.db.models import Count, Min, Q
 from urllib.parse import urlencode
 
 """ =========== Product List View =========== """
@@ -20,7 +20,7 @@ class ProductListView(ListView):
         queryset = Product.objects.select_related("shop").prefetch_related("categories", "images", "variants").all()
         # Get the category filter from the query parameters
         shop_id = self.request.GET.get("shop")
-        vendor = self.request.GET.get("vendor")
+        vendors = [v for v in self.request.GET.getlist("vendor") if v]
         category_id = self.request.GET.get("category")
         min_price = self.request.GET.get("min_price")
         max_price = self.request.GET.get("max_price")
@@ -35,8 +35,11 @@ class ProductListView(ListView):
 
         if shop_id:
             queryset = queryset.filter(shop_id=shop_id)
-        if vendor:
-            queryset = queryset.filter(vendor__iexact=vendor)
+        if vendors:
+            vq = Q()
+            for v in vendors:
+                vq |= Q(vendor__iexact=v)
+            queryset = queryset.filter(vq)
         if category_id:
             queryset = queryset.filter(categories__id=category_id)
 
@@ -86,9 +89,16 @@ class ProductListView(ListView):
         context["categories"] = categories
             
             # Correct vendors query
-        vendors_qs = Product.objects.values('vendor').annotate(count=Count('id')).order_by('vendor')
+        vendors_qs = (
+            Product.objects.exclude(vendor__isnull=True)
+            .exclude(vendor__exact="")
+            .values("vendor")
+            .annotate(count=Count("id"))
+            .order_by("vendor")
+        )
         context['vendors'] = [v['vendor'] for v in vendors_qs]
         context['vendor_counts'] = {v['vendor']: v['count'] for v in vendors_qs}
+        context["selected_vendors"] = [v for v in self.request.GET.getlist("vendor") if v]
 
         # Pagination helpers (preserve filters across page/per_page changes)
         context["per_page"] = self.get_paginate_by(self.get_queryset())
@@ -124,6 +134,23 @@ class ProductListView(ListView):
         qs_no_view.pop("cols", None)
         qs_no_view.pop("layout", None)
         context["querystring_without_page_and_view"] = qs_no_view.urlencode()
+
+        qs_no_price = qs_no_page.copy()
+        qs_no_price.pop("min_price", None)
+        qs_no_price.pop("max_price", None)
+        context["querystring_without_page_and_price"] = qs_no_price.urlencode()
+
+        # Price range buttons (15k to 100k with 10k step + below 10k)
+        ranges = [
+            {"min": None, "max": 10000, "label": "Below Rs 10,000"},
+            {"min": 15000, "max": 25000, "label": "Rs 15,000 - Rs 25,000"},
+        ]
+        for start in range(15000, 100000, 10000):
+            end = min(start + 10000, 100000)
+            if start == 15000 and end == 25000:
+                continue  # already added above
+            ranges.append({"min": start, "max": end, "label": f"Rs {start:,} - Rs {end:,}"})
+        context["price_ranges"] = ranges
 
         return context
 

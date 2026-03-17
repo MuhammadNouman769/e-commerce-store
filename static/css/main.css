@@ -6272,6 +6272,229 @@ label {
     border-top: 1px solid #eff0f5;
 }
 
+/* Sidebar filter cards (like screenshot) */
+.daraz-sidebar .sidebar-filter {
+    margin: 12px 12px 0;
+    border-radius: 14px;
+    overflow: hidden;
+    border: 1px solid #eff0f5;
+    background: #fff;
+}
+
+.daraz-sidebar .sidebar-filter__header {
+    padding: 12px 14px;
+    font-weight: 800;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+    font-size: 12px;
+    color: #222;
+    background: #fff;
+    border-bottom: 1px solid #eff0f5;
+}
+
+.daraz-sidebar .sidebar-filter__body {
+    padding: 10px 10px 12px;
+    display: grid;
+    gap: 10px;
+}
+
+.daraz-sidebar .sidebar-filter__body--price {
+    gap: 8px;
+}
+
+.daraz-sidebar .price-range-btn {
+    display: block;
+    width: 100%;
+    border: none;
+    border-radius: 10px;
+    padding: 12px 12px;
+    text-align: center;
+    font-weight: 700;
+    font-size: 13px;
+    color: #fff;
+    text-decoration: none;
+    background: #ff00a8;
+    box-shadow: 0 8px 18px rgba(255, 0, 168, 0.18);
+    transition: transform 0.12s ease, filter 0.12s ease;
+}
+
+.daraz-sidebar .price-range-btn:hover {
+    filter: brightness(0.96);
+    transform: translateY(-1px);
+}
+
+/* Brands list (like screenshot) */
+.daraz-sidebar .sidebar-filter__body--brands {
+    gap: 0;
+}
+
+.daraz-sidebar .brand-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 10px;
+}
+
+.daraz-sidebar .brand-row {
+    display: grid;
+    grid-template-columns: 18px 1fr 74px;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 10px;
+    border-radius: 12px;
+    background: #f6f7fb;
+    cursor: pointer;
+    border: 1px solid transparent;
+}
+
+.daraz-sidebar .brand-row:hover {
+    border-color: rgba(0,0,0,0.08);
+}
+
+.daraz-sidebar .brand-row input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    margin: 0;
+    accent-color: #f57224;
+}
+
+.daraz-sidebar .brand-row__text {
+    font-size: 13px;
+    color: #555;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    text-transform: lowercase;
+}
+
+.daraz-sidebar .brand-row__badge {
+    height: 44px;
+    border-radius: 10px;
+    display: grid;
+    place-items: center;
+    font-weight: 800;
+    color: #fff;
+    background: #111;
+}
+
+.daraz-sidebar .brand-item:nth-child(2n) .brand-row__badge { background: #00c853; }
+.daraz-sidebar .brand-item:nth-child(3n) .brand-row__badge { background: #0b84f3; }
+.daraz-sidebar .brand-item:nth-child(4n) .brand-row__badge { background: #ff6d00; }
+.daraz-sidebar .brand-item:nth-child(5n) .brand-row__badge { background: #6a1b9a; }
+
+.daraz-sidebar .brand-more {
+    margin-top: 10px;
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+    color: #333;
+    opacity: 0.9;
+}
+
+.daraz-sidebar .filter-row {
+    display: grid;
+    grid-template-columns: 18px 1fr 64px;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 10px;
+    border-radius: 12px;
+    background: #f6f7fb;
+    cursor: pointer;
+    border: 1px solid transparent;
+}
+
+.daraz-sidebar .filter-row:hover {
+    border-color: rgba(245,114,36,0.25);
+}
+
+.daraz-sidebar .filter-row__check {
+    width: 16px;
+    height: 16px;
+    margin: 0;
+    accent-color: #f57224;
+}
+
+.daraz-sidebar .filter-row__text {
+    font-size: 13px;
+    color: #555;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.daraz-sidebar .filter-row__icon {
+    height: 44px;
+    border-radius: 10px;
+    display: grid;
+    place-items: center;
+    color: #fff;
+}
+
+.daraz-sidebar .filter-row__icon--orange {
+    background: #f57224;
+}
+
+.daraz-sidebar .icon-bars,
+.daraz-sidebar .icon-sort-up,
+.daraz-sidebar .icon-sort-down {
+    width: 22px;
+    height: 22px;
+    position: relative;
+    display: inline-block;
+}
+
+.daraz-sidebar .icon-bars::before {
+    content: "";
+    position: absolute;
+    left: 3px;
+    right: 3px;
+    bottom: 3px;
+    height: 6px;
+    background: #fff;
+    border-radius: 2px;
+    box-shadow: -6px -8px 0 #fff, 6px -12px 0 #fff;
+    opacity: 0.95;
+}
+
+.daraz-sidebar .icon-sort-up::before,
+.daraz-sidebar .icon-sort-down::before {
+    content: "";
+    position: absolute;
+    left: 4px;
+    right: 10px;
+    top: 4px;
+    height: 3px;
+    background: #fff;
+    border-radius: 2px;
+    box-shadow: 0 6px 0 #fff, 0 12px 0 #fff;
+}
+
+.daraz-sidebar .icon-sort-up::after {
+    content: "";
+    position: absolute;
+    right: 4px;
+    top: 4px;
+    width: 0;
+    height: 0;
+    border-left: 5px solid transparent;
+    border-right: 5px solid transparent;
+    border-bottom: 7px solid #fff;
+}
+
+.daraz-sidebar .icon-sort-down::after {
+    content: "";
+    position: absolute;
+    right: 4px;
+    bottom: 4px;
+    width: 0;
+    height: 0;
+    border-left: 5px solid transparent;
+    border-right: 5px solid transparent;
+    border-top: 7px solid #fff;
+}
+
 /* Disable old hover mega-menu behavior inside daraz sidebar */
 .daraz-sidebar .main-categories,
 .daraz-sidebar .child-categories,

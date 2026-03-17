@@ -24,7 +24,7 @@
 	<!-- End Banner Area -->
 	<div class="container">
 		<div class="row">
-			<div class="col-xl-2 col-lg-4 col-md-5">
+			<div class="col-xl-3.5 col-lg-4 col-md-5">
 				<div class="sidebar-categories daraz-sidebar">
 					<div class="head">Browse Categories</div>
 					<div class="cat-search">
@@ -67,6 +67,90 @@
 							{% endwith %}
 						{% endfor %}
 					</div>
+
+					<!-- Sidebar Sorting (industry style) -->
+					<div class="sidebar-filter">
+						<div class="sidebar-filter__header">
+							<span>Sorting</span>
+						</div>
+						<form class="sidebar-filter__body" method="get">
+							{% for k, v in preserved_filters %}
+								<input type="hidden" name="{{ k }}" value="{{ v }}">
+							{% endfor %}
+							<input type="hidden" name="per_page" value="{{ per_page }}">
+							<input type="hidden" name="layout" value="{{ layout }}">
+							<input type="hidden" name="cols" value="{{ cols }}">
+
+							<label class="filter-row">
+								<input class="filter-row__check" type="radio" name="sort" value="vendor_asc" {% if sort == "vendor_asc" %}checked{% endif %}>
+								<span class="filter-row__text">Vendor (A-Z)</span>
+								<span class="filter-row__icon filter-row__icon--orange" aria-hidden="true">
+									<span class="icon-bars"></span>
+								</span>
+							</label>
+
+							<label class="filter-row">
+								<input class="filter-row__check" type="radio" name="sort" value="price_asc" {% if sort == "price_asc" %}checked{% endif %}>
+								<span class="filter-row__text">Prices (Low to High)</span>
+								<span class="filter-row__icon filter-row__icon--orange" aria-hidden="true">
+									<span class="icon-sort-up"></span>
+								</span>
+							</label>
+
+							<label class="filter-row">
+								<input class="filter-row__check" type="radio" name="sort" value="price_desc" {% if sort == "price_desc" %}checked{% endif %}>
+								<span class="filter-row__text">Prices (High to Low)</span>
+								<span class="filter-row__icon filter-row__icon--orange" aria-hidden="true">
+									<span class="icon-sort-down"></span>
+								</span>
+							</label>
+						</form>
+					</div>
+
+					<!-- Sidebar Price Range -->
+					<div class="sidebar-filter sidebar-filter--price">
+						<div class="sidebar-filter__header">
+							<span>Price Range</span>
+						</div>
+						<div class="sidebar-filter__body sidebar-filter__body--price">
+							{% for r in price_ranges %}
+								<a class="price-range-btn" data-loader="1"
+								   href="?{% if querystring_without_page_and_price %}{{ querystring_without_page_and_price }}&{% endif %}{% if r.min %}min_price={{ r.min }}&{% endif %}max_price={{ r.max }}">
+									{{ r.label }}
+								</a>
+							{% endfor %}
+						</div>
+					</div>
+
+					<!-- Sidebar Brands -->
+					<div class="sidebar-filter sidebar-filter--brands">
+						<div class="sidebar-filter__header">
+							<span>Brands</span>
+						</div>
+						<form class="sidebar-filter__body sidebar-filter__body--brands" method="get">
+							{% for k, v in preserved_filters %}
+								{% if k != "vendor" %}
+									<input type="hidden" name="{{ k }}" value="{{ v }}">
+								{% endif %}
+							{% endfor %}
+							<input type="hidden" name="per_page" value="{{ per_page }}">
+							<input type="hidden" name="layout" value="{{ layout }}">
+							<input type="hidden" name="cols" value="{{ cols }}">
+
+							<ul class="brand-list">
+								{% for v in vendors %}
+									<li class="brand-item">
+										<label class="brand-row">
+											<input type="checkbox" name="vendor" value="{{ v }}" {% if v in selected_vendors %}checked{% endif %}>
+											<span class="brand-row__text">{{ v }}</span>
+											<span class="brand-row__badge" aria-hidden="true">{{ v|slice:":1"|upper }}</span>
+										</label>
+									</li>
+								{% endfor %}
+							</ul>
+							<div class="brand-more">More brands</div>
+						</form>
+					</div>
 </div>
 	
 <!-- Include noUiSlider -->
@@ -74,22 +158,9 @@
 				
 					
 			</div>
-			<div class="col-xl-10 col-lg-8 col-md-7">
+			<div class="col-xl-9.5 col-lg-8 col-md-7">
 				<!-- Start Filter Bar -->
 				<div class="filter-bar d-flex flex-wrap align-items-center">
-					<div class="sorting">
-						<form method="get">
-							{% for k, v in preserved_filters %}
-								<input type="hidden" name="{{ k }}" value="{{ v }}">
-							{% endfor %}
-							<select name="sort" onchange="this.form.submit()">
-								<option value="" {% if sort == "default" %}selected{% endif %}>Default sorting</option>
-								<option value="vendor_asc" {% if sort == "vendor_asc" %}selected{% endif %}>Vendor (A-Z)</option>
-								<option value="price_asc" {% if sort == "price_asc" %}selected{% endif %}>Price (Low to High)</option>
-								<option value="price_desc" {% if sort == "price_desc" %}selected{% endif %}>Price (High to Low)</option>
-							</select>
-						</form>
-					</div>
 					<div class="sorting daraz-view-toggle">
 						<div class="daraz-view-toggle__group">
 							<div class="daraz-view-toggle__label">Show:</div>

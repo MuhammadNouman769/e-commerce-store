@@ -615,15 +615,27 @@ document.addEventListener("DOMContentLoaded", function () {
         showLoader();
     }, true);
 
+    // Sidebar sorting/brands: auto-submit on change
+    document.addEventListener("change", (e) => {
+        const input = e.target;
+        if (!(input instanceof HTMLInputElement)) return;
+        if (input.name !== "sort" && input.name !== "vendor") return;
+        const form = input.closest("form");
+        if (!form) return;
+        showLoader();
+        form.submit();
+    });
+
     // Fallback: show loader right before navigation
     window.addEventListener("beforeunload", showLoader);
 
-    // Categories: show 8 items + "Load more" (works for main/child/sub-child)
+    // Lists: show 8 items + "Load more" (categories + brands)
     const batchSize = 8;
     const listSelectors = [
         ".daraz-sidebar ul.main-categories",
         ".daraz-sidebar ul.child-categories",
         ".daraz-sidebar ul.sub-child-categories",
+        ".daraz-sidebar ul.brand-list",
     ];
 
     const paginateList = (ul) => {
