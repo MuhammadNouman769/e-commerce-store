@@ -6153,7 +6153,7 @@ label {
 .daraz-sidebar {
     width: 100%;
     background: #fff;
-    padding: 10px 0;
+    padding: 1px 0;
     border-radius: 2px;
     box-shadow: 0 2px 10px rgba(0,0,0,0.08);
     border: 1px solid #eff0f5;
@@ -6280,10 +6280,10 @@ label {
 }
 
 .daraz-sidebar .head {
-    font-size: 14px !important;
-    line-height: 22px !important;
-    padding: 0 !important;
-    margin: 0 0 10px 0 !important;
+    font-size: 16px !important;
+    line-height: 60px !important;
+    padding: 1 !important;
+    margin: -11 0 10px 0 !important;
     font-weight: 600 !important;
     color: #111 !important;
 }
