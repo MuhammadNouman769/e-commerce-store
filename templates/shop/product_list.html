@@ -90,17 +90,39 @@
 							</select>
 						</form>
 					</div>
-					<div class="sorting mr-auto">
-						<form method="get">
-							{% for k, v in preserved_filters %}
-								<input type="hidden" name="{{ k }}" value="{{ v }}">
-							{% endfor %}
-							<select name="per_page" onchange="this.form.submit()">
+					<div class="sorting daraz-view-toggle">
+						<div class="daraz-view-toggle__group">
+							<div class="daraz-view-toggle__label">Show:</div>
+							<div class="daraz-view-toggle__controls">
 								{% for n in allowed_per_page %}
-									<option value="{{ n }}" {% if per_page == n %}selected{% endif %}>Show {{ n }}</option>
+									<a class="daraz-view-btn daraz-show-btn {% if per_page == n %}is-active{% endif %}"
+									   data-loader="1"
+									   href="?{% if querystring_without_page_and_per_page %}{{ querystring_without_page_and_per_page }}&{% endif %}per_page={{ n }}">
+										{{ n }}
+									</a>
 								{% endfor %}
-							</select>
-						</form>
+							</div>
+						</div>
+						<div class="daraz-view-toggle__divider"></div>
+						<div class="daraz-view-toggle__group">
+							<div class="daraz-view-toggle__label">View:</div>
+						<div class="daraz-view-toggle__controls">
+							{% for n in allowed_cols %}
+								<a class="daraz-view-btn daraz-cols-btn {% if layout == 'grid' and cols == n %}is-active{% endif %}"
+								   data-loader="1"
+								   href="?{% if querystring_without_page_and_view %}{{ querystring_without_page_and_view }}&{% endif %}layout=grid&cols={{ n }}">
+									<span class="daraz-cols-preview" style="--c: {{ n }};" aria-hidden="true"></span>
+									<span class="sr-only">{{ n }} columns</span>
+								</a>
+							{% endfor %}
+							<a class="daraz-view-btn daraz-list-btn {% if layout == 'list' %}is-active{% endif %}"
+							   data-loader="1"
+							   href="?{% if querystring_without_page_and_view %}{{ querystring_without_page_and_view }}&{% endif %}layout=list">
+								<span class="daraz-list-preview" aria-hidden="true"></span>
+								<span class="sr-only">List view</span>
+							</a>
+						</div>
+						</div>
 					</div>
 					<div class="pagination">
 						{% if page_obj.has_previous %}
@@ -129,10 +151,10 @@
 				<!-- End Filter Bar -->
 				<!-- Start Best Seller -->
 		<section class="lattest-product-area pb-40 category-list daraz-product-list">
-    <div class="row">
+    <div class="daraz-product-grid {% if layout == 'list' %}is-list{% endif %}" style="--daraz-cols: {{ cols }};">
         {% for product in products %}
-        <div class="col-lg-3 col-md-6">
-            <div class="single-product daraz-card">
+            <div class="daraz-product-grid__item">
+                <div class="single-product daraz-card">
                 <a href="{% url 'products:product_detail' pk=product.pk %}">
                 {% with product.images.all as imgs %}
                 {% if imgs|length > 0 and imgs.0.images %}
@@ -148,7 +170,7 @@
 
                 <!-- Product Title & Price -->
                 <div class="product-details daraz-card__details">
-                    <h6 class="product-title">{{ product.title|truncatechars:50 }}</h6>
+                    <h6 class="product-title">{{ product.title|truncatechars:20 }}</h6>
 
                     {% with product.variants.first as variant %}
                     {% if variant %}
@@ -167,7 +189,7 @@
                 </a>
 
             </div>
-        </div>
+            </div>
         {% endfor %}
     </div>
 </section><!-- End Best Seller -->		

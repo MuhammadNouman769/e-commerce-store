@@ -598,6 +598,15 @@ document.addEventListener("DOMContentLoaded", function () {
         showLoader();
     });
 
+    // Show loader on view/show controls (links)
+    document.addEventListener("click", (e) => {
+        const a = e.target.closest && e.target.closest("a[data-loader='1']");
+        if (!a) return;
+        const href = a.getAttribute("href") || "";
+        if (!href || href === "#") return;
+        showLoader();
+    });
+
     // Show on GET form submit (e.g., per_page dropdown)
     document.addEventListener("submit", (e) => {
         const form = e.target;

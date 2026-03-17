@@ -6502,6 +6502,191 @@ label {
     color: #9e9e9e;
 }
 
+/* View toggle (2/4/5/6 + list) */
+.daraz-view-toggle {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-right: 10px;
+}
+
+.daraz-view-toggle__group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.daraz-view-toggle__divider {
+    width: 1px;
+    height: 22px;
+    background: #eff0f5;
+    margin: 0 4px;
+}
+
+.daraz-view-toggle__label {
+    font-size: 12px;
+    color: #666;
+    white-space: nowrap;
+}
+
+.daraz-view-toggle__controls {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+}
+
+.daraz-view-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 28px;
+    height: 28px;
+    padding: 0 8px;
+    border: 1px solid #eff0f5;
+    border-radius: 8px;
+    background: #fff;
+    color: #555;
+    font-size: 12px;
+    text-decoration: none;
+    gap: 6px;
+}
+
+.daraz-view-btn:hover {
+    border-color: rgba(245,114,36,0.4);
+    color: #f57224;
+}
+
+.daraz-view-btn.is-active {
+    background: rgba(245,114,36,0.10);
+    border-color: rgba(245,114,36,0.55);
+    color: #f57224;
+    font-weight: 700;
+}
+
+/* Icon buttons for grid/list */
+.daraz-cols-btn,
+.daraz-list-btn {
+    padding: 0 10px;
+    min-width: 38px;
+}
+
+/* Column preview (shows 2/4/5/6 bars) */
+.daraz-cols-preview {
+    --c: 4;
+    width: 18px;
+    height: 14px;
+    border-radius: 3px;
+    border: 1px solid rgba(0,0,0,0.12);
+    background:
+        repeating-linear-gradient(
+            to right,
+            currentColor 0,
+            currentColor calc((100% / var(--c)) - 2px),
+            transparent calc((100% / var(--c)) - 2px),
+            transparent calc(100% / var(--c))
+        );
+    opacity: 0.75;
+}
+
+.daraz-view-btn.is-active .daraz-cols-preview {
+    opacity: 1;
+    border-color: rgba(245,114,36,0.55);
+}
+
+/* List preview */
+.daraz-list-preview {
+    width: 18px;
+    height: 14px;
+    border-radius: 3px;
+    border: 1px solid rgba(0,0,0,0.12);
+    position: relative;
+    opacity: 0.75;
+}
+
+.daraz-list-preview::before {
+    content: "";
+    position: absolute;
+    left: 3px;
+    right: 3px;
+    top: 3px;
+    height: 2px;
+    background: currentColor;
+    box-shadow: 0 4px 0 currentColor, 0 8px 0 currentColor;
+    opacity: 0.75;
+}
+
+.daraz-view-btn.is-active .daraz-list-preview {
+    opacity: 1;
+    border-color: rgba(245,114,36,0.55);
+}
+
+/* Filter bar: keep pagination on right */
+.filter-bar .pagination {
+    margin-left: auto;
+}
+
+/* Utility for screen readers */
+.sr-only {
+    position: absolute !important;
+    width: 1px !important;
+    height: 1px !important;
+    padding: 0 !important;
+    margin: -1px !important;
+    overflow: hidden !important;
+    clip: rect(0, 0, 0, 0) !important;
+    white-space: nowrap !important;
+    border: 0 !important;
+}
+
+/* Product grid/list layouts */
+.daraz-product-grid {
+    display: grid;
+    grid-template-columns: repeat(var(--daraz-cols, 4), minmax(0, 1fr));
+    gap: 12px;
+}
+
+.daraz-product-grid__item .daraz-card {
+    margin-bottom: 0;
+}
+
+.daraz-product-grid.is-list {
+    grid-template-columns: 1fr;
+}
+
+.daraz-product-grid.is-list .daraz-card a {
+    display: grid;
+    grid-template-columns: 180px 1fr;
+    gap: 12px;
+    align-items: stretch;
+}
+
+.daraz-product-grid.is-list .daraz-card__img {
+    height: 140px;
+    border-bottom: 0;
+    border-right: 1px solid #eff0f5;
+}
+
+.daraz-product-grid.is-list .daraz-card__details {
+    padding: 12px 12px 12px 0;
+}
+
+@media (max-width: 991px) {
+    .daraz-product-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 575px) {
+    .daraz-product-grid {
+        grid-template-columns: 1fr;
+    }
+    .daraz-view-toggle {
+        width: 100%;
+        justify-content: flex-start;
+        margin: 8px 0 0;
+    }
+}
+
 /* Cart: Daraz-like flat table rows */
 .daraz-cart .cart_inner {
     background: #fff;

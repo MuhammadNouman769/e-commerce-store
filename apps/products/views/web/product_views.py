@@ -12,6 +12,7 @@ class ProductListView(ListView):
     context_object_name = "products"
     paginate_by = 12
     allowed_per_page = (4, 8, 12)
+    allowed_cols = (2, 4, 5, 6)
 
     
     '''process the context data to include categories'''
@@ -94,6 +95,20 @@ class ProductListView(ListView):
         context["allowed_per_page"] = self.allowed_per_page
         context["sort"] = (self.request.GET.get("sort") or "").strip() or "default"
 
+        # View helpers (grid columns / list)
+        layout = (self.request.GET.get("layout") or "").strip().lower() or "grid"
+        if layout not in ("grid", "list"):
+            layout = "grid"
+        try:
+            cols = int(self.request.GET.get("cols") or 4)
+        except (TypeError, ValueError):
+            cols = 4
+        if cols not in self.allowed_cols:
+            cols = 4
+        context["layout"] = layout
+        context["cols"] = cols
+        context["allowed_cols"] = self.allowed_cols
+
         preserved_filters = [(k, v) for k, v in self.request.GET.items() if k not in ("page", "per_page")]
         context["preserved_filters"] = preserved_filters
 
@@ -104,6 +119,11 @@ class ProductListView(ListView):
         qs_no_page_per_page = qs_no_page.copy()
         qs_no_page_per_page.pop("per_page", None)
         context["querystring_without_page_and_per_page"] = qs_no_page_per_page.urlencode()
+
+        qs_no_view = qs_no_page.copy()
+        qs_no_view.pop("cols", None)
+        qs_no_view.pop("layout", None)
+        context["querystring_without_page_and_view"] = qs_no_view.urlencode()
 
         return context
 
