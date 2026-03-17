@@ -6152,10 +6152,12 @@ label {
 
 .daraz-sidebar {
     width: 100%;
-    background: transparent;
-    padding: 0;
-    border-radius: 0;
-    box-shadow: none;
+    background: #fff;
+    padding: 10px 0;
+    border-radius: 2px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+    border: 1px solid #eff0f5;
+    position: relative;
 }
 
 .daraz-sidebar .head {
@@ -6168,20 +6170,93 @@ label {
 }
 
 .daraz-sidebar .main-categories .main-nav-list > a.parent-cat {
-    padding: 4px 0;
-    color: #666;
+    padding: 6px 14px;
+    color: #444;
     font-size: 12px;
     font-weight: 400;
     border-radius: 0;
+    line-height: 1.35;
 }
 
 .daraz-sidebar .main-categories .main-nav-list:hover > a.parent-cat {
-    background: transparent;
+    background: #fff7f2;
     color: #f57224;
 }
 
 .daraz-sidebar .main-categories .main-nav-list > a.parent-cat::after {
-    display: none;
+    display: inline-block;
+    content: "\f105";
+    font-family: "FontAwesome";
+    float: right;
+    font-size: 12px;
+    color: #bbb;
+}
+
+/* Mega-menu columns (main -> child -> sub-child) */
+.daraz-sidebar .main-categories {
+    margin: 0;
+    padding: 0;
+}
+
+.daraz-sidebar .main-categories .main-nav-list {
+    margin: 0;
+}
+
+.daraz-sidebar .main-categories .child-categories,
+.daraz-sidebar .main-categories .sub-child-categories {
+    top: 0;
+    left: 100%;
+    height: 100%;
+    min-height: 420px;
+    padding: 10px 0;
+    border: 1px solid #eff0f5;
+    border-left: 0;
+    border-radius: 0 2px 2px 0;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.10);
+}
+
+.daraz-sidebar .main-categories .child-categories {
+    width: 260px;
+}
+
+.daraz-sidebar .main-categories .sub-child-categories {
+    width: 260px;
+}
+
+.daraz-sidebar .main-categories .child-categories .child-nav-list a,
+.daraz-sidebar .main-categories .sub-child-categories .sub-child-nav-list a {
+    padding: 6px 14px;
+    color: #666;
+    font-size: 12px;
+    line-height: 1.35;
+}
+
+.daraz-sidebar .main-categories .child-categories .child-nav-list a:hover,
+.daraz-sidebar .main-categories .sub-child-categories .sub-child-nav-list a:hover {
+    background: #fff7f2;
+    color: #f57224;
+}
+
+/* Ensure columns start from top, not offset */
+.daraz-sidebar .main-categories .child-categories,
+.daraz-sidebar .main-categories .sub-child-categories {
+    align-content: flex-start;
+}
+
+@media (max-width: 991px) {
+    /* On small screens, disable mega flyouts */
+    .daraz-sidebar .main-categories .child-categories,
+    .daraz-sidebar .main-categories .sub-child-categories {
+        position: static;
+        display: none !important;
+        width: 100%;
+        min-height: unset;
+        height: auto;
+        box-shadow: none;
+        border-left: 1px solid #eff0f5;
+        margin-top: 8px;
+        border-radius: 2px;
+    }
 }
 
 .daraz-product-list .row {
