@@ -1,5 +1,3 @@
-from urllib import request
-
 from django.shortcuts import render
 
 
@@ -18,8 +16,6 @@ def contact(request):
     return render(request, 'contact.html')
 def single_blog(request):
     return render(request, 'blog/single-blog.html')
-def cart(request):
-    return render(request, 'shop/cart.html')
 def checkout(request):
     return render(request, 'shop/checkout.html')
 def confirm(request):

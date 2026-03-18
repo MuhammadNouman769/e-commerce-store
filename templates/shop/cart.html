@@ -2,7 +2,7 @@
 {% load static %}
 {% block title %}BtrStore - cart{% endblock %}
 {% block content %}
-<body>
+<link rel="stylesheet" href="{% static 'css/cart.css' %}">
     <!-- Start Banner Area -->
     <section class="banner-area organic-breadcrumb">
         <div class="container">
@@ -20,195 +20,384 @@
     <!-- End Banner Area -->
 
     <!--================Cart Area =================-->
-    <section class="cart_area daraz-cart">
+    <section class="cart-modern">
         <div class="container">
-            <div class="cart_inner">
-                <div class="table-responsive">
-                    <table class="table">
-                        <thead>
-                            <tr>
-                                <th scope="col">Product</th>
-                                <th scope="col">Price</th>
-                                <th scope="col">Quantity</th>
-                                <th scope="col">Total</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td>
-                                    <div class="media">
-                                        <div class="d-flex">
-                                            <img src="{% static 'img/cart.jpg' %}" alt="">
+            <form method="post" action="{% url 'cart' %}">
+                {% csrf_token %}
+                <div class="row">
+                    <div class="col-lg-8 mb-4">
+                        <div class="cart-card">
+                            <div class="cart-card__header">
+                                <h4>Cart Items</h4>
+                                <div class="d-flex align-items-center" style="gap:10px;">
+                                    <a class="gray_btn" href="{% url 'products:product_list' %}">Continue Shopping</a>
+                                    <a class="gray_btn" href="{% url 'cart' %}?clear=1">Clear</a>
+                                </div>
+                            </div>
+                            <div class="cart-card__body">
+                                {% if cart_items %}
+                                    {% for item in cart_items %}
+                                    <div
+                                        class="cart-item"
+                                        data-product-id="{{ item.product.id }}"
+                                        data-unit-price="{{ item.price }}"
+                                    >
+                                        <img
+                                            class="cart-item__img"
+                                            src="{% if item.image_url %}{{ item.image_url }}{% else %}{% static 'img/cart.jpg' %}{% endif %}"
+                                            alt="{{ item.product.title }}"
+                                        >
+                                        <div>
+                                            <p class="cart-item__title">{{ item.product.title }}</p>
+                                            <p class="cart-item__meta">
+                                                Unit Price:
+                                                <span class="cart-money">Rs <span class="js-unit-price">{{ item.price|floatformat:0 }}</span></span>
+                                            </p>
+                                            <div class="cart-item__actions">
+                                                <div class="qty-control" aria-label="Quantity control">
+                                                    <button type="button" class="js-qty-minus" aria-label="Decrease quantity">−</button>
+                                                    <input
+                                                        type="number"
+                                                        min="1"
+                                                        name="qty_{{ item.product.id }}"
+                                                        id="qty_{{ item.product.id }}"
+                                                        value="{{ item.qty }}"
+                                                        class="js-qty-input"
+                                                    >
+                                                    <button type="button" class="js-qty-plus" aria-label="Increase quantity">+</button>
+                                                </div>
+                                                <a href="{{ item.remove_url }}" class="cart-link-danger">Remove</a>
+                                            </div>
                                         </div>
-                                        <div class="media-body">
-                                            <p>Minimalistic shop for multipurpose use</p>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td>
-                                    <h5>$360.00</h5>
-                                </td>
-                                <td>
-                                    <div class="product_count">
-                                        <input type="text" name="qty" id="sst" maxlength="12" value="1" title="Quantity:"
-                                            class="input-text qty">
-                                        <button onclick="var result = document.getElementById('sst'); var sst = result.value; if( !isNaN( sst )) result.value++;return false;"
-                                            class="increase items-count" type="button"><i class="lnr lnr-chevron-up"></i></button>
-                                        <button onclick="var result = document.getElementById('sst'); var sst = result.value; if( !isNaN( sst ) &amp;&amp; sst > 0 ) result.value--;return false;"
-                                            class="reduced items-count" type="button"><i class="lnr lnr-chevron-down"></i></button>
-                                    </div>
-                                </td>
-                                <td>
-                                    <h5>$720.00</h5>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>
-                                    <div class="media">
-                                        <div class="d-flex">
-                                            <img src="{%  static 'img/cart.jpg' %}" alt="">
-                                        </div>
-                                        <div class="media-body">
-                                            <p>Minimalistic shop for multipurpose use</p>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td>
-                                    <h5>$360.00</h5>
-                                </td>
-                                <td>
-                                    <div class="product_count">
-                                        <input type="text" name="qty" id="sst" maxlength="12" value="1" title="Quantity:"
-                                            class="input-text qty">
-                                        <button onclick="var result = document.getElementById('sst'); var sst = result.value; if( !isNaN( sst )) result.value++;return false;"
-                                            class="increase items-count" type="button"><i class="lnr lnr-chevron-up"></i></button>
-                                        <button onclick="var result = document.getElementById('sst'); var sst = result.value; if( !isNaN( sst ) &amp;&amp; sst > 0 ) result.value--;return false;"
-                                            class="reduced items-count" type="button"><i class="lnr lnr-chevron-down"></i></button>
-                                    </div>
-                                </td>
-                                <td>
-                                    <h5>$720.00</h5>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>
-                                    <div class="media">
-                                        <div class="d-flex">
-                                            <img src="{%  static 'img/cart.jpg' %}" alt="">
-                                        </div>
-                                        <div class="media-body">
-                                            <p>Minimalistic shop for multipurpose use</p>
+                                        <div class="cart-item__pricecol">
+                                            <div class="cart-money">
+                                                Rs <span class="js-line-total">{{ item.line_total|floatformat:0 }}</span>
+                                            </div>
+                                            <div class="cart-money-muted">Line Total</div>
                                         </div>
                                     </div>
-                                </td>
-                                <td>
-                                    <h5>$360.00</h5>
-                                </td>
-                                <td>
-                                    <div class="product_count">
-                                        <input type="text" name="qty" id="sst" maxlength="12" value="1" title="Quantity:"
-                                            class="input-text qty">
-                                        <button onclick="var result = document.getElementById('sst'); var sst = result.value; if( !isNaN( sst )) result.value++;return false;"
-                                            class="increase items-count" type="button"><i class="lnr lnr-chevron-up"></i></button>
-                                        <button onclick="var result = document.getElementById('sst'); var sst = result.value; if( !isNaN( sst ) &amp;&amp; sst > 0 ) result.value--;return false;"
-                                            class="reduced items-count" type="button"><i class="lnr lnr-chevron-down"></i></button>
+                                    {% endfor %}
+                                {% else %}
+                                    <div style="padding: 18px 0; text-align:center;">
+                                        <h5 style="margin-bottom: 10px;">Your cart is empty</h5>
+                                        <a class="primary-btn" href="{% url 'products:product_list' %}">Continue Shopping</a>
                                     </div>
-                                </td>
-                                <td>
-                                    <h5>$720.00</h5>
-                                </td>
-                            </tr>
-                            <tr class="bottom_button">
-                                <td>
-                                    <a class="gray_btn" href="#">Update Cart</a>
-                                </td>
-                                <td>
+                                {% endif %}
 
-                                </td>
-                                <td>
+                                {% if cart_items %}
+                                <div class="d-flex justify-content-end" style="gap:10px; margin-top: 16px;">
+                                    <button class="gray_btn" type="submit">Update Cart</button>
+                                    <a class="primary-btn" href="{% url 'checkout' %}">Proceed to checkout</a>
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
 
-                                </td>
-                                <td>
-                                    <div class="cupon_text d-flex align-items-center">
-                                        <input type="text" placeholder="Coupon Code">
-                                        <a class="primary-btn" href="#">Apply</a>
-                                        <a class="gray_btn" href="#">Close Coupon</a>
-                                    </div>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>
+                    <div class="col-lg-4 mb-4">
+                        <div class="cart-card">
+                            <div class="cart-card__header">
+                                <h4>Order Summary</h4>
+                            </div>
+                            <div class="cart-card__body">
+                                <div class="cart-summary-row">
+                                    <strong>Subtotal</strong>
+                                    <span>Rs <span id="js-subtotal">{{ subtotal|default:0|floatformat:0 }}</span></span>
+                                </div>
+                                <div class="cart-summary-row">
+                                    <strong>Shipping</strong>
+                                    <span>Rs <span id="js-shipping">0</span></span>
+                                </div>
+                                <div class="cart-summary-row">
+                                    <strong>Total</strong>
+                                    <span>Rs <span id="js-grand-total">{{ subtotal|default:0|floatformat:0 }}</span></span>
+                                </div>
 
-                                </td>
-                                <td>
-
-                                </td>
-                                <td>
-                                    <h5>Subtotal</h5>
-                                </td>
-                                <td>
-                                    <h5>$2160.00</h5>
-                                </td>
-                            </tr>
-                            <tr class="shipping_area">
-                                <td>
-
-                                </td>
-                                <td>
-
-                                </td>
-                                <td>
-                                    <h5>Shipping</h5>
-                                </td>
-                                <td>
-                                    <div class="shipping_box">
-                                        <ul class="list">
-                                            <li><a href="#">Flat Rate: $5.00</a></li>
-                                            <li><a href="#">Free Shipping</a></li>
-                                            <li><a href="#">Flat Rate: $10.00</a></li>
-                                            <li class="active"><a href="#">Local Delivery: $2.00</a></li>
-                                        </ul>
-                                        <h6>Calculate Shipping <i class="fa fa-caret-down" aria-hidden="true"></i></h6>
-                                        <select class="shipping_select">
-                                            <option value="1">Bangladesh</option>
-                                            <option value="2">India</option>
-                                            <option value="4">Pakistan</option>
+                                <div style="height: 14px;"></div>
+                                <div class="cart-form">
+                                    <h6 style="font-weight:700; color:#111827; margin-bottom: 12px;">Shipping Address</h6>
+                                    <div class="form-group">
+                                        <label for="ship_country">Country</label>
+                                        <select class="form-control js-ss-select" id="ship_country" name="ship_country" aria-label="Country">
+                                            {% for c in countries %}
+                                                <option value="{{ c.id }}" {% if default_country_id and c.id == default_country_id %}selected{% endif %}>
+                                                    {{ c.name }}
+                                                </option>
+                                            {% endfor %}
                                         </select>
-                                        <select class="shipping_select">
-                                            <option value="1">Select a State</option>
-                                            <option value="2">Select a State</option>
-                                            <option value="4">Select a State</option>
-                                        </select>
-                                        <input type="text" placeholder="Postcode/Zipcode">
-                                        <a class="gray_btn" href="#">Update Details</a>
+                                        <div class="ss" data-for="ship_country">
+                                            <input class="form-control ss-input" type="text" placeholder="Search country..." autocomplete="off">
+                                            <div class="ss-dropdown" role="listbox" aria-label="Country options"></div>
+                                        </div>
                                     </div>
-                                </td>
-                            </tr>
-                            <tr class="out_button_area">
-                                <td>
-
-                                </td>
-                                <td>
-
-                                </td>
-                                <td>
-
-                                </td>
-                                <td>
-                                    <div class="checkout_btn_inner d-flex align-items-center">
-                                        <a class="gray_btn" href="#">Continue Shopping</a>
-                                        <a class="primary-btn" href="#">Proceed to checkout</a>
+                                    <div class="form-group">
+                                        <label for="ship_province">Province</label>
+                                        <select class="form-control js-ss-select" id="ship_province" name="ship_province" aria-label="Province"></select>
+                                        <div class="ss" data-for="ship_province">
+                                            <input class="form-control ss-input" type="text" placeholder="Search province..." autocomplete="off">
+                                            <div class="ss-dropdown" role="listbox" aria-label="Province options"></div>
+                                        </div>
                                     </div>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
+                                    <div class="form-group">
+                                        <label for="ship_city">City</label>
+                                        <select class="form-control js-ss-select" id="ship_city" name="ship_city" aria-label="City"></select>
+                                        <div class="ss" data-for="ship_city">
+                                            <input class="form-control ss-input" type="text" placeholder="Search city..." autocomplete="off">
+                                            <div class="ss-dropdown" role="listbox" aria-label="City options"></div>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="ship_address">Address</label>
+                                        <textarea class="form-control" id="ship_address" name="ship_address" rows="3" placeholder="House, street, area..."></textarea>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="ship_postcode">Postcode</label>
+                                        <input class="form-control" id="ship_postcode" name="ship_postcode" placeholder="e.g. 54000">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-            </div>
+            </form>
         </div>
     </section>
     <!--================End Cart Area =================-->
 
-</body>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  function toNumber(v) {
+    var n = Number(String(v || '').replace(/,/g, '').trim());
+    return Number.isFinite(n) ? n : 0;
+  }
+  function formatMoney(n) {
+    try { return Math.round(n).toLocaleString(); } catch (e) { return String(Math.round(n)); }
+  }
+  function recalc() {
+    var subtotal = 0;
+    document.querySelectorAll('.cart-item').forEach(function (row) {
+      var unit = toNumber(row.dataset.unitPrice);
+      var qtyInput = row.querySelector('.js-qty-input');
+      var qty = toNumber(qtyInput ? qtyInput.value : 1);
+      if (qty < 1) qty = 1;
+      if (qtyInput && String(qtyInput.value) !== String(qty)) qtyInput.value = qty;
+      var line = unit * qty;
+      subtotal += line;
+      var lineEl = row.querySelector('.js-line-total');
+      if (lineEl) lineEl.textContent = formatMoney(line);
+    });
 
+    var ship = toNumber((document.getElementById('js-shipping') || {}).textContent);
+    var subtotalEl = document.getElementById('js-subtotal');
+    var grandEl = document.getElementById('js-grand-total');
+    if (subtotalEl) subtotalEl.textContent = formatMoney(subtotal);
+    if (grandEl) grandEl.textContent = formatMoney(subtotal + ship);
+  }
+
+  // Qty +/-
+  document.querySelectorAll('.cart-item').forEach(function (row) {
+    var input = row.querySelector('.js-qty-input');
+    var plus = row.querySelector('.js-qty-plus');
+    var minus = row.querySelector('.js-qty-minus');
+    if (plus) plus.addEventListener('click', function () {
+      input.value = String(toNumber(input.value) + 1);
+      recalc();
+    });
+    if (minus) minus.addEventListener('click', function () {
+      var next = toNumber(input.value) - 1;
+      input.value = String(next < 1 ? 1 : next);
+      recalc();
+    });
+    if (input) input.addEventListener('input', recalc);
+  });
+
+  var countryEl = document.getElementById('ship_country');
+  var provEl = document.getElementById('ship_province');
+  var cityEl = document.getElementById('ship_city');
+
+  var URL_REGIONS = "{% url 'geo_regions' %}";
+  var URL_CITIES = "{% url 'geo_cities' %}";
+
+  // Searchable dropdown UI for selects (avoids broken nice-select layout)
+  function ssInitForSelect(selectEl) {
+    if (!selectEl || !selectEl.id) return null;
+
+    // If theme auto-initialized niceSelect, destroy it for these selects
+    try {
+      if (window.jQuery && window.jQuery.fn && typeof window.jQuery.fn.niceSelect === "function") {
+        window.jQuery(selectEl).niceSelect("destroy");
+      }
+    } catch (e) {}
+
+    // Hide native select; our UI will drive it
+    selectEl.style.display = "none";
+
+    var wrap = document.querySelector(".ss[data-for='" + selectEl.id + "']");
+    if (!wrap) return null;
+
+    var input = wrap.querySelector(".ss-input");
+    var dropdown = wrap.querySelector(".ss-dropdown");
+
+    function close() {
+      wrap.classList.remove("is-open");
+    }
+    function open() {
+      wrap.classList.add("is-open");
+    }
+
+    function rebuild() {
+      if (!dropdown) return;
+      dropdown.innerHTML = "";
+      var opts = Array.prototype.slice.call(selectEl.options || []);
+      opts.forEach(function (o) {
+        if (o.disabled) return;
+        var item = document.createElement("button");
+        item.type = "button";
+        item.className = "ss-option";
+        item.dataset.value = String(o.value);
+        item.textContent = o.textContent || "";
+        if (String(selectEl.value) === String(o.value)) item.classList.add("is-selected");
+        item.addEventListener("click", function () {
+          selectEl.value = String(o.value);
+          selectEl.dispatchEvent(new Event("change", { bubbles: true }));
+          if (input) input.value = o.textContent || "";
+          close();
+        });
+        dropdown.appendChild(item);
+      });
+
+      // Seed input with current selection (ignore placeholders with empty value)
+      try {
+        var selOpt = selectEl.options[selectEl.selectedIndex];
+        var label = selOpt ? (selOpt.textContent || "") : "";
+        if (input) input.value = (selectEl.value ? label : "");
+      } catch (e) {}
+    }
+
+    function applyFilter(q) {
+      var query = String(q || "").toLowerCase().trim();
+      Array.prototype.slice.call(dropdown.querySelectorAll(".ss-option")).forEach(function (btn) {
+        var txt = String(btn.textContent || "").toLowerCase();
+        btn.style.display = (!query || txt.indexOf(query) !== -1) ? "" : "none";
+      });
+    }
+
+    if (input) {
+      input.addEventListener("focus", function () {
+        open();
+        // If input already equals selected label, don't auto-filter to 1 item
+        var selOpt = null;
+        try { selOpt = selectEl.options[selectEl.selectedIndex]; } catch (e) {}
+        var selLabel = selOpt ? String(selOpt.textContent || "") : "";
+        var current = String(input.value || "");
+        applyFilter(current.trim() && current === selLabel ? "" : current);
+      });
+      input.addEventListener("click", function () {
+        open();
+      });
+      input.addEventListener("input", function () {
+        open();
+        applyFilter(input.value);
+      });
+      input.addEventListener("keydown", function (e) {
+        if (e.key === "Escape") close();
+      });
+    }
+
+    // Close on outside click
+    document.addEventListener("click", function (e) {
+      if (!wrap.contains(e.target)) close();
+    });
+
+    // Keep UI in sync when select changes programmatically
+    selectEl.addEventListener("change", function () {
+      rebuild();
+    });
+
+    rebuild();
+    return { rebuild: rebuild, filter: applyFilter };
+  }
+
+  var ssCountry = ssInitForSelect(countryEl);
+  var ssProv = ssInitForSelect(provEl);
+  var ssCity = ssInitForSelect(cityEl);
+
+  function fillSelect(el, items, placeholder) {
+    if (!el) return;
+    el.innerHTML = "";
+    if (placeholder) {
+      var ph = document.createElement('option');
+      ph.value = "";
+      ph.textContent = placeholder;
+      el.appendChild(ph);
+    }
+    (items || []).forEach(function (x) {
+      var opt = document.createElement('option');
+      opt.value = String(x.id);
+      opt.textContent = x.name;
+      el.appendChild(opt);
+    });
+
+    // Sync searchable UI
+    try {
+      if (el === countryEl && ssCountry) ssCountry.rebuild();
+      if (el === provEl && ssProv) ssProv.rebuild();
+      if (el === cityEl && ssCity) ssCity.rebuild();
+    } catch (e) {}
+  }
+
+  function fetchJson(url) {
+    return fetch(url, { headers: { 'Accept': 'application/json' } }).then(function (r) {
+      if (!r.ok) throw new Error('Request failed');
+      return r.json();
+    });
+  }
+
+  function loadRegions(countryId) {
+    fillSelect(provEl, [], "Loading...");
+    fillSelect(cityEl, [], "Select province first");
+    if (!countryId) {
+      fillSelect(provEl, [], "Select country first");
+      return Promise.resolve();
+    }
+    return fetchJson(URL_REGIONS + "?country_id=" + encodeURIComponent(countryId)).then(function (data) {
+      var regions = (data && data.results) ? data.results : [];
+      fillSelect(provEl, regions, regions.length ? "Select province" : "No provinces found");
+      if (regions.length) {
+        provEl.value = String(regions[0].id);
+        return loadCities(provEl.value);
+      }
+      fillSelect(cityEl, [], "No cities");
+    }).catch(function () {
+      fillSelect(provEl, [], "Failed to load provinces");
+      fillSelect(cityEl, [], "Failed to load cities");
+    });
+  }
+
+  function loadCities(regionId) {
+    fillSelect(cityEl, [], "Loading...");
+    if (!regionId) {
+      fillSelect(cityEl, [], "Select province first");
+      return Promise.resolve();
+    }
+    return fetchJson(URL_CITIES + "?region_id=" + encodeURIComponent(regionId)).then(function (data) {
+      var cities = (data && data.results) ? data.results : [];
+      fillSelect(cityEl, cities, cities.length ? "Select city" : "No cities found");
+      if (cities.length) cityEl.value = String(cities[0].id);
+    }).catch(function () {
+      fillSelect(cityEl, [], "Failed to load cities");
+    });
+  }
+
+  if (countryEl) countryEl.addEventListener('change', function () {
+    loadRegions(countryEl.value);
+  });
+  if (provEl) provEl.addEventListener('change', function () {
+    loadCities(provEl.value);
+  });
+  loadRegions(countryEl ? countryEl.value : "");
+
+  recalc();
+});
+</script>
 {% endblock %}

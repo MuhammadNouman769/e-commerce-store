@@ -40,6 +40,10 @@ INSTALLED_APPS = [
     'crispy_forms',
     'tailwind',
     'drf_yasg',
+    'django_countries',
+  #  'phonenumber_field',
+    'cities_light',
+    
 
 
     # Custom Apps
@@ -53,8 +57,14 @@ INSTALLED_APPS = [
     'apps.supplychain',
     'apps.users',
     'apps.utilities',
+    'apps.cart',
 ]
+CITIES_LIGHT_TRANSLATION_LANGUAGES = ['en']
+# Keep empty to include all countries (worldwide)
 
+# Import a wider city dataset than default (cities15000 is very limited).
+# NOTE: this setting expects FULL URLs.
+CITIES_LIGHT_CITY_SOURCES = ["http://download.geonames.org/export/dump/cities5000.zip"]
 
 """ =============== DJANGO REST FRAMEWORK CONFIG =============== """
 
@@ -115,6 +125,10 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': BASE_DIR / 'db.sqlite3',
+        # Reduce "database is locked" during heavy imports (e.g. cities_light)
+        'OPTIONS': {
+            'timeout': 60,
+        },
     }
 }
 
