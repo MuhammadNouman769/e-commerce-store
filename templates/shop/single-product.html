@@ -72,10 +72,15 @@
 					{% if opt.name|lower == "color" or opt.name|lower == "colours" %}
 					<div class="pd-colors">
 						{% for val in opt.values.all %}
-						<div class="pd-color-box {% if forloop.first %}active{% endif %}" data-option-value="{{ val.id }}">
+						{# Attach a 1-based image index for JS to map colors to gallery thumbnails #}
+						<div
+							class="pd-color-box {% if forloop.first %}active{% endif %}"
+							data-option-value="{{ val.id }}"
+							data-image-index="{{ forloop.counter }}"
+						>
 							<div class="box">
 								{% with product.images.first as first_img %}
-								<img src="{% if first_img.images %}{{ first_img.images.url }}{% else %}{% static 'img/category/s-p1.jpg' %}{% endif %}" alt="{{ val.value }}">
+								<img src="{% if first_img and first_img.images %}{{ first_img.images.url }}{% else %}{% static 'img/category/s-p1.jpg' %}{% endif %}" alt="{{ val.value }}">
 								{% endwith %}
 							</div>
 							<span class="label">{{ val.value }}</span>
@@ -103,7 +108,8 @@
 
 				<div class="card_area d-flex align-items-center mt-3">
 					<a class="primary-btn" href="{% url 'cart' %}?add={{ product.pk }}">Add to Cart</a>
-					<a class="icon_btn ml-2" href="#"><i class="lnr lnr-heart"></i></a>
+					<a class="primary-btn ml-2" href="{% url 'checkout' %}?buy_now={{ product.pk }}">Buy Now</a>
+					
 				</div>
 			</div>
 		</div>
@@ -153,8 +159,23 @@ document.addEventListener('DOMContentLoaded', function() {
 	colorBoxes.forEach(function(b) {
 		b.addEventListener('click', function() {
 			if (this.classList.contains('sold-out')) return;
+			// toggle active state
 			colorBoxes.forEach(function(x) { x.classList.remove('active'); });
 			this.classList.add('active');
+
+			// if this color is mapped to a specific gallery image, switch to it
+			var imgIndex = this.dataset.imageIndex;
+			if (imgIndex && thumbs.length && mainImg) {
+				var targetThumb = Array.prototype.find.call(thumbs, function(t) {
+					return t.dataset.index === imgIndex;
+				});
+				if (targetThumb) {
+					mainImg.src = targetThumb.dataset.src;
+					thumbs.forEach(function(x) { x.classList.remove('active'); });
+					targetThumb.classList.add('active');
+					if (counter) counter.textContent = imgIndex;
+				}
+			}
 		});
 	});
 	var storageBtns = document.querySelectorAll('.pd-storage-btn');
