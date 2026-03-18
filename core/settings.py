@@ -154,34 +154,46 @@ MEDIA_ROOT = BASE_DIR / 'media'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# ================= Jazmin Admin Configuration =================
+""" ================= Jazzmin Admin Configuration ================= """
 
-JAZMIN_SETTINGS = {
+JAZZMIN_SETTINGS = {
     "site_title": "Footwear Admin",
     "site_header": "Footwear Dashboard",
     "welcome_sign": "Welcome to Footwear Management System",
     "site_brand": "Footwear",
     "copyright": "© 2025 Muhammad Noman",
-    "site_logo": None,  # you can add 'images/logo.png' if available
+    # You can add a logo later, e.g. 'images/logo.png'
+    "site_logo": None,
     "login_logo": None,
     "login_logo_dark": None,
     "site_icon": None,
 
-    # ================= Top Menu =================
+    # ================ Top Menu ================
     "topmenu_links": [
         {"name": "Dashboard", "url": "admin:index", "permissions": ["auth.view_user"]},
         {"app": "users"},
         {"app": "products"},
-        {"app": "orders"},
+        {"app": "order_fulfillment"},
+        {"app": "inventory_tracking"},
+        {"app": "shipment_monitoring"},
+        {"app": "supplier_monitoring"},
     ],
 
-    # ================= Sidebar =================
+    # ================ Sidebar ================
     "show_sidebar": True,
     "navigation_expanded": True,
     "hide_models": [],
-    "order_with_respect_to": ["users", "products", "orders"],
+    "order_with_respect_to": [
+        "users",
+        "products",
+        "inventory_tracking",
+        "order_fulfillment",
+        "shipment_monitoring",
+        "supplier_monitoring",
+        "supplychain",
+    ],
 
-    # ================= Icons =================
+    # ================ Icons ================
     "icons": {
         "auth": "fas fa-users-cog",
         "users.User": "fas fa-user",
@@ -189,18 +201,25 @@ JAZMIN_SETTINGS = {
         "users.Address": "fas fa-map-marker-alt",
         "users.ContactDetail": "fas fa-phone",
         "products": "fas fa-boxes",
-        "orders": "fas fa-shopping-cart",
+        "products.Product": "fas fa-box",
+        "products.Category": "fas fa-tags",
+        "order_fulfillment": "fas fa-shopping-cart",
+        "inventory_tracking": "fas fa-warehouse",
+        "shipment_monitoring": "fas fa-shipping-fast",
+        "supplier_monitoring": "fas fa-industry",
+        "supplychain": "fas fa-project-diagram",
     },
 
-    # ================= UI Customization =================
-    "custom_css": None,
+    # ================ UI Customization ================
+    "custom_css": "css/admin_custom.css",
     "custom_js": None,
     "related_modal_active": True,
 }
 
-# ================= Jazmin UI Theme =================
-JAZMIN_UI_TWEAKS = {
-    "theme": "flatly",  # flatly / darkly / cyborg / literal etc.
+""" ================= Jazzmin UI Theme ================= """
+
+JAZZMIN_UI_TWEAKS = {
+    "theme": "flatly",  # flatly / darkly / cyborg / lumen / etc.
     "dark_mode_theme": "darkly",
     "navbar": "navbar-dark bg-dark",
     "sidebar": "sidebar-dark-primary",
@@ -209,7 +228,7 @@ JAZMIN_UI_TWEAKS = {
     "navbar_fixed": True,
     "sidebar_fixed": True,
     "footer_fixed": False,
-    "body_small_text": True,
+    "body_small_text": False,
     "sidebar_collapse": False,
     "actions_sticky_top": True,
 }
