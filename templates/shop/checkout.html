@@ -2,6 +2,7 @@
 {% load static %}
 {% block title %}Product - checkout{% endblock %}
 {% block content %}
+<link rel="stylesheet" href="{% static 'css/cart.css' %}">
 <body>
 
     <!-- Start Banner Area -->
@@ -59,20 +60,27 @@
                 <div class="row">
                     <div class="col-lg-8">
                         <h3>Billing Details</h3>
-                        <form class="row contact_form" action="#" method="post" novalidate="novalidate">
+                        <form
+                            id="checkoutForm"
+                            class="row contact_form"
+                            action="{% url 'checkout' %}"
+                            method="post"
+                            novalidate="novalidate"
+                        >
+                            {% csrf_token %}
                             <div class="col-md-6 form-group p_star">
-                                <input type="text" class="form-control" id="first" name="name">
+                                <input type="text" class="form-control" id="first" name="first_name">
                                 <span class="placeholder" data-placeholder="First name"></span>
                             </div>
                             <div class="col-md-6 form-group p_star">
-                                <input type="text" class="form-control" id="last" name="name">
+                                <input type="text" class="form-control" id="last" name="last_name">
                                 <span class="placeholder" data-placeholder="Last name"></span>
                             </div>
                             <div class="col-md-12 form-group">
                                 <input type="text" class="form-control" id="company" name="company" placeholder="Company name">
                             </div>
                             <div class="col-md-6 form-group p_star">
-                                <input type="text" class="form-control" id="number" name="number">
+                                <input type="text" class="form-control" id="number" name="phone_number">
                                 <span class="placeholder" data-placeholder="Phone number"></span>
                             </div>
                             <div class="col-md-6 form-group p_star">
@@ -116,10 +124,55 @@
                             </div>
                             <div class="col-md-12 form-group">
                                 <div class="creat_account">
-                                    <h3>Shipping Details</h3>
+                                    <h3>Shipping Address</h3>
                                     <input type="checkbox" id="f-option3" name="selector">
                                     <label for="f-option3">Ship to a different address?</label>
                                 </div>
+                                <div class="cart-form" style="margin-top: 14px;">
+                                    <div class="form-group">
+                                        <label for="ship_country">Country</label>
+                                        <select class="form-control js-ss-select" id="ship_country" name="ship_country" aria-label="Country">
+                                            {% for c in countries %}
+                                                <option value="{{ c.id }}" {% if default_country_id and c.id == default_country_id %}selected{% endif %}>
+                                                    {{ c.name }}
+                                                </option>
+                                            {% endfor %}
+                                        </select>
+                                        <div class="ss" data-for="ship_country">
+                                            <input class="form-control ss-input" type="text" placeholder="Search country..." autocomplete="off">
+                                            <div class="ss-dropdown" role="listbox" aria-label="Country options"></div>
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label for="ship_province">Province</label>
+                                        <select class="form-control js-ss-select" id="ship_province" name="ship_province" aria-label="Province"></select>
+                                        <div class="ss" data-for="ship_province">
+                                            <input class="form-control ss-input" type="text" placeholder="Search province..." autocomplete="off">
+                                            <div class="ss-dropdown" role="listbox" aria-label="Province options"></div>
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label for="ship_city">City</label>
+                                        <select class="form-control js-ss-select" id="ship_city" name="ship_city" aria-label="City"></select>
+                                        <div class="ss" data-for="ship_city">
+                                            <input class="form-control ss-input" type="text" placeholder="Search city..." autocomplete="off">
+                                            <div class="ss-dropdown" role="listbox" aria-label="City options"></div>
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label for="ship_address">Address</label>
+                                        <textarea class="form-control" id="ship_address" name="ship_address" rows="3" placeholder="House, street, area..."></textarea>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label for="ship_postcode">Postcode</label>
+                                        <input class="form-control" id="ship_postcode" name="ship_postcode" placeholder="e.g. 54000">
+                                    </div>
+                                </div>
+
                                 <textarea class="form-control" name="message" id="message" rows="1" placeholder="Order Notes"></textarea>
                             </div>
                         </form>
@@ -128,19 +181,29 @@
                         <div class="order_box">
                             <h2>Your Order</h2>
                             <ul class="list">
-                                <li><a href="#">Product <span>Total</span></a></li>
-                                <li><a href="#">Fresh Blackberry <span class="middle">x 02</span> <span class="last">$720.00</span></a></li>
-                                <li><a href="#">Fresh Tomatoes <span class="middle">x 02</span> <span class="last">$720.00</span></a></li>
-                                <li><a href="#">Fresh Brocoli <span class="middle">x 02</span> <span class="last">$720.00</span></a></li>
+                                {% if cart_items %}
+                                    <li><a href="#">Product <span>Total</span></a></li>
+                                    {% for item in cart_items %}
+                                        <li>
+                                            <a href="#">
+                                                {{ item.product.title }}
+                                                <span class="middle">x {{ item.qty }}</span>
+                                                <span class="last">Rs {{ item.line_total|floatformat:0 }}</span>
+                                            </a>
+                                        </li>
+                                    {% endfor %}
+                                {% else %}
+                                    <li><a href="#">No items in cart <span class="last">Rs 0</span></a></li>
+                                {% endif %}
                             </ul>
                             <ul class="list list_2">
-                                <li><a href="#">Subtotal <span>$2160.00</span></a></li>
-                                <li><a href="#">Shipping <span>Flat rate: $50.00</span></a></li>
-                                <li><a href="#">Total <span>$2210.00</span></a></li>
+                                <li><a href="#">Subtotal <span>Rs {{ subtotal|default:0|floatformat:0 }}</span></a></li>
+                                <li><a href="#">Shipping <span>Rs 0</span></a></li>
+                                <li><a href="#">Total <span>Rs {{ subtotal|default:0|floatformat:0 }}</span></a></li>
                             </ul>
                             <div class="payment_item">
                                 <div class="radion_btn">
-                                    <input type="radio" id="f-option5" name="selector">
+                                    <input type="radio" id="f-option5" name="payment_method" value="cod" form="checkoutForm" checked>
                                     <label for="f-option5">Check payments</label>
                                     <div class="check"></div>
                                 </div>
@@ -149,7 +212,7 @@
                             </div>
                             <div class="payment_item active">
                                 <div class="radion_btn">
-                                    <input type="radio" id="f-option6" name="selector">
+                                    <input type="radio" id="f-option6" name="payment_method" value="paypal" form="checkoutForm">
                                     <label for="f-option6">Paypal </label>
                                     <img src="staticg/product/card.jpg" alt="">
                                     <div class="check"></div>
@@ -162,7 +225,7 @@
                                 <label for="f-option4">I’ve read and accept the </label>
                                 <a href="#">terms & conditions*</a>
                             </div>
-                            <a class="primary-btn" href="#">Proceed to Paypal</a>
+                            <button type="submit" form="checkoutForm" class="primary-btn">Proceed to Paypal</button>
                         </div>
                     </div>
                 </div>
@@ -170,6 +233,195 @@
         </div>
     </section>
     <!--================End Checkout Area =================-->
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            var countryEl = document.getElementById('ship_country');
+            var provEl = document.getElementById('ship_province');
+            var cityEl = document.getElementById('ship_city');
+
+            var URL_REGIONS = "{% url 'geo_regions' %}";
+            var URL_CITIES = "{% url 'geo_cities' %}";
+
+            // Searchable dropdown UI for these selects (same approach as cart.html)
+            function ssInitForSelect(selectEl) {
+                if (!selectEl || !selectEl.id) return null;
+
+                try {
+                    if (window.jQuery && window.jQuery.fn && typeof window.jQuery.fn.niceSelect === "function") {
+                        window.jQuery(selectEl).niceSelect("destroy");
+                    }
+                } catch (e) {}
+
+                selectEl.style.display = "none";
+
+                var wrap = document.querySelector(".ss[data-for='" + selectEl.id + "']");
+                if (!wrap) return null;
+
+                var input = wrap.querySelector(".ss-input");
+                var dropdown = wrap.querySelector(".ss-dropdown");
+
+                function close() {
+                    wrap.classList.remove("is-open");
+                }
+                function open() {
+                    wrap.classList.add("is-open");
+                }
+
+                function rebuild() {
+                    if (!dropdown) return;
+                    dropdown.innerHTML = "";
+                    var opts = Array.prototype.slice.call(selectEl.options || []);
+                    opts.forEach(function (o) {
+                        if (o.disabled) return;
+                        var item = document.createElement("button");
+                        item.type = "button";
+                        item.className = "ss-option";
+                        item.dataset.value = String(o.value);
+                        item.textContent = o.textContent || "";
+                        if (String(selectEl.value) === String(o.value)) item.classList.add("is-selected");
+                        item.addEventListener("click", function () {
+                            selectEl.value = String(o.value);
+                            selectEl.dispatchEvent(new Event("change", { bubbles: true }));
+                            if (input) input.value = o.textContent || "";
+                            close();
+                        });
+                        dropdown.appendChild(item);
+                    });
+
+                    // Seed input with current selection
+                    try {
+                        var selOpt = selectEl.options[selectEl.selectedIndex];
+                        var label = selOpt ? (selOpt.textContent || "") : "";
+                        if (input) input.value = (selectEl.value ? label : "");
+                    } catch (e) {}
+                }
+
+                function applyFilter(q) {
+                    var query = String(q || "").toLowerCase().trim();
+                    Array.prototype.slice.call(dropdown.querySelectorAll(".ss-option")).forEach(function (btn) {
+                        var txt = String(btn.textContent || "").toLowerCase();
+                        btn.style.display = (!query || txt.indexOf(query) !== -1) ? "" : "none";
+                    });
+                }
+
+                if (input) {
+                    input.addEventListener("focus", function () {
+                        open();
+                        var selOpt = null;
+                        try { selOpt = selectEl.options[selectEl.selectedIndex]; } catch (e) {}
+                        var selLabel = selOpt ? String(selOpt.textContent || "") : "";
+                        var current = String(input.value || "");
+                        applyFilter(current.trim() && current === selLabel ? "" : current);
+                    });
+                    input.addEventListener("click", function () {
+                        open();
+                    });
+                    input.addEventListener("input", function () {
+                        open();
+                        applyFilter(input.value);
+                    });
+                    input.addEventListener("keydown", function (e) {
+                        if (e.key === "Escape") close();
+                    });
+                }
+
+                document.addEventListener("click", function (e) {
+                    if (!wrap.contains(e.target)) close();
+                });
+
+                selectEl.addEventListener("change", function () {
+                    rebuild();
+                });
+
+                rebuild();
+                return { rebuild: rebuild, filter: applyFilter };
+            }
+
+            var ssCountry = ssInitForSelect(countryEl);
+            var ssProv = ssInitForSelect(provEl);
+            var ssCity = ssInitForSelect(cityEl);
+
+            function fillSelect(el, items, placeholder) {
+                if (!el) return;
+                el.innerHTML = "";
+                if (placeholder) {
+                    var ph = document.createElement('option');
+                    ph.value = "";
+                    ph.textContent = placeholder;
+                    el.appendChild(ph);
+                }
+
+                (items || []).forEach(function (x) {
+                    var opt = document.createElement('option');
+                    opt.value = String(x.id);
+                    opt.textContent = x.name;
+                    el.appendChild(opt);
+                });
+
+                try {
+                    if (el === countryEl && ssCountry) ssCountry.rebuild();
+                    if (el === provEl && ssProv) ssProv.rebuild();
+                    if (el === cityEl && ssCity) ssCity.rebuild();
+                } catch (e) {}
+            }
+
+            function fetchJson(url) {
+                return fetch(url, { headers: { 'Accept': 'application/json' } }).then(function (r) {
+                    if (!r.ok) throw new Error('Request failed');
+                    return r.json();
+                });
+            }
+
+            function loadRegions(countryId) {
+                fillSelect(provEl, [], "Loading...");
+                fillSelect(cityEl, [], "Select province first");
+
+                if (!countryId) {
+                    fillSelect(provEl, [], "Select country first");
+                    return Promise.resolve();
+                }
+
+                return fetchJson(URL_REGIONS + "?country_id=" + encodeURIComponent(countryId)).then(function (data) {
+                    var regions = (data && data.results) ? data.results : [];
+                    fillSelect(provEl, regions, regions.length ? "Select province" : "No provinces found");
+                    if (regions.length) {
+                        provEl.value = String(regions[0].id);
+                        return loadCities(provEl.value);
+                    }
+                    fillSelect(cityEl, [], "No cities");
+                }).catch(function () {
+                    fillSelect(provEl, [], "Failed to load provinces");
+                    fillSelect(cityEl, [], "Failed to load cities");
+                });
+            }
+
+            function loadCities(regionId) {
+                fillSelect(cityEl, [], "Loading...");
+                if (!regionId) {
+                    fillSelect(cityEl, [], "Select province first");
+                    return Promise.resolve();
+                }
+
+                return fetchJson(URL_CITIES + "?region_id=" + encodeURIComponent(regionId)).then(function (data) {
+                    var cities = (data && data.results) ? data.results : [];
+                    fillSelect(cityEl, cities, cities.length ? "Select city" : "No cities found");
+                    if (cities.length) cityEl.value = String(cities[0].id);
+                }).catch(function () {
+                    fillSelect(cityEl, [], "Failed to load cities");
+                });
+            }
+
+            if (countryEl) countryEl.addEventListener('change', function () {
+                loadRegions(countryEl.value);
+            });
+            if (provEl) provEl.addEventListener('change', function () {
+                loadCities(provEl.value);
+            });
+
+            loadRegions(countryEl ? countryEl.value : "");
+        });
+    </script>
 
 </body>
 

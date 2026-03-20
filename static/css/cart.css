@@ -31,6 +31,17 @@
   padding: 16px 18px;
 }
 
+.cart-summary-sticky {
+  position: sticky;
+  top: 18px;
+}
+
+@media (max-width: 991px) {
+  .cart-summary-sticky {
+    position: static;
+  }
+}
+
 .cart-item {
   display: grid;
   grid-template-columns: 90px 1fr auto;

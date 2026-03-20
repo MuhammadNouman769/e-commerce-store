@@ -3,6 +3,7 @@
 {% block title %}BtrStore - cart{% endblock %}
 {% block content %}
 <link rel="stylesheet" href="{% static 'css/cart.css' %}">
+<link rel="stylesheet" href="{% static 'css/checkout.css' %}">
     <!-- Start Banner Area -->
     <section class="banner-area organic-breadcrumb">
         <div class="container">
@@ -24,6 +25,13 @@
         <div class="container">
             <form method="post" action="{% url 'cart' %}">
                 {% csrf_token %}
+                <div class="checkout-stepper checkout-stepper--cart" style="margin-bottom: 18px;">
+                    <div class="checkout-stepper__step is-active">1. Cart</div>
+                    <div class="checkout-stepper__sep">-></div>
+                    <div class="checkout-stepper__step">
+                        <a href="{% url 'checkout' %}">2. Checkout</a>
+                    </div>
+                </div>
                 <div class="row">
                     <div class="col-lg-8 mb-4">
                         <div class="cart-card">
@@ -94,7 +102,7 @@
                         </div>
                     </div>
 
-                    <div class="col-lg-4 mb-4">
+                    <div class="col-lg-4 mb-4 cart-summary-sticky">
                         <div class="cart-card">
                             <div class="cart-card__header">
                                 <h4>Order Summary</h4>
@@ -114,47 +122,6 @@
                                 </div>
 
                                 <div style="height: 14px;"></div>
-                                <div class="cart-form">
-                                    <h6 style="font-weight:700; color:#111827; margin-bottom: 12px;">Shipping Address</h6>
-                                    <div class="form-group">
-                                        <label for="ship_country">Country</label>
-                                        <select class="form-control js-ss-select" id="ship_country" name="ship_country" aria-label="Country">
-                                            {% for c in countries %}
-                                                <option value="{{ c.id }}" {% if default_country_id and c.id == default_country_id %}selected{% endif %}>
-                                                    {{ c.name }}
-                                                </option>
-                                            {% endfor %}
-                                        </select>
-                                        <div class="ss" data-for="ship_country">
-                                            <input class="form-control ss-input" type="text" placeholder="Search country..." autocomplete="off">
-                                            <div class="ss-dropdown" role="listbox" aria-label="Country options"></div>
-                                        </div>
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="ship_province">Province</label>
-                                        <select class="form-control js-ss-select" id="ship_province" name="ship_province" aria-label="Province"></select>
-                                        <div class="ss" data-for="ship_province">
-                                            <input class="form-control ss-input" type="text" placeholder="Search province..." autocomplete="off">
-                                            <div class="ss-dropdown" role="listbox" aria-label="Province options"></div>
-                                        </div>
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="ship_city">City</label>
-                                        <select class="form-control js-ss-select" id="ship_city" name="ship_city" aria-label="City"></select>
-                                        <div class="ss" data-for="ship_city">
-                                            <input class="form-control ss-input" type="text" placeholder="Search city..." autocomplete="off">
-                                            <div class="ss-dropdown" role="listbox" aria-label="City options"></div>
-                                        </div>
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="ship_address">Address</label>
-                                        <textarea class="form-control" id="ship_address" name="ship_address" rows="3" placeholder="House, street, area..."></textarea>
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="ship_postcode">Postcode</label>
-                                        <input class="form-control" id="ship_postcode" name="ship_postcode" placeholder="e.g. 54000">
-                                    </div>
-                                </div>
                             </div>
                         </div>
                     </div>
@@ -210,192 +177,6 @@ document.addEventListener('DOMContentLoaded', function () {
     });
     if (input) input.addEventListener('input', recalc);
   });
-
-  var countryEl = document.getElementById('ship_country');
-  var provEl = document.getElementById('ship_province');
-  var cityEl = document.getElementById('ship_city');
-
-  var URL_REGIONS = "{% url 'geo_regions' %}";
-  var URL_CITIES = "{% url 'geo_cities' %}";
-
-  // Searchable dropdown UI for selects (avoids broken nice-select layout)
-  function ssInitForSelect(selectEl) {
-    if (!selectEl || !selectEl.id) return null;
-
-    // If theme auto-initialized niceSelect, destroy it for these selects
-    try {
-      if (window.jQuery && window.jQuery.fn && typeof window.jQuery.fn.niceSelect === "function") {
-        window.jQuery(selectEl).niceSelect("destroy");
-      }
-    } catch (e) {}
-
-    // Hide native select; our UI will drive it
-    selectEl.style.display = "none";
-
-    var wrap = document.querySelector(".ss[data-for='" + selectEl.id + "']");
-    if (!wrap) return null;
-
-    var input = wrap.querySelector(".ss-input");
-    var dropdown = wrap.querySelector(".ss-dropdown");
-
-    function close() {
-      wrap.classList.remove("is-open");
-    }
-    function open() {
-      wrap.classList.add("is-open");
-    }
-
-    function rebuild() {
-      if (!dropdown) return;
-      dropdown.innerHTML = "";
-      var opts = Array.prototype.slice.call(selectEl.options || []);
-      opts.forEach(function (o) {
-        if (o.disabled) return;
-        var item = document.createElement("button");
-        item.type = "button";
-        item.className = "ss-option";
-        item.dataset.value = String(o.value);
-        item.textContent = o.textContent || "";
-        if (String(selectEl.value) === String(o.value)) item.classList.add("is-selected");
-        item.addEventListener("click", function () {
-          selectEl.value = String(o.value);
-          selectEl.dispatchEvent(new Event("change", { bubbles: true }));
-          if (input) input.value = o.textContent || "";
-          close();
-        });
-        dropdown.appendChild(item);
-      });
-
-      // Seed input with current selection (ignore placeholders with empty value)
-      try {
-        var selOpt = selectEl.options[selectEl.selectedIndex];
-        var label = selOpt ? (selOpt.textContent || "") : "";
-        if (input) input.value = (selectEl.value ? label : "");
-      } catch (e) {}
-    }
-
-    function applyFilter(q) {
-      var query = String(q || "").toLowerCase().trim();
-      Array.prototype.slice.call(dropdown.querySelectorAll(".ss-option")).forEach(function (btn) {
-        var txt = String(btn.textContent || "").toLowerCase();
-        btn.style.display = (!query || txt.indexOf(query) !== -1) ? "" : "none";
-      });
-    }
-
-    if (input) {
-      input.addEventListener("focus", function () {
-        open();
-        // If input already equals selected label, don't auto-filter to 1 item
-        var selOpt = null;
-        try { selOpt = selectEl.options[selectEl.selectedIndex]; } catch (e) {}
-        var selLabel = selOpt ? String(selOpt.textContent || "") : "";
-        var current = String(input.value || "");
-        applyFilter(current.trim() && current === selLabel ? "" : current);
-      });
-      input.addEventListener("click", function () {
-        open();
-      });
-      input.addEventListener("input", function () {
-        open();
-        applyFilter(input.value);
-      });
-      input.addEventListener("keydown", function (e) {
-        if (e.key === "Escape") close();
-      });
-    }
-
-    // Close on outside click
-    document.addEventListener("click", function (e) {
-      if (!wrap.contains(e.target)) close();
-    });
-
-    // Keep UI in sync when select changes programmatically
-    selectEl.addEventListener("change", function () {
-      rebuild();
-    });
-
-    rebuild();
-    return { rebuild: rebuild, filter: applyFilter };
-  }
-
-  var ssCountry = ssInitForSelect(countryEl);
-  var ssProv = ssInitForSelect(provEl);
-  var ssCity = ssInitForSelect(cityEl);
-
-  function fillSelect(el, items, placeholder) {
-    if (!el) return;
-    el.innerHTML = "";
-    if (placeholder) {
-      var ph = document.createElement('option');
-      ph.value = "";
-      ph.textContent = placeholder;
-      el.appendChild(ph);
-    }
-    (items || []).forEach(function (x) {
-      var opt = document.createElement('option');
-      opt.value = String(x.id);
-      opt.textContent = x.name;
-      el.appendChild(opt);
-    });
-
-    // Sync searchable UI
-    try {
-      if (el === countryEl && ssCountry) ssCountry.rebuild();
-      if (el === provEl && ssProv) ssProv.rebuild();
-      if (el === cityEl && ssCity) ssCity.rebuild();
-    } catch (e) {}
-  }
-
-  function fetchJson(url) {
-    return fetch(url, { headers: { 'Accept': 'application/json' } }).then(function (r) {
-      if (!r.ok) throw new Error('Request failed');
-      return r.json();
-    });
-  }
-
-  function loadRegions(countryId) {
-    fillSelect(provEl, [], "Loading...");
-    fillSelect(cityEl, [], "Select province first");
-    if (!countryId) {
-      fillSelect(provEl, [], "Select country first");
-      return Promise.resolve();
-    }
-    return fetchJson(URL_REGIONS + "?country_id=" + encodeURIComponent(countryId)).then(function (data) {
-      var regions = (data && data.results) ? data.results : [];
-      fillSelect(provEl, regions, regions.length ? "Select province" : "No provinces found");
-      if (regions.length) {
-        provEl.value = String(regions[0].id);
-        return loadCities(provEl.value);
-      }
-      fillSelect(cityEl, [], "No cities");
-    }).catch(function () {
-      fillSelect(provEl, [], "Failed to load provinces");
-      fillSelect(cityEl, [], "Failed to load cities");
-    });
-  }
-
-  function loadCities(regionId) {
-    fillSelect(cityEl, [], "Loading...");
-    if (!regionId) {
-      fillSelect(cityEl, [], "Select province first");
-      return Promise.resolve();
-    }
-    return fetchJson(URL_CITIES + "?region_id=" + encodeURIComponent(regionId)).then(function (data) {
-      var cities = (data && data.results) ? data.results : [];
-      fillSelect(cityEl, cities, cities.length ? "Select city" : "No cities found");
-      if (cities.length) cityEl.value = String(cities[0].id);
-    }).catch(function () {
-      fillSelect(cityEl, [], "Failed to load cities");
-    });
-  }
-
-  if (countryEl) countryEl.addEventListener('change', function () {
-    loadRegions(countryEl.value);
-  });
-  if (provEl) provEl.addEventListener('change', function () {
-    loadCities(provEl.value);
-  });
-  loadRegions(countryEl ? countryEl.value : "");
 
   recalc();
 });

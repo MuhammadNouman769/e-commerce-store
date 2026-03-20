@@ -16,10 +16,6 @@ def contact(request):
     return render(request, 'contact.html')
 def single_blog(request):
     return render(request, 'blog/single-blog.html')
-def checkout(request):
-    return render(request, 'shop/checkout.html')
-def confirm(request):
-    return render(request, 'shop/confirmation.html')
 # def wishlist(request):
 #     return render(request, 'wish-list/add-to-wishlist.html')
 def login(request):
