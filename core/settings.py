@@ -61,7 +61,9 @@ INSTALLED_APPS = [
 ]
 CITIES_LIGHT_TRANSLATION_LANGUAGES = ['en']
 # Keep empty to include all countries (worldwide)
-
+CITIES_LIGHT_INCLUDE_COUNTRIES = ['ALL']
+CITIES_LIGHT_INCLUDE_REGIONS = ['ALL']
+CITIES_LIGHT_INCLUDE_CITIES = ['ALL']
 # Import a wider city dataset than default (cities15000 is very limited).
 # NOTE: this setting expects FULL URLs.
 CITIES_LIGHT_CITY_SOURCES = ["http://download.geonames.org/export/dump/cities5000.zip"]

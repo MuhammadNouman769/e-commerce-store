@@ -511,8 +511,8 @@ mark {
 }
 
 .img-fluid {
-	max-width: 150px!important;
-	height: 110px!important;
+	max-width: 100%!important;
+	height: 100%!important;
     border-radius: 2px!important;
     border-color: black!important;
 }
