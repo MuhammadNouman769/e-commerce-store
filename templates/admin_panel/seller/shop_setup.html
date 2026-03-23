@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+
+{% block title %}Shop Setup{% endblock %}
+
+{% block content %}
+<section class="banner-area organic-breadcrumb">
+    <div class="container">
+        <div class="breadcrumb-banner d-flex flex-wrap align-items-center justify-content-end">
+            <div class="col-first">
+                <h1>Shop Setup</h1>
+                <nav class="d-flex align-items-center">
+                    <a href="{% url 'home' %}">Home<span class="lnr lnr-arrow-right"></span></a>
+                    <a href="{% url 'admin_panel:seller_dashboard' %}">Seller Dashboard</a>
+                </nav>
+            </div>
+        </div>
+    </div>
+</section>
+
+<div class="container" style="margin-top: 24px;">
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-body">
+                    <h3 class="mb-3">{% if shop %}Edit Shop{% else %}Create Shop{% endif %}</h3>
+
+                    {% if messages %}
+                        {% for message in messages %}
+                            <div class="alert alert-info" role="alert">
+                                {{ message }}
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label class="form-label">Shop Name</label>
+                            {{ form.name }}
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Domain</label>
+                            {{ form.domain }}
+                            <div class="form-text">Unique domain to identify your store.</div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Description</label>
+                            {{ form.description }}
+                        </div>
+
+                        <button type="submit" class="btn btn-primary">Save Shop</button>
+                        <a class="btn btn-outline-secondary ms-2" href="{% url 'admin_panel:seller_dashboard' %}">Cancel</a>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

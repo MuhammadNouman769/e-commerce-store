@@ -1,23 +1,6 @@
 {% load static %}
 
-<head>
-		<!-- Mobile Specific Meta -->
-	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-	<!-- Favicon-->
-	<link rel="shortcut icon" href="{% static 'img/fav.png' %}">
-	<!-- Author Meta -->
-	<meta name="author" content="CodePixar">
-	<!-- Meta Description -->
-	<meta name="description" content="">
-	<!-- Meta Keyword -->
-	<meta name="keywords" content="">
-	<!-- meta character set -->
-	<meta charset="UTF-8">
-	<!-- Site Title -->
-    <title>{% block title %}My Store{% endblock %}</title>
-</head>
-<body>
-	
+ 
 	<!-- Start Header Area -->
 	<header class="header_area sticky-header">
 		<div class="main_menu">
@@ -57,6 +40,32 @@
 						</ul>
 						<ul class="nav navbar-nav navbar-right">
 							<li class="nav-item"><a href="{% url 'cart' %}" class="cart"><span class="ti-bag"></span></a></li>
+							{% if request.user.is_authenticated %}
+								{% if request.user.role == 'seller' %}
+									<li class="nav-item">
+										<a class="nav-link" href="{% url 'admin_panel:seller_dashboard' %}">Seller Dashboard</a>
+									</li>
+								{% endif %}
+								<li class="nav-item">
+									<form action="{% url 'logout' %}" method="post" style="display:inline;">
+										{% csrf_token %}
+										<button type="submit" class="nav-link btn btn-link" style="padding:0;">Logout</button>
+									</form>
+								</li>
+							{% else %}
+								<li class="nav-item">
+									<a class="nav-link" href="{% url 'login' %}">Customer Login</a>
+								</li>
+								<li class="nav-item">
+									<a class="nav-link" href="{% url 'register' %}">Customer Register</a>
+								</li>
+								<li class="nav-item">
+									<a class="nav-link" href="{% url 'seller_login' %}">Seller Login</a>
+								</li>
+								<li class="nav-item">
+									<a class="nav-link" href="{% url 'seller_register' %}">Seller Register</a>
+								</li>
+							{% endif %}
 							<li class="nav-item">
 								<button class="search"><span class="lnr lnr-magnifier" id="search"></span></button>
 							</li>
@@ -76,5 +85,4 @@
 		</div>
 	</header>
 	<!-- End Header Area -->
-</body>	
 	<!-- End Header Area -->

@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+
+{% block title %}Manage Products{% endblock %}
+
+{% block content %}
+<section class="banner-area organic-breadcrumb">
+    <div class="container">
+        <div class="breadcrumb-banner d-flex flex-wrap align-items-center justify-content-end">
+            <div class="col-first">
+                <h1>Manage Products</h1>
+                <nav class="d-flex align-items-center">
+                    <a href="{% url 'home' %}">Home<span class="lnr lnr-arrow-right"></span></a>
+                    <a href="{% url 'admin_panel:seller_dashboard' %}">Seller Dashboard</a>
+                </nav>
+            </div>
+        </div>
+    </div>
+</section>
+
+<div class="container" style="margin-top: 24px;">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <div>
+            <strong>Shop:</strong> {{ shop.name }}
+        </div>
+        <div class="d-flex gap-2">
+            <a class="btn btn-primary btn-sm" href="{% url 'admin_panel:seller_product_create' %}">Add Product</a>
+            <a class="btn btn-outline-primary btn-sm" href="{% url 'admin_panel:seller_sales' %}">Sales</a>
+        </div>
+    </div>
+
+    {% if not products %}
+        <div class="alert alert-info">No products yet. Add your first product.</div>
+    {% else %}
+        <div class="list-group">
+            {% for p in products %}
+                <div class="list-group-item">
+                    <div class="d-flex justify-content-between align-items-start gap-3">
+                        <div>
+                            <div style="font-weight: 700;">{{ p.title }}</div>
+                            <div class="text-muted" style="font-size: 0.9rem;">
+                                Status: {{ p.get_status_display }}
+                            </div>
+                        </div>
+                        <div class="text-end text-muted" style="font-size: 0.9rem;">
+                            {{ p.created_at|date:"Y-m-d" }}
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+</div>
+{% endblock %}
+

@@ -1,0 +1,63 @@
+{% extends 'base.html' %}
+
+{% block title %}Seller Dashboard{% endblock %}
+
+{% block content %}
+<section class="banner-area organic-breadcrumb">
+    <div class="container">
+        <div class="breadcrumb-banner d-flex flex-wrap align-items-center justify-content-end">
+            <div class="col-first">
+                <h1>Seller Dashboard</h1>
+                <nav class="d-flex align-items-center">
+                    <a href="{% url 'home' %}">Home<span class="lnr lnr-arrow-right"></span></a>
+                    <a href="{% url 'admin_panel:seller_dashboard' %}">Seller</a>
+                </nav>
+            </div>
+        </div>
+    </div>
+</section>
+
+<div class="container" style="margin-top: 24px;">
+    {% if not shop %}
+        <div class="alert alert-warning">
+            You haven't created your shop yet. Please set up your shop to start adding products.
+        </div>
+        <a class="btn btn-primary" href="{% url 'admin_panel:seller_shop_setup' %}">Create Shop</a>
+    {% else %}
+        <div class="row">
+            <div class="col-lg-4 mb-3">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <h5 class="card-title">Your Shop</h5>
+                        <p class="mb-1"><strong>{{ shop.name }}</strong></p>
+                        <p class="text-muted mb-3">Domain: {{ shop.domain }}</p>
+                        <a class="btn btn-outline-primary btn-sm" href="{% url 'admin_panel:seller_shop_setup' %}">Edit Shop</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-4 mb-3">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <h5 class="card-title">Products</h5>
+                        <div style="font-size: 2rem; font-weight: 700;">{{ products_count }}</div>
+                        <a class="btn btn-outline-primary btn-sm mt-2" href="{% url 'admin_panel:seller_product_list' %}">Manage Products</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-4 mb-3">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <h5 class="card-title">Sales</h5>
+                        <div style="font-size: 2rem; font-weight: 700;">{{ sales_count }}</div>
+                        <p class="text-muted mb-3">Total revenue: Rs {{ revenue_total|floatformat:0 }}</p>
+                        <a class="btn btn-outline-primary btn-sm" href="{% url 'admin_panel:seller_sales' %}">View Sales</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}
+

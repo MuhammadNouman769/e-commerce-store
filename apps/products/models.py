@@ -2,6 +2,7 @@
 from contextlib import nullcontext
 
 from django.db import models
+from django.conf import settings
 from apps.utilities.models import BaseModel
 from django.utils.text import slugify
 from django.core.exceptions import ValidationError
@@ -9,6 +10,13 @@ from django.core.exceptions import ValidationError
 
 """ ========== Shop ========== """
 class Shop(BaseModel):
+    owner = models.OneToOneField(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="shop",
+        null=True,
+        blank=True,
+    )
     name = models.CharField(max_length=255)
     domain = models.CharField(max_length=255, unique=True)
     description = models.TextField(blank=True)

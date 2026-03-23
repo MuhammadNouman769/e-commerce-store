@@ -11,8 +11,8 @@ urlpatterns = [
     path('shop/checkout/', checkout_view, name='checkout'),
     path('blog/blog/', views.blog, name='blog'),
     path('blog/single-blog/', views.single_blog, name='single_blog'),
-    path('users/login/', views.login, name='login'),
-    path('users/tracking/', views.tracking, name='tracking'),
-    path('users/elements/', views.element, name='element'),
+    # Legacy static pages (kept, but avoid URL/name conflicts with `apps.users`)
+    path('tracking/', views.tracking, name='tracking'),
+    path('elements/', views.element, name='element'),
 
 ]
