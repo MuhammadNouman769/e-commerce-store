@@ -1,0 +1,172 @@
+{% extends "base.html" %}
+{% block content %}
+
+<style>
+body {
+    background: #f5f7f9;
+}
+
+.auth-wrapper {
+    height: 85vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.auth-box {
+    width: 700px;
+    background: #fff;
+    border-radius: 16px;
+    padding: 50px 40px;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.08);
+    text-align: center;
+}
+
+.auth-box h2 {
+    font-weight: 600;
+    margin-bottom: 10px;
+}
+
+.auth-box p {
+    color: #666;
+    font-size: 14px;
+}
+
+.role-options {
+    display: flex;
+    gap: 20px;
+    margin-top: 35px;
+}
+
+.role-card {
+    flex: 1;
+    border: 1.5px solid #e5e7eb;
+    border-radius: 14px;
+    padding: 30px 20px;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    position: relative;
+    background: #fff;
+}
+
+.role-card:hover {
+    border-color: #000;
+    transform: translateY(-4px);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.06);
+}
+
+.role-card.active {
+    border: 2px solid #000;
+    background: #fafafa;
+}
+
+.role-card input {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+}
+
+.role-icon {
+    font-size: 30px;
+    margin-bottom: 15px;
+}
+
+.role-title {
+    font-weight: 600;
+    margin-bottom: 6px;
+}
+
+.role-desc {
+    font-size: 13px;
+    color: #777;
+}
+
+.btn-primary-custom {
+    width: 100%;
+    margin-top: 30px;
+    padding: 12px;
+    border-radius: 10px;
+    background: #000;
+    color: #fff;
+    border: none;
+    font-weight: 500;
+    transition: 0.2s;
+}
+
+.btn-primary-custom:hover {
+    background: #222;
+}
+
+.btn-primary-custom:disabled {
+    background: #ccc;
+    cursor: not-allowed;
+}
+
+.login-text {
+    margin-top: 15px;
+    font-size: 14px;
+}
+
+.login-text a {
+    text-decoration: none;
+    font-weight: 500;
+}
+</style>
+
+<div class="auth-wrapper">
+    <div class="auth-box">
+        <h2>Join as a client or seller</h2>
+        <p>Choose how you want to use the platform</p>
+
+        <form method="post">
+            {% csrf_token %}
+
+            <div class="role-options">
+
+                <!-- CUSTOMER -->
+                <label class="role-card" onclick="selectRole(this)">
+                    <input type="radio" name="role" value="customer">
+                    <div class="role-icon">👤</div>
+                    <div class="role-title">Customer</div>
+                    <div class="role-desc">Hire professionals for your projects</div>
+                </label>
+
+                <!-- SELLER -->
+                <label class="role-card" onclick="selectRole(this)">
+                    <input type="radio" name="role" value="seller">
+                    <div class="role-icon">💼</div>
+                    <div class="role-title">Seller</div>
+                    <div class="role-desc">Sell your services and earn money</div>
+                </label>
+
+            </div>
+
+            <button type="submit" name="action" value="register" id="continueBtn" class="btn-primary-custom" disabled>
+                Continue
+            </button>
+
+            <div class="login-text">
+                Already have an account?
+                <button type="submit" name="action" value="login" style="border:none; background:none; color:#000;">
+                   <a href="{% url 'login' %}">
+                    Log In
+                       </a>
+                </button>
+            </div>
+
+        </form>
+    </div>
+</div>
+
+<script>
+function selectRole(card) {
+    document.querySelectorAll('.role-card').forEach(c => c.classList.remove('active'));
+    card.classList.add('active');
+
+    card.querySelector('input').checked = true;
+
+    document.getElementById('continueBtn').disabled = false;
+}
+</script>
+
+{% endblock %}

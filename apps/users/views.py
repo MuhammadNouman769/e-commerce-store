@@ -278,3 +278,31 @@ def seller_login(request):
 def logout_view(request):
     logout(request)
     return redirect("home")
+
+def choose_role(request):
+    if request.method == "POST":
+        role = request.POST.get("role")
+        action = request.POST.get("action")
+
+        role = _normalize_role(role)
+
+        # 👉 OPTION 1 (Recommended)
+        if action == "login":
+            return redirect(f"/logins/?role={role}")
+        elif action == "register":
+            return redirect(f"/register/?role={role}")
+
+        # 👉 OPTION 2 (If you want separate pages)
+        """
+        if action == "login":
+            if role == "seller":
+                return redirect("seller_login")
+            return redirect("customer_login")
+
+        elif action == "register":
+            if role == "seller":
+                return redirect("seller_register")
+            return redirect("customer_register")
+        """
+
+    return render(request, "users/chose_role.html")

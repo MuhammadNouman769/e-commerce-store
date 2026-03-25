@@ -1,18 +1,15 @@
-
-from django.contrib.auth import views as auth_views
-from django.urls import path, reverse_lazy
-
+from django.urls import path
 from . import views
 
-""" ========== URL Patterns =========== """
-
 urlpatterns = [
-    # Customer routes (defaults)
-    path('signup/', views.customer_register, name='register'),
-    path('login/', views.customer_login, name='login'),
-    # Seller routes
-    path('seller/signup/', views.seller_register, name='seller_register'),
+    path('register/', views.register, name='register'),
+    path('login/', views.user_login, name='login'),
+
+    # Optional: separate role-specific URLs
+    path('customer/register/', views.customer_register, name='customer_register'),
+    path('seller/register/', views.seller_register, name='seller_register'),
+    path('customer/login/', views.customer_login, name='customer_login'),
     path('seller/login/', views.seller_login, name='seller_login'),
-    # Logout ke baad hamesha main home pe redirect
-    path('logout/', views.logout_view, name='logout')
+
+    path('choose-role/', views.choose_role, name='choose_role'),
 ]

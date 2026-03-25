@@ -37,38 +37,44 @@
 <!--								</ul>-->
 <!--							</li>-->
 							<li class="nav-item"><a class="nav-link" href="{% url 'contact_us' %}">Contact</a></li>
-						</ul>
+							<li class="nav-item">
+    <a class="nav-link" href="{% url 'choose_role' %}">SignUp</a>
+</li>
+
+<li class="nav-item">
+    <a class="nav-link" href="{% url 'choose_role' %}">Login</a>
+</li>	</ul>
 						<ul class="nav navbar-nav navbar-right">
 							<li class="nav-item"><a href="{% url 'cart' %}" class="cart"><span class="ti-bag"></span></a></li>
-							{% if request.user.is_authenticated %}
-								{% if request.user.role == 'seller' %}
-									<li class="nav-item">
-										<a class="nav-link" href="{% url 'admin_panel:seller_dashboard' %}">Seller Dashboard</a>
-									</li>
-								{% endif %}
-								<li class="nav-item">
-									<form action="{% url 'logout' %}" method="post" style="display:inline;">
-										{% csrf_token %}
-										<button type="submit" class="nav-link btn btn-link" style="padding:0;">Logout</button>
-									</form>
-								</li>
-							{% else %}
-								<li class="nav-item">
-									<a class="nav-link" href="{% url 'login' %}">Customer Login</a>
-								</li>
-								<li class="nav-item">
-									<a class="nav-link" href="{% url 'register' %}">Customer Register</a>
-								</li>
-								<li class="nav-item">
-									<a class="nav-link" href="{% url 'seller_login' %}">Seller Login</a>
-								</li>
-								<li class="nav-item">
-									<a class="nav-link" href="{% url 'seller_register' %}">Seller Register</a>
-								</li>
-							{% endif %}
-							<li class="nav-item">
-								<button class="search"><span class="lnr lnr-magnifier" id="search"></span></button>
-							</li>
+<!--							{% if request.user.is_authenticated %}-->
+<!--								{% if request.user.role == 'seller' %}-->
+<!--									<li class="nav-item">-->
+<!--										<a class="nav-link" href="{% url 'admin_panel:seller_dashboard' %}">Seller Dashboard</a>-->
+<!--									</li>-->
+<!--								{% endif %}-->
+<!--								<li class="nav-item">-->
+<!--									<form action="{% url 'logout' %}" method="post" style="display:inline;">-->
+<!--										{% csrf_token %}-->
+<!--										<button type="submit" class="nav-link btn btn-link" style="padding:0;">Logout</button>-->
+<!--									</form>-->
+<!--								</li>-->
+<!--							{% else %}-->
+<!--								<li class="nav-item">-->
+<!--									<a class="nav-link" href="{% url 'login' %}">Customer Login</a>-->
+<!--								</li>-->
+<!--								<li class="nav-item">-->
+<!--									<a class="nav-link" href="{% url 'register' %}">Customer Register</a>-->
+<!--								</li>-->
+<!--								<li class="nav-item">-->
+<!--									<a class="nav-link" href="{% url 'seller_login' %}">Seller Login</a>-->
+<!--								</li>-->
+<!--								<li class="nav-item">-->
+<!--									<a class="nav-link" href="{% url 'seller_register' %}">Seller Register</a>-->
+<!--								</li>-->
+<!--							{% endif %}-->
+<!--							<li class="nav-item">-->
+<!--								<button class="search"><span class="lnr lnr-magnifier" id="search"></span></button>-->
+
 						</ul>
 					</div>
 				</div>
