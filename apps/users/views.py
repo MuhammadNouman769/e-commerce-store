@@ -4,13 +4,14 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.hashers import make_password
 from django.http import HttpResponseForbidden
 from django.shortcuts import redirect, render
-
+from django.urls import reverse
 from apps.order_fulfillment.models import BillingDetail
 from apps.products.models import Shop
 from apps.users.choices import UserRoleChoices
 from .models import User
 from django.contrib.auth import logout
 from django.shortcuts import redirect
+
 
 def _normalize_role(value: str) -> str:
     """
@@ -69,10 +70,12 @@ def register(request):
 
 """ ================ Login View ===================== """
 def user_login(request):
+    next_url = request.POST.get("next") or request.GET.get("next")
+
     if request.method == 'POST':
         email = request.POST.get('email', '').strip().lower()
         password = request.POST.get('password', '')
-        role_expected = _normalize_role(request.POST.get('role'))
+        role_expected = request.POST.get('role')  # 👈 no normalize here
 
         user = authenticate(request, email=email, password=password)
 
@@ -80,69 +83,32 @@ def user_login(request):
             messages.error(request, "Invalid email or password")
             return redirect("login")
 
-        # Enforce role-based UI. User can still be logged in, but they will be
-        # redirected only to the correct area.
-        if user.role != role_expected:
-            messages.error(
-                request,
-                f"Your account is '{user.get_role_display()}', please select the correct login type.",
-            )
-            return redirect("login")
+        #  Role check ONLY if provided
+        if role_expected:
+            role_expected = _normalize_role(role_expected)
+
+            if user.role != role_expected:
+                messages.error(
+                    request,
+                    f"Your account is '{user.get_role_display()}'. Please login with correct role.",
+                )
+                return redirect("login")
 
         auth_login(request, user)
-        messages.success(request, "Login successfully!")
 
+        #  SELLER → dashboard
         if user.role == UserRoleChoices.SELLER:
             return redirect("admin_panel:seller_dashboard")
+
+        #  CUSTOMER → next ya home
+        if next_url and next_url != "None":
+            return redirect(next_url)
+
         return redirect("home")
 
-    initial_role = _normalize_role(request.GET.get("role"))
-    return render(request, "users/login.html", {"initial_role": initial_role})
-
-
-@login_required
-def customer_dashboard(request):
-    # Redirect sellers to seller panel.
-    if request.user.role == UserRoleChoices.SELLER:
-        return redirect("admin_panel:seller_dashboard")
-
-    if request.user.role != UserRoleChoices.CUSTOMER:
-        return redirect("home")
-
-    orders = (
-        BillingDetail.objects.select_related("shipping_address", "cart")
-        .filter(user=request.user)
-        .order_by("-created_at")
-    )
-
-    return render(
-        request,
-        "users/customer/dashboard.html",
-        {"orders": orders},
-    )
-
-
-@login_required
-def customer_order_detail(request, billing_id: int):
-    if request.user.role != UserRoleChoices.CUSTOMER:
-        return HttpResponseForbidden("Not allowed")
-
-    billing = (
-        BillingDetail.objects.select_related("shipping_address", "cart", "user")
-        .filter(id=billing_id, user=request.user)
-        .first()
-    )
-    if not billing:
-        raise HttpResponseForbidden("Order not found")
-
-    cart_items = billing.cart.items.select_related("product").all()
-
-    return render(
-        request,
-        "users/customer/order_detail.html",
-        {"billing": billing, "cart_items": cart_items},
-    )
-
+    return render(request, "users/login.html", {
+        "next": next_url
+    })
 
 """ =========================================================
 Role-specific UI (Customer vs Seller)
@@ -280,29 +246,22 @@ def logout_view(request):
     return redirect("home")
 
 def choose_role(request):
+    next_url = request.GET.get("next") or "/"
+    action = request.GET.get("action")  # 👈 GET se lo
+
     if request.method == "POST":
-        role = request.POST.get("role")
+        role = _normalize_role(request.POST.get("role"))
         action = request.POST.get("action")
 
-        role = _normalize_role(role)
-
-        # 👉 OPTION 1 (Recommended)
         if action == "login":
-            return redirect(f"/logins/?role={role}")
-        elif action == "register":
-            return redirect(f"/register/?role={role}")
-
-        # 👉 OPTION 2 (If you want separate pages)
-        """
-        if action == "login":
-            if role == "seller":
-                return redirect("seller_login")
-            return redirect("customer_login")
+            return redirect(f"{reverse('login')}?role={role}&next={next_url}")
 
         elif action == "register":
-            if role == "seller":
-                return redirect("seller_register")
-            return redirect("customer_register")
-        """
+            return redirect(f"{reverse('register')}?role={role}&next={next_url}")
 
-    return render(request, "users/chose_role.html")
+    return render(request, "users/chose_role.html", {
+        "next": next_url,
+        "action": action  # 👈 template me bhejo
+    })
+
+

@@ -1,12 +1,17 @@
 from django.http import JsonResponse
 from django.shortcuts import redirect, render
 from django.urls import reverse
-
 from cities_light.models import City, Country, Region
-
 from apps.products.models import Product
+from django.contrib.auth.decorators import login_required
+from django.http import JsonResponse
+from .models import Cart
+from django.contrib import messages
+
+
 
 """ ============== Cart View =============== """
+@login_required
 def cart(request):
     """
     Simple session-based cart.
@@ -28,6 +33,9 @@ def cart(request):
 
     """ ============== Add to Cart =============== """
     if add_id:
+        if not request.user.is_authenticated:
+            messages.error(request, "You must be logged in to add items to the cart.")
+            return redirect(f"{reverse('users:login')}?next={request.path}?add={add_id}")
         pid = str(add_id)
         cart_data[pid] = int(cart_data.get(pid, 0)) + 1
         request.session["cart"] = cart_data
@@ -153,3 +161,44 @@ def cities_for_region(request):
 
     data = [{"id": c.id, "name": c.name} for c in qs.order_by("name")]
     return JsonResponse({"results": data})
+
+
+
+def add_to_cart_ajax(request):
+    
+    # 🔐 LOGIN CHECK
+    if not request.user.is_authenticated:
+        return JsonResponse({
+            "success": False,
+            "error": "Authentication required",
+            "login_url": "/users/login/"  # 👈 safe hardcoded
+        }, status=401)
+
+    # 🔄 ONLY POST
+    if request.method == "POST":
+        product_id = request.POST.get("product_id")
+
+        if not product_id:
+            return JsonResponse({
+                "success": False,
+                "error": "Product ID missing"
+            }, status=400)
+
+        # 📦 Get Product safely
+        product = get_object_or_404(Product, id=product_id)
+
+        # 🛒 Get or create cart
+        cart, created = Cart.objects.get_or_create(user=request.user)
+
+        # ➕ Add product
+        cart.add_product(product)
+
+        return JsonResponse({
+            "success": True,
+            "cart_count": cart.total_items()
+        })
+
+    return JsonResponse({
+        "success": False,
+        "error": "Invalid request method"
+    }, status=405)

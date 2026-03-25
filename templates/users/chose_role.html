@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 {% block content %}
-
+<title>{% block title %}B.Store - Choose Role{% endblock %}</title>
 <style>
 body {
     background: #f5f7f9;
@@ -14,7 +14,8 @@ body {
 }
 
 .auth-box {
-    width: 700px;
+    width: 600px;
+    height: 400px;
     background: #fff;
     border-radius: 16px;
     padding: 50px 40px;
@@ -113,9 +114,9 @@ body {
 }
 </style>
 
-<div class="auth-wrapper">
+<div class="auth-wrapper mt-5">
     <div class="auth-box">
-        <h2>Join as a client or seller</h2>
+        <h2>Join as a Customer or Seller</h2>
         <p>Choose how you want to use the platform</p>
 
         <form method="post">
@@ -125,18 +126,18 @@ body {
 
                 <!-- CUSTOMER -->
                 <label class="role-card" onclick="selectRole(this)">
-                    <input type="radio" name="role" value="customer">
+                    <input type="hidden" name="action" value="{{ action }}">
                     <div class="role-icon">👤</div>
                     <div class="role-title">Customer</div>
-                    <div class="role-desc">Hire professionals for your projects</div>
+                    <div class="role-desc">Buy products for your needs</div>
                 </label>
 
                 <!-- SELLER -->
                 <label class="role-card" onclick="selectRole(this)">
-                    <input type="radio" name="role" value="seller">
+                    <input type="hidden" name="action" value="{{ action }}">
                     <div class="role-icon">💼</div>
                     <div class="role-title">Seller</div>
-                    <div class="role-desc">Sell your services and earn money</div>
+                    <div class="role-desc">Sell your products and grow your business</div>
                 </label>
 
             </div>
@@ -147,12 +148,7 @@ body {
 
             <div class="login-text">
                 Already have an account?
-                <button type="submit" name="action" value="login" style="border:none; background:none; color:#000;">
-                   <a href="{% url 'login' %}">
-
-                    Log In
-                       </a>
-                </button>
+                <button type="submit" name="action" value="login" class="btn btn-link">Log In</button>
             </div>
 
         </form>

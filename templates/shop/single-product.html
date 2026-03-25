@@ -4,12 +4,9 @@
 
 {% block content %}
 <link rel="stylesheet" href="{% static 'css/product-detail.css' %}">
-
 <section class="pd-page">
 	<div class="container">
 		<!-- Breadcrumb -->
-		
-
 		<div class="pd-row">
 			<!-- Left: Gallery -->
 			<div class="pd-gallery">
@@ -21,21 +18,19 @@
 					{% endif %}
 					{% endwith %}
 				</div>
-				{% if images %}
-				<div class="pd-thumbs">
-					{% for img in images %}
-					<div class="pd-thumb {% if forloop.first %}active{% endif %}" data-src="{% if img.images %}{{ img.images.url }}{% else %}{% static 'img/category/s-p1.jpg' %}{% endif %}" data-index="{{ forloop.counter }}">
-						<img src="{% if img.images %}{{ img.images.url }}{% else %}{% static 'img/category/s-p1.jpg' %}{% endif %}" alt="">
-					</div>
-					{% endfor %}
-				</div>
-				{% endif %}
+			{% if images %}
+		<div class="pd-thumbs">
+	{% for img in images %}
+	<div class="pd-thumb {% if forloop.first %}active{% endif %}" data-src="{% if img.images %}{{ img.images.url }}{% else %}{% static 'img/category/s-p1.jpg' %}{% endif %}" data-index="{{ forloop.counter }}">
+		<img src="{% if img.images %}{{ img.images.url }}{% else %}{% static 'img/category/s-p1.jpg' %}{% endif %}" alt="">
 			</div>
-
-			<!-- Right: Info -->
-			<div class="pd-info">
-				<h1 class="pd-title">{{ product.title }}</h1>
-
+				{% endfor %}
+    				</div>
+	       			 {% endif %}
+			           </div>
+            			<!-- Right: Info -->
+			              <div class="pd-info">
+			            	<h1 class="pd-title">{{ product.title }}</h1>
 				<div class="pd-meta">
 					<span class="pd-rating">
 						<span class="stars">
@@ -106,11 +101,19 @@
 					{% endif %}
 				</div>
 
-				<div class="card_area d-flex align-items-center mt-3">
-					<a class="primary-btn" href="{% url 'cart' %}?add={{ product.pk }}">Add to Cart</a>
-					<a class="primary-btn ml-2" href="{% url 'checkout' %}?buy_now={{ product.pk }}">Buy Now</a>
-					
-				</div>
+			<div class="card_area d-flex align-items-center mt-3">
+    
+    <!-- Add to Cart -->
+    <button class="primary-btn" onclick="addToCart({{ product.pk }})">
+        Add to Cart
+    </button>
+
+    <!-- Buy Now -->
+    <a class="primary-btn ml-2" href="{% url 'checkout' %}?buy_now={{ product.pk }}">
+        Buy Now
+    </a>
+
+</div>
 			</div>
 		</div>
 

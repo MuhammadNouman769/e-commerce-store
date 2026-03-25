@@ -1,4 +1,32 @@
 {% load static %}
+<style>
+#toast-container {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 9999;
+}
+
+.toast-message {
+    background: #333;
+    color: #fff;
+    padding: 10px 16px;
+    margin-top: 10px;
+    border-radius: 6px;
+    font-size: 14px;
+    opacity: 0.95;
+    transition: all 0.3s ease;
+}
+
+.toast-message.warning {
+    background: #f39c12;
+}
+
+.toast-message.success {
+    background: #28a745;
+}    
+</style>    
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -6,7 +34,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <!-- Favicon-->
 
-    <!-- Author Meta -->
+<link rel="icon" href="{% static 'img/fav.png' %}">    <!-- Author Meta -->
     <meta name="author" content="CodePixar">
     <!-- Meta Description -->
     <meta name="description" content="">
@@ -15,7 +43,7 @@
     <!-- meta character set -->
     <meta charset="UTF-8">
     <!-- Site Title -->
-    <title>{% block title %}Btr Store{% endblock %}</title>
+    
     
     <!-- CSS -->
 <link rel="stylesheet" href="{% static 'css/bootstrap.css' %}">
@@ -39,9 +67,12 @@
         <div class="page-loader__spinner" role="status" aria-label="Loading"></div>
     </div>
 
+
     <!-- Header iclude -->
     {% include 'includes/header.html' %}
     
+    <!-- Toast Container (ONLY ONE) -->
+<div id="toast-container"></div>
     <!--  Main Content -->
 <main>      
     {% block content %}{% endblock %}
@@ -54,5 +85,74 @@
 <!--  Scripts Include -->
 {% include 'includes/scripts.html' %}
 
+<!-- AJAX URL -->
+<script>
+const ADD_TO_CART_URL = "{% url 'add_to_cart_ajax' %}";
+
+/* CSRF */
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== "") {
+        let cookies = document.cookie.split(";");
+        for (let i = 0; i < cookies.length; i++) {
+            let cookie = cookies[i].trim();
+            if (cookie.startsWith(name + "=")) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+/* ADD TO CART */
+function addToCart(productId) {
+    fetch(ADD_TO_CART_URL, {
+        method: "POST",
+        headers: {
+            "X-CSRFToken": getCookie("csrftoken"),
+        },
+        body: new URLSearchParams({
+            product_id: productId
+        })
+    })
+    .then(response => {
+    if (response.status === 401) {
+        return response.json().then(data => {
+            showToast("Please login first");
+            setTimeout(() => {
+                window.location.href = data.login_url;
+            }, 1500);
+        });
+    }
+    return response.json();
+    })
+    .then(data => {
+        if (data && data.success) {
+            showToast("Added to cart");
+        }
+    })
+    .catch(() => {
+        showToast("Network error");
+    });
+}
+
+/* TOAST MESSAGE */
+function showToast(message) {
+    let container = document.getElementById("toast-container");
+
+    if (!container) return;
+
+    let toast = document.createElement("div");
+    toast.className = "toast-message warning";
+    toast.innerText = message;
+
+    container.appendChild(toast);
+
+    setTimeout(() => {
+        toast.remove();
+    }, 3000);
+}
+</script>
 </body>
 </html>

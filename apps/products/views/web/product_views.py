@@ -18,6 +18,16 @@ class ProductListView(ListView):
     '''process the context data to include categories'''
     def get_queryset(self):
         queryset = Product.objects.select_related("shop").prefetch_related("categories", "images", "variants").all()
+
+        # search query
+        q = self.request.GET.get("q", "").strip()
+        if q:
+            queryset = queryset.filter(
+                Q(title__icontains=q) |
+                Q(description_html__icontains=q) |
+                Q(vendor__icontains=q)
+        )
+
         # Get the category filter from the query parameters
         shop_id = self.request.GET.get("shop")
         vendors = [v for v in self.request.GET.getlist("vendor") if v]
