@@ -1,10 +1,7 @@
 {% extends 'base.html' %}
 {% load static %}
 {% block title %}B.Store - Products {% endblock %}
-
 {% block content %}
-
-
 <body id="category">
 	<!-- Start Banner Area -->
 	<section class="banner-area organic-breadcrumb">
@@ -106,7 +103,6 @@
 							</label>
 						</form>
 					</div>
-
 					<!-- Sidebar Price Range -->
 					<div class="sidebar-filter sidebar-filter--price">
 						<div class="sidebar-filter__header">
@@ -121,7 +117,6 @@
 							{% endfor %}
 						</div>
 					</div>
-
 					<!-- Sidebar Brands -->
 					<div class="sidebar-filter sidebar-filter--brands">
 						<div class="sidebar-filter__header">
@@ -136,7 +131,6 @@
 							<input type="hidden" name="per_page" value="{{ per_page }}">
 							<input type="hidden" name="layout" value="{{ layout }}">
 							<input type="hidden" name="cols" value="{{ cols }}">
-
 							<ul class="brand-list">
 								{% for item in vendor_items %}
 									<li class="brand-item">
@@ -157,17 +151,13 @@
 							<div class="brand-more">More brands</div>
 						</form>
 					</div>
-</div>
-	
-<!-- Include noUiSlider -->
-
-				
-					
-			</div>
-			<div class="col-xl-9 col-lg-8 col-md-7">
-				<!-- Start Filter Bar -->
-				<div class="filter-bar d-flex flex-wrap align-items-center">
-					<div class="sorting daraz-view-toggle">
+                </div>
+               <!-- Include noUiSlider -->	
+			    </div>
+			        <div class="col-xl-9 col-lg-8 col-md-7">
+				     <!-- Start Filter Bar -->
+				     <div class="filter-bar d-flex flex-wrap align-items-center">
+					   <div class="sorting daraz-view-toggle">
 						<div class="daraz-view-toggle__group">
 							<div class="daraz-view-toggle__label">Show:</div>
 							<div class="daraz-view-toggle__controls">
@@ -227,8 +217,8 @@
 				</div>
 				<!-- End Filter Bar -->
 				<!-- Start Best Seller -->
-		<section class="lattest-product-area pb-40 category-list daraz-product-list">
-    <div class="daraz-product-grid {% if layout == 'list' %}is-list{% endif %}" style="--daraz-cols: {{ cols }};">
+ 		<section class="lattest-product-area pb-40 category-list daraz-product-list">
+      <div class="daraz-product-grid {% if layout == 'list' %}is-list{% endif %}" style="--daraz-cols: {{ cols }};">
         {% for product in products %}
             <div class="daraz-product-grid__item">
                 <div class="single-product daraz-card">
@@ -237,40 +227,34 @@
                 {% if imgs|length > 0 and imgs.0.images %}
                 <div class="product-img daraz-card__img">
                     <img class="img-fluid default-img" src="{{ imgs.0.images.url }}" alt="{{ product.title }}">
-
                     {% if imgs|length > 1 and imgs.1.images %}
                     <img class="img-fluid hover-img" src="{{ imgs.1.images.url }}" alt="{{ product.title }}">
                     {% endif %}
                 </div>
                 {% endif %}
                 {% endwith %}
-
                 <!-- Product Title & Price -->
                 <div class="product-details daraz-card__details">
                     <h6 class="product-title">{{ product.title|truncatechars:20 }}</h6>
-
                     {% with product.variants.first as variant %}
                     {% if variant %}
                     <div class="price">
                         <h6 class="current-price">Rs.{{ variant.price }}</h6>
-
                         {% if variant.compare_at_price %}
                         <h6 class="old-price">Rs.{{ variant.compare_at_price }}</h6>
                         {% endif %}
-
                     </div>
                     {% endif %}
                     {% endwith %}
-
-                </div>
-                </a>
-
-            </div>
-            </div>
-        {% endfor %}
-    </div>
-</section><!-- End Best Seller -->		
-			</div>
+                  </div>
+                 </a>
+               </div>
+               </div>
+              {% endfor %}
+             </div>
+           </section>
+		   <!-- End Best Seller -->		
+		 </div>
 		</div>
 	</div>
 	<!-- Start related-product Area -->
@@ -410,7 +394,6 @@
 		</div>
 	</section>
 	<!-- End related-product Area -->
-
 	<!-- Modal Quick Product View -->
 	<div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-hidden="true">
 		<div class="modal-dialog" role="document">
@@ -423,13 +406,10 @@
 						<div class="col-lg-6">
 							<div class="quick-view-carousel">
 								<div class="item" style="background-image: url('{% static 'img/organic-food/q1.jpg' %}');">
-
 								</div>
 								<div class="item" style="background-image: url('{% static 'img/organic-food/q1.jpg' %}');">
-
 								</div>
 								<div class="item" style="background-image: url('{% static 'img/organic-food/q1.jpg' %}');">
-
 								</div>
 							</div>
 						</div>
@@ -462,7 +442,6 @@
 											<button class="increase arrow" type="button" title="Increase Quantity"><span class="lnr lnr-chevron-up"></span></button>
 											<button class="decrease arrow" type="button" title="Decrease Quantity"><span class="lnr lnr-chevron-down"></span></button>
 										</div>
-
 									</div>
 									<div class="d-flex mt-20">
 										<a href="#" class="view-btn color-2"><span>Add to Cart</span></a>
@@ -478,5 +457,4 @@
 		</div>
 	</div>
 </body>
-
 {% endblock %}

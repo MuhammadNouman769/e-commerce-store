@@ -22,7 +22,7 @@
 .left-nav {
     display: flex;
     align-items: center;
-    gap: 20px;
+    gap: 0px;
 }
 
 /* CENTER SEARCH */
@@ -36,6 +36,7 @@
     display: flex;
     border: 1px solid #ddd;
     border-radius: 25px;
+    margin-top: 6px;
     overflow: hidden;
     background: #f9f9f9;
 }
@@ -65,8 +66,9 @@
 /* NAV LINKS */
 .nav-link {
     font-size: 14px;
-    color: #e86d09 !important;
+    color: #393734 !important;
     margin: 0 10px;
+    font-weight: 500;
     position: relative;
 }
 
@@ -210,22 +212,18 @@ body.loading::after {
     to { transform: translate(-50%, -50%) rotate(360deg); }
 }
 </style>
-
 <header class="header_area sticky-header">
 <nav class="navbar container">
-
     <!-- LEFT -->
     <div class="left-nav">
         <a class="navbar-brand" href="{% url 'home' %}">
             <img src="{% static 'img/logo.png' %}" style="height:40px;">
         </a>
-
         <a class="nav-link" href="{% url 'home' %}">Home</a>
         <a class="nav-link" href="{% url 'products:product_list' %}">Products</a>
         <a class="nav-link" href="{% url 'contact_us' %}">Contact</a>
     </div>
-
-    <!-- CENTER SEARCH ⭐ -->
+    <!-- CENTER SEARCH  -->
     <div class="search-box">
         <form method="GET" action="{% url 'products:product_list' %}">
     <input type="text" name="q" placeholder="Search products..." value="{{ request.GET.q|default:'' }}">
@@ -234,54 +232,40 @@ body.loading::after {
     </button>
 </form>
     </div>
-
     <!-- RIGHT -->
     <div class="nav-right">
-
         <a href="{% url 'cart' %}" class="cart-wrapper">
             <i class="fas fa-shopping-cart"></i>
             <span class="cart-count">{{ cart_count|default:"0" }}</span>
         </a>
-
         {% if request.user.is_authenticated %}
-
         <div class="user-menu">
             <button class="user-btn" onclick="toggleDropdown()">
                 <i class="fas fa-user-circle"></i>
                 {{ request.user.first_name|default:"Account" }}
             </button>
-
             <div class="dropdown-box">
-
                 {% if request.user.role == 'seller' %}
                 <a href="{% url 'admin_panel:seller_dashboard' %}">
                     <i class="fas fa-store"></i> Dashboard
                 </a>
                 {% endif %}
-
                 <form method="post" action="{% url 'logout' %}">
                     {% csrf_token %}
                     <button type="submit">
                         <i class="fas fa-sign-out-alt"></i> Logout
                     </button>
                 </form>
-
             </div>
         </div>
-
         {% else %}
-
         <a href="{% url 'choose_role' %}" class="auth-btn">
             Login
         </a>
-
         {% endif %}
-
     </div>
-
 </nav>
 </header>
-
 <script>
 function toggleDropdown() {
     document.querySelector(".dropdown-box").classList.toggle("show");

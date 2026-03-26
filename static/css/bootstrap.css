@@ -512,7 +512,7 @@ mark {
 
 .img-fluid {
 	max-width: 100%!important;
-	height: 100%!important;
+	
     border-radius: 2px!important;
     border-color: black!important;
 }
