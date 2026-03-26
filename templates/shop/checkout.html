@@ -1,10 +1,9 @@
 {% extends 'base.html' %}
 {% load static %}
-{% block title %}Product - checkout{% endblock %}
+{% block title %}B.Store - Checkout{% endblock %}
 {% block content %}
 <link rel="stylesheet" href="{% static 'css/cart.css' %}">
 <body>
-
     <!-- Start Banner Area -->
     <section class="banner-area organic-breadcrumb">
         <div class="container">
@@ -20,7 +19,6 @@
         </div>
     </section>
     <!-- End Banner Area -->
-
     <!--================Checkout Area =================-->
     <section class="checkout_area section_gap">
         <div class="container">
@@ -143,7 +141,6 @@
                                             <div class="ss-dropdown" role="listbox" aria-label="Country options"></div>
                                         </div>
                                     </div>
-
                                     <div class="form-group">
                                         <label for="ship_province">Province</label>
                                         <select class="form-control js-ss-select" id="ship_province" name="ship_province" aria-label="Province"></select>
@@ -152,7 +149,6 @@
                                             <div class="ss-dropdown" role="listbox" aria-label="Province options"></div>
                                         </div>
                                     </div>
-
                                     <div class="form-group">
                                         <label for="ship_city">City</label>
                                         <select class="form-control js-ss-select" id="ship_city" name="ship_city" aria-label="City"></select>
@@ -161,18 +157,15 @@
                                             <div class="ss-dropdown" role="listbox" aria-label="City options"></div>
                                         </div>
                                     </div>
-
                                     <div class="form-group">
                                         <label for="ship_address">Address</label>
                                         <textarea class="form-control" id="ship_address" name="ship_address" rows="3" placeholder="House, street, area..."></textarea>
                                     </div>
-
                                     <div class="form-group">
                                         <label for="ship_postcode">Postcode</label>
                                         <input class="form-control" id="ship_postcode" name="ship_postcode" placeholder="e.g. 54000">
                                     </div>
                                 </div>
-
                                 <textarea class="form-control" name="message" id="message" rows="1" placeholder="Order Notes"></textarea>
                             </div>
                         </form>
@@ -233,7 +226,6 @@
         </div>
     </section>
     <!--================End Checkout Area =================-->
-
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             var countryEl = document.getElementById('ship_country');
@@ -422,7 +414,5 @@
             loadRegions(countryEl ? countryEl.value : "");
         });
     </script>
-
 </body>
-
 {% endblock %}

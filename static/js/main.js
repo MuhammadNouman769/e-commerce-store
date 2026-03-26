@@ -711,3 +711,50 @@ document.addEventListener("DOMContentLoaded", function () {
         catSearch.addEventListener("input", filter);
     }
 });
+
+
+
+fetch("/add-to-cart-ajax/", {
+    method: "POST",
+    headers: {
+        "X-CSRFToken": getCookie("csrftoken"),
+    },
+    body: new URLSearchParams({
+        product_id: productId
+    })
+})
+.then(response => {
+    if (response.status === 401) {
+        return response.json().then(data => {
+            showToast("Please login first"); // 👈 popup
+            setTimeout(() => {
+                window.location.href = data.login_url;
+            }, 1500);
+        });
+    }
+    return response.json();
+})
+.then(data => {
+    if (data.success) {
+        updateCartCount(data.cart_count);
+        showToast("Added to cart");
+    }
+});
+function showToast(message) {
+    let container = document.getElementById("toast-container");
+
+    if (!container) {
+        console.error("Toast container not found!");
+        return;
+    }
+
+    let toast = document.createElement("div");
+    toast.className = "toast-message warning";
+    toast.innerText = message;
+
+    container.appendChild(toast);
+
+    setTimeout(() => {
+        toast.remove();
+    }, 3000);
+}

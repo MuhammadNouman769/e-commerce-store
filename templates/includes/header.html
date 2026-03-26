@@ -1,94 +1,285 @@
 {% load static %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 
- 
-	<!-- Start Header Area -->
-	<header class="header_area sticky-header">
-		<div class="main_menu">
-			<nav class="navbar navbar-expand-lg navbar-light main_box">
-				<div class="container">
-					<!-- Brand and toggle get grouped for better mobile display -->
-					<a class="navbar-brand logo_h" href="{% url 'home' %}"><img src="{% static 'img/logo.png'%}" alt=""></a>
-					<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
-					 aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-						<span class="icon-bar"></span>
-						<span class="icon-bar"></span>
-						<span class="icon-bar"></span>
-					</button>
-					<!-- Collect the nav links, forms, and other content for toggling -->
-					<div class="collapse navbar-collapse offset" id="navbarSupportedContent">
-						<ul class="nav navbar-nav menu_nav ml-auto">
-							<li class="nav-item"><a class="nav-link" href="{% url 'home' %}">Home</a></li>
-							<li class="nav-item"><a class="nav-link" href="{% url 'products:product_list' %}">Product</a></li>
-<!--							<li class="nav-item submenu dropdown">-->
-<!--								<a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true"-->
-<!--								 aria-expanded="false">Blog</a>-->
-<!--								<ul class="dropdown-menu">-->
-<!--									<li class="nav-item"><a class="nav-link" href="{% url 'blog'%}">Blog</a></li>-->
-<!--									<li class="nav-item"><a class="nav-link" href="{% url 'single_blog'%}">Blog Details</a></li>-->
-<!--								</ul>-->
-<!--							</li>-->
-<!--							<li class="nav-item submenu dropdown">-->
-<!--								<a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true"-->
-<!--								 aria-expanded="false">Pages</a>-->
-<!--								<ul class="dropdown-menu">-->
-<!--									<li class="nav-item"><a class="nav-link" href="{% url 'login' %}">Login</a></li>-->
-<!--									<li class="nav-item"><a class="nav-link" href="{% url 'tracking' %}">Tracking</a></li>-->
-<!--									<li class="nav-item"><a class="nav-link" href="{% url 'element' %}">Elements</a></li>-->
-<!--								</ul>-->
-<!--							</li>-->
-							<li class="nav-item"><a class="nav-link" href="{% url 'contact_us' %}">Contact</a></li>
-							<li class="nav-item">
-    <a class="nav-link" href="{% url 'choose_role' %}">SignUp</a>
-</li>
+<style>
+.header_area {
+    background: #fff;
+    border-bottom: 1px solid #eee;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
 
-<li class="nav-item">
-    <a class="nav-link" href="{% url 'choose_role' %}">Login</a>
-</li>	</ul>
-						<ul class="nav navbar-nav navbar-right">
-							<li class="nav-item"><a href="{% url 'cart' %}" class="cart"><span class="ti-bag"></span></a></li>
-<!--							{% if request.user.is_authenticated %}-->
-<!--								{% if request.user.role == 'seller' %}-->
-<!--									<li class="nav-item">-->
-<!--										<a class="nav-link" href="{% url 'admin_panel:seller_dashboard' %}">Seller Dashboard</a>-->
-<!--									</li>-->
-<!--								{% endif %}-->
-<!--								<li class="nav-item">-->
-<!--									<form action="{% url 'logout' %}" method="post" style="display:inline;">-->
-<!--										{% csrf_token %}-->
-<!--										<button type="submit" class="nav-link btn btn-link" style="padding:0;">Logout</button>-->
-<!--									</form>-->
-<!--								</li>-->
-<!--							{% else %}-->
-<!--								<li class="nav-item">-->
-<!--									<a class="nav-link" href="{% url 'login' %}">Customer Login</a>-->
-<!--								</li>-->
-<!--								<li class="nav-item">-->
-<!--									<a class="nav-link" href="{% url 'register' %}">Customer Register</a>-->
-<!--								</li>-->
-<!--								<li class="nav-item">-->
-<!--									<a class="nav-link" href="{% url 'seller_login' %}">Seller Login</a>-->
-<!--								</li>-->
-<!--								<li class="nav-item">-->
-<!--									<a class="nav-link" href="{% url 'seller_register' %}">Seller Register</a>-->
-<!--								</li>-->
-<!--							{% endif %}-->
-<!--							<li class="nav-item">-->
-<!--								<button class="search"><span class="lnr lnr-magnifier" id="search"></span></button>-->
+/* NAVBAR LAYOUT */
+.navbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 0;
+}
 
-						</ul>
-					</div>
-				</div>
-			</nav>
-		</div>
-		<div class="search_input" id="search_input_box">
-			<div class="container">
-				<form class="d-flex justify-content-between">
-					<input type="text" class="form-control" id="search_input" placeholder="Search Here">
-					<button type="submit" class="btn"></button>
-					<span class="lnr lnr-cross" id="close_search" title="Close Search"></span>
-				</form>
-			</div>
-		</div>
-	</header>
-	<!-- End Header Area -->
-	<!-- End Header Area -->
+/* LEFT */
+.left-nav {
+    display: flex;
+    align-items: center;
+    gap: 0px;
+}
+
+/* CENTER SEARCH */
+.search-box {
+    flex: 1;
+    max-width: 500px;
+    margin: 0 20px;
+}
+
+.search-box form {
+    display: flex;
+    border: 1px solid #ddd;
+    border-radius: 25px;
+    margin-top: 6px;
+    overflow: hidden;
+    background: #f9f9f9;
+}
+
+.search-box input {
+    border-style:solid;;
+    border-radius: 30px;
+    border-color:#ff6c00;
+    outline: none;
+    padding: 10px 15px;
+    width: 100%;
+    background: transparent;
+}
+
+.search-box button {
+    background: #f57224;
+    border: none;
+    color: #fff;
+    padding: 0 18px;
+    cursor: pointer;
+}
+.search-box button:hover {
+    color: #f57224;
+    background: #fff;
+}
+
+/* NAV LINKS */
+.nav-link {
+    font-size: 14px;
+    color: #393734 !important;
+    margin: 0 10px;
+    font-weight: 500;
+    position: relative;
+}
+
+.nav-link:hover {
+    color: #f57224 !important;
+}
+
+/* RIGHT SIDE */
+.nav-right {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+}
+
+/* CART */
+.cart-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    background: #f8f8f8;
+    transition: all 0.3s ease;
+    color: #f86b07;
+    font-size: 18px;
+}
+
+/* Hover effect */
+.cart-wrapper:hover {
+    background: #f57224;
+    color: #fff;
+    transform: scale(1.08);
+}
+
+/* ICON */
+.cart-wrapper i {
+    font-size: 25px;
+}
+
+/* COUNT BADGE */
+.cart-count {
+    position: absolute;
+    top: -6px;
+    right: -6px;
+
+    background: #f57224;
+    color: #fff;
+
+    font-size: 10px;
+    font-weight: 600;
+
+    min-width: 18px;
+    height: 18px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 50%;
+
+    box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+}
+/* USER DROPDOWN */
+.user-menu {
+    position: relative;
+}
+
+.user-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.dropdown-box {
+    position: absolute;
+    right: 0;
+    top: 45px;
+    width: 200px;
+    background: #fff;
+    border-radius: 10px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+    display: none;
+    overflow: hidden;
+}
+
+.dropdown-box.show {
+    display: block;
+}
+
+.dropdown-box a,
+.dropdown-box button {
+    width: 100%;
+    padding: 12px;
+    display: block;
+    text-align: left;
+    border: none;
+    background: none;
+}
+
+.dropdown-box a:hover,
+.dropdown-box button:hover {
+    background: #f5f5f5;
+    color: #f57224;
+}
+
+/* LOGIN BUTTON */
+.auth-btn {
+    border: 1px solid #f57224;
+    padding: 6px 14px;
+    border-radius: 6px;
+    color: #f57224 !important;
+}
+
+.auth-btn:hover {
+    background: #f57224;
+    color: #fff !important;
+}
+body.loading {
+    cursor: wait;
+}
+
+body.loading::after {
+    content: "";
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    width: 40px;
+    height: 40px;
+    border: 4px solid #ccc;
+    border-top-color: #000;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    transform: translate(-50%, -50%);
+    z-index: 9999;
+}
+
+@keyframes spin {
+    to { transform: translate(-50%, -50%) rotate(360deg); }
+}
+</style>
+<header class="header_area sticky-header">
+<nav class="navbar container">
+    <!-- LEFT -->
+    <div class="left-nav">
+        <a class="navbar-brand" href="{% url 'home' %}">
+            <img src="{% static 'img/logo.png' %}" style="height:40px;">
+        </a>
+        <a class="nav-link" href="{% url 'home' %}">Home</a>
+        <a class="nav-link" href="{% url 'products:product_list' %}">Products</a>
+        <a class="nav-link" href="{% url 'contact_us' %}">Contact</a>
+    </div>
+    <!-- CENTER SEARCH  -->
+    <div class="search-box">
+        <form method="GET" action="{% url 'products:product_list' %}">
+    <input type="text" name="q" placeholder="Search products..." value="{{ request.GET.q|default:'' }}">
+    <button type="submit">
+        <i class="fas fa-search"></i>
+    </button>
+</form>
+    </div>
+    <!-- RIGHT -->
+    <div class="nav-right">
+        <a href="{% url 'cart' %}" class="cart-wrapper">
+            <i class="fas fa-shopping-cart"></i>
+            <span class="cart-count">{{ cart_count|default:"0" }}</span>
+        </a>
+        {% if request.user.is_authenticated %}
+        <div class="user-menu">
+            <button class="user-btn" onclick="toggleDropdown()">
+                <i class="fas fa-user-circle"></i>
+                {{ request.user.first_name|default:"Account" }}
+            </button>
+            <div class="dropdown-box">
+                {% if request.user.role == 'seller' %}
+                <a href="{% url 'admin_panel:seller_dashboard' %}">
+                    <i class="fas fa-store"></i> Dashboard
+                </a>
+                {% endif %}
+                <form method="post" action="{% url 'logout' %}">
+                    {% csrf_token %}
+                    <button type="submit">
+                        <i class="fas fa-sign-out-alt"></i> Logout
+                    </button>
+                </form>
+            </div>
+        </div>
+        {% else %}
+        <a href="{% url 'choose_role' %}" class="auth-btn">
+            Login
+        </a>
+        {% endif %}
+    </div>
+</nav>
+</header>
+<script>
+function toggleDropdown() {
+    document.querySelector(".dropdown-box").classList.toggle("show");
+}
+
+document.addEventListener("click", function(e) {
+    let menu = document.querySelector(".user-menu");
+    if (menu && !menu.contains(e.target)) {
+        document.querySelector(".dropdown-box")?.classList.remove("show");
+    }
+});
+</script>
+<script>
+document.querySelector(".search-box form").addEventListener("submit", function () {
+    document.body.classList.add("loading");
+});
+</script>

@@ -1,14 +1,13 @@
 from django.contrib import messages
 from django.db import transaction
 from django.shortcuts import redirect, render
-
 from cities_light.models import City, Country, Region
-
+from django.contrib.auth.decorators import login_required
 from apps.cart.models import Cart, CartItem, ShippingAddress
 from apps.order_fulfillment.models import BillingDetail
 from apps.products.models import Product
 
-
+@login_required(login_url="/users/login/")
 def checkout(request):
     # Checkout uses the same session cart as `apps.cart.views.cart`
     cart_data = request.session.get("cart", {})

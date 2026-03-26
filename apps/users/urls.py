@@ -4,6 +4,7 @@ from . import views
 urlpatterns = [
     path('register/', views.register, name='register'),
     path('login/', views.user_login, name='login'),
+    path('logout/', views.logout_view, name='logout'), 
 
     # Optional: separate role-specific URLs
     path('customer/register/', views.customer_register, name='customer_register'),

@@ -1,77 +1,189 @@
 {% extends 'base.html' %}
 {% load static %}
-
-{% block title %}Login{% endblock %}
-
+{% block title %}BtrStore - Login{% endblock %}
 {% block content %}
-<section class="banner-area organic-breadcrumb">
-    <div class="container">
-        <div class="breadcrumb-banner d-flex flex-wrap align-items-center justify-content-end">
-            <div class="col-first">
-                <h1>Login</h1>
-                <nav class="d-flex align-items-center">
-                    <a href="{% url 'home' %}">Home<span class="lnr lnr-arrow-right"></span></a>
-                    <a href="{% url 'login' %}">Login</a>
-                </nav>
-            </div>
-        </div>
-    </div>
-</section>
+<style>
+.login-wrapper {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #eef2f7, #f8fafc);
+}
 
-<section class="login_box_area section_gap">
-    <div class="container">
-        <div class="row">
-            <div class="col-lg-12">
-                <div class="login_form_inner">
-                    <h3>Login to enter</h3>
+.login-card {
+    width: 100%;
+    max-width: 420px;
+    background: rgba(255, 255, 255, 0.9);
+    backdrop-filter: blur(12px);
+    border-radius: 20px;
+    padding: 45px 35px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.08);
+    transition: 0.3s ease;
+}
 
-                    {% if messages %}
-                        {% for message in messages %}
-                            <div class="alert alert-info" role="alert" style="margin: 10px 0;">
-                                {{ message }}
-                            </div>
-                        {% endfor %}
-                    {% endif %}
+.login-card:hover {
+    transform: translateY(-3px);
+}
 
-                    <form class="row login_form" action="{% url 'login' %}" method="post">
-                        {% csrf_token %}
+.login-card h3 {
+    font-weight: 600;
+    text-align: center;
+    margin-bottom: 8px;
+}
 
-                        <div class="col-md-12 form-group">
-                            <input type="email" class="form-control" id="email" name="email" placeholder="Email" required>
-                        </div>
+.login-card p {
+    text-align: center;
+    font-size: 14px;
+    color: #777;
+    margin-bottom: 30px;
+}
 
-                        <div class="col-md-12 form-group">
-                            <input type="password" class="form-control" id="password" name="password" placeholder="Password" required>
-                        </div>
+.form-control {
+    height: 50px;
+    border-radius: 12px;
+    border: 1px solid #e5e7eb;
+    padding-left: 15px;
+    transition: 0.2s;
+}
 
-                        <div class="col-md-12 form-group">
-                            <label class="mb-2">Login as</label>
-                            <div class="d-flex gap-3">
-                                <label class="d-flex align-items-center gap-2 mb-0">
-                                    <input type="radio" name="role" value="customer" {% if initial_role != 'seller' %}checked{% endif %}>
-                                    Customer
-                                </label>
-                                <label class="d-flex align-items-center gap-2 mb-0">
-                                    <input type="radio" name="role" value="seller" {% if initial_role == 'seller' %}checked{% endif %}>
-                                    Seller
-                                </label>
-                            </div>
-                        </div>
+.form-control:focus {
+    border-color: #000;
+    box-shadow: 0 0 0 2px rgba(0,0,0,0.05);
+}
 
-                        <div class="col-md-12 form-group">
-                            <button type="submit" value="submit" class="primary-btn">Log In</button>
-                            <div class="mt-2">
-                                <a href="{% url 'register' %}?role=customer">Create Customer Account</a>
-                            </div>
-                            <div class="mt-1">
-                                <a href="{% url 'register' %}?role=seller">Create Seller Account</a>
-                            </div>
-                        </div>
-                    </form>
+.input-group-custom {
+    position: relative;
+}
+
+.input-group-custom i {
+    position: absolute;
+    top: 50%;
+    left: 12px;
+    transform: translateY(-50%);
+    color: #aaa;
+    font-size: 14px;
+}
+
+.input-group-custom input {
+    padding-left: 35px;
+}
+
+.password-toggle {
+    position: absolute;
+    top: 50%;
+    right: 12px;
+    transform: translateY(-50%);
+    cursor: pointer;
+    font-size: 14px;
+    color: #888;
+}
+
+.primary-btn {
+    width: 100%;
+    border-radius: 12px;
+    height: 50px;
+    font-weight: 500;
+    background: linear-gradient(135deg, #000, #333);
+    color: #fff;
+    border: none;
+    transition: 0.3s;
+}
+
+.primary-btn:hover {
+    background: linear-gradient(135deg, #222, #000);
+    transform: scale(1.01);
+}
+
+.links {
+    text-align: center;
+    margin-top: 20px;
+    font-size: 14px;
+}
+
+.links a {
+    display: block;
+    margin-top: 6px;
+    text-decoration: none;
+    color: #000;
+    font-weight: 500;
+}
+
+.links a:hover {
+    text-decoration: underline;
+}
+
+.alert {
+    border-radius: 10px;
+    padding: 10px;
+    font-size: 14px;
+}
+</style>
+
+<div class="login-wrapper">
+    <div class="login-card">
+
+        <h3>Welcome Back 👋</h3>
+        <p>Login to your account</p>
+
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-danger text-center">
+                    {{ message }}
                 </div>
-            </div>
-        </div>
-    </div>
-</section>
-{% endblock %}
+            {% endfor %}
+        {% endif %}
 
+        <form method="post" action="{% url 'login' %}">
+            {% csrf_token %}
+
+            <!-- Hidden -->
+            <input type="hidden" name="next" value="{{ request.GET.next|default:'' }}">
+            <input type="hidden" name="role" value="{{ request.GET.role }}">
+
+            <!-- Email -->
+            <div class="mb-3 input-group-custom">
+                <i>📧</i>
+                <input type="email" name="email" class="form-control" placeholder="Email address" required>
+            </div>
+
+            <!-- Password -->
+            <div class="mb-3 input-group-custom">
+                <i>🔒</i>
+                <input type="password" name="password" id="passwordField" class="form-control" placeholder="Password" required>
+                <span class="password-toggle" onclick="togglePassword()">👁️</span>
+            </div>
+
+            <!-- Button -->
+            <div class="mt-3">
+                <button type="submit" class="primary-btn">
+                    {% if request.GET.role == "seller" %}
+                        Login as Seller
+                    {% else %}
+                        Login
+                    {% endif %}
+                </button>
+            </div>
+
+            <!-- Links -->
+            <div class="links">
+                <a href="{% url 'register' %}?role={{ request.GET.role }}&next={{ next }}">
+                    Create Account
+                </a>
+
+                <a href="{% url 'choose_role' %}?next={{ request.path }}">
+                    Switch Role
+                </a>
+            </div>
+
+        </form>
+    </div>
+</div>
+
+<script>
+function togglePassword() {
+    const field = document.getElementById("passwordField");
+    field.type = field.type === "password" ? "text" : "password";
+}
+</script>
+{% endblock %}
