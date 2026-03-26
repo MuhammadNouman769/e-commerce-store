@@ -1,5 +1,5 @@
 from django.http import JsonResponse
-from django.shortcuts import redirect, render
+from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from cities_light.models import City, Country, Region
 from apps.products.models import Product
@@ -166,15 +166,15 @@ def cities_for_region(request):
 
 def add_to_cart_ajax(request):
     
-    # 🔐 LOGIN CHECK
+    #  LOGIN CHECK
     if not request.user.is_authenticated:
         return JsonResponse({
             "success": False,
             "error": "Authentication required",
-            "login_url": "/users/login/"  # 👈 safe hardcoded
+            "login_url": "/users/login/"  #  safe hardcoded
         }, status=401)
 
-    # 🔄 ONLY POST
+    #  ONLY POST
     if request.method == "POST":
         product_id = request.POST.get("product_id")
 
@@ -184,7 +184,7 @@ def add_to_cart_ajax(request):
                 "error": "Product ID missing"
             }, status=400)
 
-        # 📦 Get Product safely
+        #  Get Product safely
         product = get_object_or_404(Product, id=product_id)
 
         # 🛒 Get or create cart
