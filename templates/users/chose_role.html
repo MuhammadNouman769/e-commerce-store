@@ -1,121 +1,154 @@
 {% extends "base.html" %}
 {% block content %}
 <title>{% block title %}B.Store - Choose Role{% endblock %}</title>
+
 <style>
 body {
-    background: #f5f7f9;
+    background: linear-gradient(135deg, #f8fafc, #eef2f7);
+    font-family: 'Inter', system-ui, sans-serif;
 }
 
 .auth-wrapper {
-    height: 85vh;
+    min-height: 100vh;
     display: flex;
     align-items: center;
     justify-content: center;
+    padding: 20px;
 }
 
 .auth-box {
-    width: 600px;
-    height: 400px;
-    background: #fff;
-    border-radius: 16px;
-    padding: 50px 40px;
-    box-shadow: 0 10px 40px rgba(0,0,0,0.08);
-    text-align: center;
+    width: 100%;
+    max-width: 620px;
+    background: white;
+    border-radius: 24px;
+    padding: 55px 50px;
+    box-shadow: 0 25px 70px rgba(0, 0, 0, 0.08);
+    border: 1px solid #f1f5f9;
 }
 
 .auth-box h2 {
-    font-weight: 600;
-    margin-bottom: 10px;
+    font-size: 28px;
+    font-weight: 700;
+    text-align: center;
+    color: #1e2937;
+    margin-bottom: 12px;
 }
 
 .auth-box p {
-    color: #666;
-    font-size: 14px;
+    text-align: center;
+    color: #f5f5f5;
+    font-size: 15.5px;
+    margin-bottom: 45px;
 }
 
 .role-options {
     display: flex;
-    gap: 20px;
-    margin-top: 35px;
+    gap: 24px;
+    margin-bottom: 40px;
 }
 
 .role-card {
     flex: 1;
-    border: 1.5px solid #e5e7eb;
-    border-radius: 14px;
-    padding: 30px 20px;
+    border: 2px solid #e2e8f0;
+    border-radius: 18px;
+    padding: 38px 28px;
     cursor: pointer;
-    transition: all 0.25s ease;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    background: white;
     position: relative;
-    background: #fff;
+    text-align: center;
 }
 
 .role-card:hover {
-    border-color: #000;
-    transform: translateY(-4px);
-    box-shadow: 0 8px 20px rgba(0,0,0,0.06);
+    border-color: #f97316;
+    transform: translateY(-8px);
+    box-shadow: 0 15px 35px rgba(249, 115, 22, 0.12);
 }
 
 .role-card.active {
-    border: 2px solid #000;
-    background: #fafafa;
+    border-color: #f97316;
+    background: #fffaf0;
+    box-shadow: 0 10px 30px rgba(249, 115, 22, 0.15);
 }
 
-.role-card input {
+.role-card input[type="radio"] {
     position: absolute;
-    top: 15px;
-    right: 15px;
+    top: 20px;
+    right: 20px;
+    width: 20px;
+    height: 20px;
+    accent-color: #f97316;
 }
 
 .role-icon {
-    font-size: 30px;
-    margin-bottom: 15px;
+    font-size: 42px;
+    margin-bottom: 20px;
 }
 
 .role-title {
+    font-size: 20px;
     font-weight: 600;
-    margin-bottom: 6px;
+    color: #1e2937;
+    margin-bottom: 8px;
 }
 
 .role-desc {
-    font-size: 13px;
-    color: #777;
+    font-size: 14.5px;
+    color: #64748b;
+    line-height: 1.5;
 }
 
 .btn-primary-custom {
     width: 100%;
-    margin-top: 30px;
-    padding: 12px;
-    border-radius: 10px;
-    background: #000;
-    color: #fff;
+    padding: 16px;
+    border-radius: 14px;
+    background: linear-gradient(135deg, #f97316, #fb923c);
+    color: white;
+    font-size: 16.5px;
+    font-weight: 600;
     border: none;
-    font-weight: 500;
-    transition: 0.2s;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-top: 10px;
 }
 
 .btn-primary-custom:hover {
-    background: #222;
+    background: linear-gradient(135deg, #ea580c, #f97316);
+    transform: translateY(-2px);
 }
 
 .btn-primary-custom:disabled {
-    background: #ccc;
+    background: #cbd5e1;
+    color: #64748b;
     cursor: not-allowed;
+    transform: none;
 }
 
 .login-text {
-    margin-top: 15px;
-    font-size: 14px;
+    text-align: center;
+    margin-top: 25px;
+    font-size: 15px;
+    color: #64748b;
 }
 
-.login-text a {
+.login-text button {
+    background: none;
+    border: none;
+    color: #f97316;
+    font-weight: 600;
+    cursor: pointer;
+    padding: 0;
     text-decoration: none;
-    font-weight: 500;
+}
+
+.login-text button:hover {
+    text-decoration: underline;
 }
 </style>
 
 <div class="auth-wrapper mt-5">
     <div class="auth-box">
+
         <h2>Join as a Customer or Seller</h2>
         <p>Choose how you want to use the platform</p>
 
@@ -126,18 +159,18 @@ body {
 
                 <!-- CUSTOMER -->
                 <label class="role-card" onclick="selectRole(this)">
-                    <input type="hidden" name="action" value="{{ action }}">
-                    <div class="role-icon">👤</div>
+                    <input type="radio" name="role" value="customer" required>
+                    <div class="role-icon">🛍️</div>
                     <div class="role-title">Customer</div>
-                    <div class="role-desc">Buy products for your needs</div>
+                    <div class="role-desc">Browse, shop and enjoy great deals</div>
                 </label>
 
                 <!-- SELLER -->
                 <label class="role-card" onclick="selectRole(this)">
-                    <input type="hidden" name="action" value="{{ action }}">
+                    <input type="radio" name="role" value="seller" required>
                     <div class="role-icon">💼</div>
                     <div class="role-title">Seller</div>
-                    <div class="role-desc">Sell your products and grow your business</div>
+                    <div class="role-desc">Sell products and grow your business</div>
                 </label>
 
             </div>
@@ -147,8 +180,8 @@ body {
             </button>
 
             <div class="login-text">
-                Already have an account?
-                <button type="submit" name="action" value="login" class="btn btn-link">Log In</button>
+                Already have an account? 
+                <button type="submit" name="action" value="login">Log In</button>
             </div>
 
         </form>
@@ -157,11 +190,15 @@ body {
 
 <script>
 function selectRole(card) {
-    document.querySelectorAll('.role-card').forEach(c => c.classList.remove('active'));
+    // Remove active from all cards
+    document.querySelectorAll('.role-card').forEach(c => {
+        c.classList.remove('active');
+    });
+    
+    // Add active to selected card
     card.classList.add('active');
-
-    card.querySelector('input').checked = true;
-
+    
+    // Enable the continue button
     document.getElementById('continueBtn').disabled = false;
 }
 </script>
