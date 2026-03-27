@@ -1020,7 +1020,7 @@ h1, h2, h3, h4, h5, h6 {
     -o-transition: all 0.3s ease 0s;
     transition: all 0.3s ease 0s; }
   .header_area .navbar {
-    background: #fff;
+    background: #ff6c00;
     padding: 0px;
     height: 60px;
     border: 0px;
