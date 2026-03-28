@@ -1,112 +1,127 @@
-{% extends 'base.html' %}
-{% load static %}
-{% block title %}BtrStore - Login{% endblock %}
+{% extends "base.html" %}
 {% block content %}
+<title>{% block title %}B.Store - Choose Role{% endblock %}</title>
+
 <style>
 .login-wrapper {
     min-height: 100vh;
     display: flex;
     align-items: center;
     justify-content: center;
-    background: linear-gradient(135deg, #eef2f7, #f8fafc);
+    background: linear-gradient(135deg, #f8fafc, #eef2f7);
+    font-family: 'Inter', system-ui, sans-serif;
 }
 
 .login-card {
     width: 100%;
     max-width: 420px;
-    background: rgba(255, 255, 255, 0.9);
-    backdrop-filter: blur(12px);
+    background: white;
     border-radius: 20px;
-    padding: 45px 35px;
-    box-shadow: 0 20px 60px rgba(0,0,0,0.08);
+    padding: 50px 40px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.07);
+    border: 1px solid #f1f5f9;
     transition: 0.3s ease;
 }
 
 .login-card:hover {
-    transform: translateY(-3px);
+    transform: translateY(-4px);
+    box-shadow: 0 25px 70px rgba(0, 0, 0, 0.09);
 }
 
 .login-card h3 {
+    font-size: 26px;
     font-weight: 600;
     text-align: center;
-    margin-bottom: 8px;
+    margin-bottom: 10px;
+    color: #1e2937;
 }
 
 .login-card p {
     text-align: center;
-    font-size: 14px;
-    color: #777;
-    margin-bottom: 30px;
+    font-size: 15px;
+    color: #64748b;
+    margin-bottom: 40px;
 }
 
 .form-control {
-    height: 50px;
+    height: 52px;
     border-radius: 12px;
-    border: 1px solid #e5e7eb;
-    padding-left: 15px;
-    transition: 0.2s;
+    border: 1.5px solid #e2e8f0;
+    padding: 0 16px;
+    font-size: 15px;
+    transition: all 0.3s ease;
+    width: 100%;
 }
 
 .form-control:focus {
-    border-color: #000;
-    box-shadow: 0 0 0 2px rgba(0,0,0,0.05);
+    border-color: #f97316;
+    box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.12);
+    outline: none;
 }
 
 .input-group-custom {
     position: relative;
+    margin-bottom: 22px;
 }
 
 .input-group-custom i {
     position: absolute;
     top: 50%;
-    left: 12px;
+    left: 16px;
     transform: translateY(-50%);
-    color: #aaa;
-    font-size: 14px;
+    color: #94a3b8;
+    font-size: 17px;
 }
 
 .input-group-custom input {
-    padding-left: 35px;
+    padding-left: 48px;
 }
 
 .password-toggle {
     position: absolute;
     top: 50%;
-    right: 12px;
+    right: 16px;
     transform: translateY(-50%);
     cursor: pointer;
-    font-size: 14px;
-    color: #888;
+    font-size: 18px;
+    color: #94a3b8;
+    background: none;
+    border: none;
+    padding: 0;
 }
 
 .primary-btn {
     width: 100%;
+    height: 54px;
     border-radius: 12px;
-    height: 50px;
-    font-weight: 500;
-    background: linear-gradient(135deg, #000, #333);
+    background: linear-gradient(135deg, #f97316, #fb923c);
     color: #fff;
+    font-weight: 600;
+    font-size: 16px;
     border: none;
-    transition: 0.3s;
+    cursor: pointer;
+    margin-top: 20px;
+    transition: all 0.3s ease;
 }
 
 .primary-btn:hover {
-    background: linear-gradient(135deg, #222, #000);
-    transform: scale(1.01);
+    background: linear-gradient(135deg, #ea580c, #f97316);
+    transform: translateY(-2px);
 }
 
 .links {
     text-align: center;
-    margin-top: 20px;
-    font-size: 14px;
+    margin-top: 30px;
+    font-size: 15px;
+    color: #64748b;
 }
 
 .links a {
     display: block;
-    margin-top: 6px;
+    margin-top: 10px;
     text-decoration: none;
-    color: #000;
-    font-weight: 500;
+    color: #f97316;
+    font-weight: 600;
 }
 
 .links a:hover {
@@ -115,12 +130,17 @@
 
 .alert {
     border-radius: 10px;
-    padding: 10px;
-    font-size: 14px;
+    padding: 12px 16px;
+    font-size: 14.5px;
+    margin-bottom: 25px;
+    text-align: center;
+    background: #fef3c7;
+    color: #c2410c;
+    border: 1px solid #fcd34d;
 }
 </style>
 
-<div class="login-wrapper">
+<div class="login-wrapper mt-3">
     <div class="login-card">
 
         <h3>Welcome Back 👋</h3>
@@ -137,25 +157,25 @@
         <form method="post" action="{% url 'login' %}">
             {% csrf_token %}
 
-            <!-- Hidden -->
+            <!-- Hidden fields -->
             <input type="hidden" name="next" value="{{ request.GET.next|default:'' }}">
             <input type="hidden" name="role" value="{{ request.GET.role }}">
 
             <!-- Email -->
-            <div class="mb-3 input-group-custom">
+            <div class="input-group-custom">
                 <i>📧</i>
                 <input type="email" name="email" class="form-control" placeholder="Email address" required>
             </div>
 
             <!-- Password -->
-            <div class="mb-3 input-group-custom">
+            <div class="input-group-custom">
                 <i>🔒</i>
                 <input type="password" name="password" id="passwordField" class="form-control" placeholder="Password" required>
                 <span class="password-toggle" onclick="togglePassword()">👁️</span>
             </div>
 
             <!-- Button -->
-            <div class="mt-3">
+            <div>
                 <button type="submit" class="primary-btn">
                     {% if request.GET.role == "seller" %}
                         Login as Seller
@@ -167,10 +187,9 @@
 
             <!-- Links -->
             <div class="links">
-                <a href="{% url 'register' %}?role={{ request.GET.role }}&next={{ next }}">
-                    Create Account
+                <a href="{% url 'register' %}?role={{ request.GET.role }}&next={{ request.GET.next }}">
+                    Create New Account
                 </a>
-
                 <a href="{% url 'choose_role' %}?next={{ request.path }}">
                     Switch Role
                 </a>
@@ -179,11 +198,4 @@
         </form>
     </div>
 </div>
-
-<script>
-function togglePassword() {
-    const field = document.getElementById("passwordField");
-    field.type = field.type === "password" ? "text" : "password";
-}
-</script>
 {% endblock %}

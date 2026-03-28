@@ -3,7 +3,7 @@
 
 <style>
 .header_area {
-    background: #fff;
+    background: #ff6c00;
     border-bottom: 1px solid #eee;
     position: sticky;
     top: 0;
@@ -52,10 +52,11 @@
 }
 
 .search-box button {
-    background: #f57224;
-    border: none;
-    color: #fff;
+    background: #fff;
+    color: #ff6c00;
+    border: solid 1px;
     padding: 0 18px;
+    border-radius: 5px;
     cursor: pointer;
 }
 .search-box button:hover {
@@ -70,14 +71,13 @@
 /* NAV LINKS */
 .nav-link {
     font-size: 14px;
-    color: #393734 !important;
+    color: #fff !important;
     margin: 0 10px;
-    font-weight: 500;
     position: relative;
 }
 
 .nav-link:hover {
-    color: #f57224 !important;
+    font-weight: 800;    
 }
 
 /* RIGHT SIDE */
@@ -98,16 +98,14 @@
     border-radius: 50%;
     background: #f8f8f8;
     transition: all 0.3s ease;
-    color: #f86b07;
+    color: #f57224;
     font-size: 18px;
 }
-
-/* Hover effect */
 .cart-wrapper:hover {
-    background: #f57224;
-    color: #fff;
-    transform: scale(1.08);
+    color: #f57224;
 }
+
+
 
 /* ICON */
 .cart-wrapper i {
@@ -120,8 +118,8 @@
     top: -6px;
     right: -6px;
 
-    background: #f57224;
-    color: #fff;
+    background: #fff;
+    color: #f57224;
 
     font-size: 10px;
     font-weight: 600;
@@ -143,9 +141,12 @@
 }
 
 .user-btn {
-    background: none;
-    border: none;
+    border: solid #fff 1px;
     cursor: pointer;
+    color: #ff6c00;
+    background: #fff;
+    height: 36px;
+    font-weight: 700;
     font-size: 14px;
 }
 
@@ -187,12 +188,12 @@
     padding: 6px 14px;
     border-radius: 6px;
     color: #f57224 !important;
+    background: #fff;
+}
+.auth-btn:hover {
+    font-weight: 600;
 }
 
-.auth-btn:hover {
-    background: #f57224;
-    color: #fff !important;
-}
 body.loading {
     cursor: wait;
 }
@@ -221,7 +222,7 @@ body.loading::after {
     <!-- LEFT -->
     <div class="left-nav">
         <a class="navbar-brand" href="{% url 'home' %}">
-            <img src="{% static 'img/logo.png' %}" style="height:40px;">
+            <img src="{% static 'img/logo-1.png' %}" style="height:40px;">
         </a>
         <a class="nav-link" href="{% url 'home' %}">Home</a>
         <a class="nav-link" href="{% url 'products:product_list' %}">Products</a>

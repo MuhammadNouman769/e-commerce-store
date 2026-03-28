@@ -1,204 +1,531 @@
+""" ============== Imports =============== """
+import json
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
-from cities_light.models import City, Country, Region
-from apps.products.models import Product
 from django.contrib.auth.decorators import login_required
-from django.http import JsonResponse
-from .models import Cart
 from django.contrib import messages
+from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_POST
+from django.db import models as django_models
+
+# Models
+from apps.products.models import Product, ProductVariant
+from .models import Cart, CartItem
+
+# Geo Models
+from cities_light.models import City, Country, Region
 
 
-
-""" ============== Cart View =============== """
+""" ============== Main Cart View =============== """
 @login_required
 def cart(request):
-    """
-    Simple session-based cart.
-    Session shape:
-      cart = { "<product_id>": <qty_int>, ... }
-    """
-    cart_data = request.session.get("cart", {})
-
-    # Actions via query params
+    # Safety check
+    if not request.user.is_authenticated:
+        messages.warning(request, "Please login to view your cart")
+        return redirect(f"{reverse('users:login')}?next={request.path}")
+    
+    # Get or create user's cart
+    cart_obj, created = Cart.objects.get_or_create(
+        user=request.user,
+        status=Cart.CartStatus.ACTIVE
+    )
+    
+    # Query param actions
     add_id = request.GET.get("add")
     remove_id = request.GET.get("remove")
     clear = request.GET.get("clear")
 
-    """ ============== Clear Cart =============== """
+    # Handle clear cart
     if clear:
-        request.session["cart"] = {}
-        request.session.modified = True
+        cart_obj.items.all().delete()
+        messages.success(request, "Cart cleared successfully!")
         return redirect("cart")
 
-    """ ============== Add to Cart =============== """
+    # Handle add to cart from URL
     if add_id:
-        if not request.user.is_authenticated:
-            messages.error(request, "You must be logged in to add items to the cart.")
-            return redirect(f"{reverse('users:login')}?next={request.path}?add={add_id}")
-        pid = str(add_id)
-        cart_data[pid] = int(cart_data.get(pid, 0)) + 1
-        request.session["cart"] = cart_data
-        request.session.modified = True
-        return redirect("cart")
-
-    """ ============== Remove from Cart =============== """
-    if remove_id:
-        pid = str(remove_id)
-        cart_data.pop(pid, None)
-        request.session["cart"] = cart_data
-        request.session.modified = True
-        return redirect("cart")
-
-    """ ============== Quantity Updates =============== """
-    if request.method == "POST":
-        updated = {}
-        for key, value in request.POST.items():
-            if not key.startswith("qty_"):
-                continue
-            pid = key.replace("qty_", "", 1)
-            try:
-                qty = int(value)
-            except (TypeError, ValueError):
-                qty = cart_data.get(pid, 1)
-            if qty <= 0:
-                continue
-            updated[pid] = qty
-        request.session["cart"] = updated
-        request.session.modified = True
-        return redirect("cart")
-
-    """ ============== Get Cart Items =============== """
-    product_ids = [int(pid) for pid in cart_data.keys() if str(pid).isdigit()]
-    products = Product.objects.filter(id__in=product_ids).prefetch_related("images", "variants")
-    products_by_id = {p.id: p for p in products}
-
-    cart_items = []
-    """ ============== Calculate Subtotal =============== """
-    subtotal = 0
-
-    """ ============== Loop through Cart Data =============== """
-    for pid_str, qty in cart_data.items():
         try:
-            pid = int(pid_str)
-        except (TypeError, ValueError):
-            continue
-        """ ============== Get Product =============== """
-        product = products_by_id.get(pid)
-        if not product:
-            continue
+            product = get_object_or_404(Product, id=add_id, status=Product.ProductStatus.ACTIVE)
+            variant = product.variants.first()
+            
+            cart_item, created = CartItem.objects.get_or_create(
+                cart=cart_obj,
+                product=product,
+                variant=variant,
+                defaults={
+                    'product_name': product.title,
+                    'price': variant.price if variant else 0,
+                    'quantity': 1
+                }
+            )
+            
+            if not created:
+                cart_item.quantity += 1
+                cart_item.save()
+            
+            messages.success(request, f"{product.title} added to cart!")
+        except Product.DoesNotExist:
+            messages.error(request, "Product not found!")
+        
+        return redirect("cart")
 
-        """ ============== Get Variant =============== """
-        variant = product.variants.first()
-        """ ============== Calculate Line Total =============== """
-        price = variant.price if variant else 0
-        line_total = price * qty
-        subtotal += line_total
+    # Handle remove item
+    if remove_id:
+        try:
+            cart_item = CartItem.objects.get(cart=cart_obj, product_id=remove_id)
+            product_name = cart_item.product_name
+            cart_item.delete()
+            messages.success(request, f"{product_name} removed from cart!")
+        except CartItem.DoesNotExist:
+            messages.error(request, "Item not found in cart!")
+        
+        return redirect("cart")
 
-        """ ============== Get Image =============== """
-        image = product.images.first()
-        image_url = image.images.url if image and image.images else ""
+    # Handle quantity update
+    if request.method == "POST":
+        updated = False
+        
+        for key, value in request.POST.items():
+            if key.startswith("qty_"):
+                product_id = key.replace("qty_", "", 1)
+                try:
+                    quantity = int(value)
+                    if quantity > 0:
+                        cart_item = CartItem.objects.get(cart=cart_obj, product_id=product_id)
+                        cart_item.quantity = quantity
+                        cart_item.save()
+                        updated = True
+                except (ValueError, CartItem.DoesNotExist):
+                    continue
+        
+        if updated:
+            messages.success(request, "Cart updated successfully!")
+        
+        return redirect("cart")
 
-        """ ============== Add to Cart Items =============== """
-        cart_items.append(
-            {
-                "product": product,
-                "qty": qty,
-                "price": price,
-                "line_total": line_total,
-                "image_url": image_url,
-                "remove_url": f"{reverse('cart')}?remove={product.id}",
-            }
-        )
-
-    """ ============== Get Countries =============== """
+    # Get cart items - filter out invalid products
+    cart_items = cart_obj.items.select_related(
+        'product', 'variant'
+    ).prefetch_related(
+        'product__images'
+    ).order_by('-created_at')
+    
+    # Remove invalid items
+    valid_items = []
+    for item in cart_items:
+        if item.product and item.product.status == Product.ProductStatus.ACTIVE:
+            valid_items.append(item)
+        else:
+            item.delete()
+            messages.warning(request, f"{item.product_name} was removed from your cart (product no longer available)")
+    
+    # Calculate subtotal
+    subtotal = sum(item.total_price for item in valid_items)
+    
+    # Calculate shipping (free over Rs 5000, else Rs 200)
+    shipping = 0 if subtotal >= 5000 else 200
+    
+    # Get countries for shipping form
     countries = Country.objects.all().order_by("name")
-    """ ============== Get Default Country =============== """
     default_country = countries.filter(code2="PK").first() or countries.first()
-
-    """ ============== Get Context =============== """
+    
     context = {
-        "cart_items": cart_items,
+        "cart_items": valid_items,
         "subtotal": subtotal,
-        "cart_count": sum(int(q) for q in cart_data.values() if isinstance(q, int)),
+        "shipping": shipping,
+        "total": subtotal + shipping,
+        "cart_count": cart_obj.total_items,
         "countries": countries,
         "default_country_id": getattr(default_country, "id", None),
+        "cart_obj": cart_obj,
     }
+    
     return render(request, "shop/cart.html", context)
 
-""" ============== Regions for Country View =============== """
+
+# ... rest of your AJAX views (they are correct as is)
+
+""" ============== Geo Helper Views =============== """
 def regions_for_country(request):
-    """
-    Return regions (provinces/states) for a given country.
-    GET param: country_id
-    """
+    """Get regions/states for a country"""
     country_id = request.GET.get("country_id")
-    """ ============== Get Regions =============== """
-    qs = Region.objects.all()
-    """ ============== Filter Regions by Country ID =============== """
-    if country_id and str(country_id).isdigit():
-        qs = qs.filter(country_id=int(country_id))
-    else:
-        qs = qs.none()
-
-    data = [{"id": r.id, "name": r.name} for r in qs.order_by("name")]
-    return JsonResponse({"results": data})
-
-""" ============== Cities for Region View =============== """
-def cities_for_region(request):
-    """
-    Return cities for a given region.
-    GET param: region_id
-    """
-    region_id = request.GET.get("region_id")
-    """ ============== Get Cities =============== """
-    qs = City.objects.all()
-    """ ============== Filter Cities by Region ID =============== """
-    if region_id and str(region_id).isdigit():
-        qs = qs.filter(region_id=int(region_id))
-    else:
-        qs = qs.none()
-
-    data = [{"id": c.id, "name": c.name} for c in qs.order_by("name")]
-    return JsonResponse({"results": data})
-
-
-
-def add_to_cart_ajax(request):
     
-    #  LOGIN CHECK
-    if not request.user.is_authenticated:
+    if country_id and country_id.isdigit():
+        regions = Region.objects.filter(country_id=int(country_id)).order_by("name")
+    else:
+        regions = Region.objects.none()
+    
+    data = [{"id": r.id, "name": r.name} for r in regions]
+    return JsonResponse({"results": data})
+
+
+def cities_for_region(request):
+    """Get cities for a region/state"""
+    region_id = request.GET.get("region_id")
+    
+    if region_id and region_id.isdigit():
+        cities = City.objects.filter(region_id=int(region_id)).order_by("name")
+    else:
+        cities = City.objects.none()
+    
+    data = [{"id": c.id, "name": c.name} for c in cities]
+    return JsonResponse({"results": data})
+
+
+""" ============== Add to Cart AJAX =============== """
+@login_required
+@csrf_exempt
+@require_POST
+def add_to_cart_ajax(request):
+    """AJAX endpoint to add product to cart"""
+    try:
+        # Parse JSON body
+        try:
+            data = json.loads(request.body)
+        except json.JSONDecodeError:
+            data = request.POST
+        
+        product_id = data.get("product_id")
+        variant_id = data.get("variant_id")
+        quantity = int(data.get("quantity", 1))
+        
+        if not product_id:
+            return JsonResponse({
+                "success": False, 
+                "error": "Product ID is required"
+            }, status=400)
+        
+        # Get product
+        product = get_object_or_404(
+            Product, 
+            id=product_id, 
+            status=Product.ProductStatus.ACTIVE
+        )
+        
+        # Get or create active cart
+        cart, _ = Cart.objects.get_or_create(
+            user=request.user,
+            status=Cart.CartStatus.ACTIVE
+        )
+        
+        # Get variant
+        variant = None
+        if variant_id:
+            variant = get_object_or_404(
+                ProductVariant, 
+                id=variant_id, 
+                product=product
+            )
+        
+        # Calculate price
+        if variant:
+            price = variant.price
+        else:
+            first_variant = product.variants.first()
+            price = first_variant.price if first_variant else 0
+        
+        # Check stock
+        if variant and variant.track_inventory:
+            if quantity > variant.stock_quantity:
+                return JsonResponse({
+                    "success": False,
+                    "error": f"Only {variant.stock_quantity} items available in stock"
+                }, status=400)
+        
+        # Create or update cart item
+        cart_item, created = CartItem.objects.get_or_create(
+            cart=cart,
+            product=product,
+            variant=variant,
+            defaults={
+                'product_name': product.title,
+                'price': price,
+                'quantity': quantity
+            }
+        )
+        
+        if not created:
+            cart_item.quantity += quantity
+            cart_item.save()
+        
+        # Get updated cart count
+        total_items = cart.items.aggregate(
+            total=django_models.Sum('quantity')
+        )['total'] or 0
+        
+        return JsonResponse({
+            "success": True,
+            "message": f"{product.title} added to cart!",
+            "cart_count": int(total_items),
+            "cart_item_count": cart_item.quantity,
+            "cart_total": float(cart.subtotal)
+        })
+        
+    except Product.DoesNotExist:
         return JsonResponse({
             "success": False,
-            "error": "Authentication required",
-            "login_url": "/users/login/"  #  safe hardcoded
-        }, status=401)
+            "error": "Product not found"
+        }, status=404)
+        
+    except ProductVariant.DoesNotExist:
+        return JsonResponse({
+            "success": False,
+            "error": "Variant not found"
+        }, status=404)
+        
+    except ValueError as e:
+        return JsonResponse({
+            "success": False,
+            "error": f"Invalid quantity: {str(e)}"
+        }, status=400)
+        
+    except Exception as e:
+        return JsonResponse({
+            "success": False,
+            "error": f"An error occurred: {str(e)}"
+        }, status=500)
 
-    #  ONLY POST
-    if request.method == "POST":
-        product_id = request.POST.get("product_id")
 
+""" ============== Remove from Cart AJAX =============== """
+@login_required
+@csrf_exempt
+@require_POST
+def remove_from_cart_ajax(request):
+    """AJAX endpoint to remove item from cart"""
+    try:
+        data = json.loads(request.body)
+        product_id = data.get("product_id")
+        variant_id = data.get("variant_id")
+        
         if not product_id:
             return JsonResponse({
                 "success": False,
-                "error": "Product ID missing"
+                "error": "Product ID is required"
             }, status=400)
-
-        #  Get Product safely
-        product = get_object_or_404(Product, id=product_id)
-
-        # 🛒 Get or create cart
-        cart, created = Cart.objects.get_or_create(user=request.user)
-
-        # ➕ Add product
-        cart.add_product(product)
-
+        
+        # Get user's active cart
+        cart = Cart.objects.filter(
+            user=request.user,
+            status=Cart.CartStatus.ACTIVE
+        ).first()
+        
+        if not cart:
+            return JsonResponse({
+                "success": False,
+                "error": "Cart not found"
+            }, status=404)
+        
+        # Find and remove item
+        query = CartItem.objects.filter(cart=cart, product_id=product_id)
+        
+        if variant_id:
+            query = query.filter(variant_id=variant_id)
+        else:
+            query = query.filter(variant__isnull=True)
+        
+        deleted_count, _ = query.delete()
+        
+        if deleted_count == 0:
+            return JsonResponse({
+                "success": False,
+                "error": "Item not found in cart"
+            }, status=404)
+        
+        # Get updated cart count
+        total_items = cart.items.aggregate(
+            total=django_models.Sum('quantity')
+        )['total'] or 0
+        
         return JsonResponse({
             "success": True,
-            "cart_count": cart.total_items()
+            "message": "Item removed from cart",
+            "cart_count": int(total_items),
+            "cart_subtotal": float(cart.subtotal)
         })
+        
+    except Exception as e:
+        return JsonResponse({
+            "success": False,
+            "error": str(e)
+        }, status=500)
 
-    return JsonResponse({
-        "success": False,
-        "error": "Invalid request method"
-    }, status=405)
+
+""" ============== Update Cart AJAX =============== """
+@login_required
+@csrf_exempt
+@require_POST
+def update_cart_ajax(request):
+    """AJAX endpoint to update cart item quantity"""
+    try:
+        data = json.loads(request.body)
+        product_id = data.get("product_id")
+        variant_id = data.get("variant_id")
+        quantity = int(data.get("quantity", 1))
+        
+        if not product_id:
+            return JsonResponse({
+                "success": False,
+                "error": "Product ID is required"
+            }, status=400)
+        
+        if quantity < 1:
+            return JsonResponse({
+                "success": False,
+                "error": "Quantity must be at least 1"
+            }, status=400)
+        
+        # Get user's active cart
+        cart = Cart.objects.filter(
+            user=request.user,
+            status=Cart.CartStatus.ACTIVE
+        ).first()
+        
+        if not cart:
+            return JsonResponse({
+                "success": False,
+                "error": "Cart not found"
+            }, status=404)
+        
+        # Find cart item
+        query = CartItem.objects.filter(cart=cart, product_id=product_id)
+        
+        if variant_id:
+            query = query.filter(variant_id=variant_id)
+        else:
+            query = query.filter(variant__isnull=True)
+        
+        cart_item = query.first()
+        
+        if not cart_item:
+            return JsonResponse({
+                "success": False,
+                "error": "Item not found in cart"
+            }, status=404)
+        
+        # Update quantity
+        cart_item.quantity = quantity
+        cart_item.save()
+        
+        return JsonResponse({
+            "success": True,
+            "message": "Cart updated",
+            "line_total": float(cart_item.total_price),
+            "cart_subtotal": float(cart.subtotal),
+            "cart_count": cart.total_items
+        })
+        
+    except Exception as e:
+        return JsonResponse({
+            "success": False,
+            "error": str(e)
+        }, status=500)
+
+
+""" ============== Get Cart Summary AJAX =============== """
+@login_required
+def get_cart_summary(request):
+    """AJAX endpoint to get cart summary"""
+    try:
+        cart = Cart.objects.filter(
+            user=request.user,
+            status=Cart.CartStatus.ACTIVE
+        ).first()
+        
+        if not cart:
+            return JsonResponse({
+                "success": True,
+                "cart_count": 0,
+                "cart_subtotal": 0,
+                "cart_items": []
+            })
+        
+        items = []
+        for item in cart.items.all():
+            items.append({
+                "id": item.id,
+                "product_id": item.product.id,
+                "product_name": item.product_name,
+                "quantity": item.quantity,
+                "price": float(item.price),
+                "total_price": float(item.total_price),
+                "image": item.product.images.first().images.url if item.product.images.first() else None
+            })
+        
+        return JsonResponse({
+            "success": True,
+            "cart_count": cart.total_items,
+            "cart_subtotal": float(cart.subtotal),
+            "cart_items": items
+        })
+        
+    except Exception as e:
+        return JsonResponse({
+            "success": False,
+            "error": str(e)
+        }, status=500)
+        
+@login_required
+@csrf_exempt
+@require_POST
+def apply_promo(request):
+    """Apply promo code to cart"""
+    try:
+        data = json.loads(request.body)
+        promo_code = data.get("code", "").strip().upper()
+        
+        # Simple promo codes example
+        promo_codes = {
+            "SAVE10": {"discount": 10, "type": "percentage", "min_amount": 1000},
+            "SAVE100": {"discount": 100, "type": "fixed", "min_amount": 5000},
+            "WELCOME20": {"discount": 20, "type": "percentage", "min_amount": 2000},
+            "FREESHIP": {"discount": 200, "type": "fixed", "min_amount": 3000},
+        }
+        
+        # Get user's cart
+        cart = Cart.objects.filter(
+            user=request.user,
+            status=Cart.CartStatus.ACTIVE
+        ).first()
+        
+        if not cart or cart.is_empty:
+            return JsonResponse({
+                "success": False,
+                "error": "Cart is empty"
+            }, status=400)
+        
+        subtotal = cart.subtotal
+        
+        if promo_code in promo_codes:
+            promo = promo_codes[promo_code]
+            
+            if subtotal < promo.get("min_amount", 0):
+                return JsonResponse({
+                    "success": False,
+                    "error": f"Minimum order amount of Rs {promo['min_amount']} required for this promo code"
+                })
+            
+            if promo["type"] == "percentage":
+                discount = (subtotal * promo["discount"]) / 100
+            else:
+                discount = promo["discount"]
+            
+            # Save discount in session or cart
+            request.session['promo_code'] = promo_code
+            request.session['discount'] = float(discount)
+            
+            return JsonResponse({
+                "success": True,
+                "message": f"Promo code {promo_code} applied! You saved Rs {int(discount)}",
+                "discount": int(discount)
+            })
+        else:
+            return JsonResponse({
+                "success": False,
+                "error": "Invalid promo code"
+            }, status=400)
+            
+    except Exception as e:
+        return JsonResponse({
+            "success": False,
+            "error": str(e)
+        }, status=500)        
