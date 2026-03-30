@@ -1,59 +1,94 @@
-""" ============== Cart Models (Improved) =============== """
+"""
+
+================================================================================
+                    CART MODELS - B.Store Shopping Cart
+================================================================================
+Purpose: Shopping cart management for authenticated and guest users
+Author: Muhammad Nouman
+================================================================================
+"""
+''' ------------ iMPORTS ------------ '''
 from django.db import models
+from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
 from cities_light.models import Country, Region, City
-from apps.products.models import Product, ProductVariant
 from apps.utilities.models import BaseModel
-from apps.users.models import User
+from apps.products.models import Product, ProductVariant
 
+'''
+1.    CART MODEL - Shopping Cart
+      Usage: Stores user's cart items (both authenticated and guest)
+      Features: Session-based for guests, user-based for logged-in, cart merging
+==================================================================================
+'''
 
-# ============== Cart Model ===============
 class Cart(BaseModel):
     """
-    Shopping Cart Model - Supports both authenticated and guest users
+    Shopping Cart Model - Daraz Style
+    Supports both authenticated users and guest users via session
     """
-    user = models.ForeignKey(
-        User, 
-        on_delete=models.CASCADE, 
-        related_name="carts",
-        null=True,
-        blank=True,
-        verbose_name=_("User")
-    )
     
-    # For guest users
-    session_key = models.CharField(
-        max_length=40, 
-        blank=True, 
-        null=True,
-        db_index=True,
-        verbose_name=_("Session Key"),
-        help_text=_("Session key for guest users")
-    )
-    
-    # Cart status
     class CartStatus(models.TextChoices):
         ACTIVE = "active", _("Active")
         ABANDONED = "abandoned", _("Abandoned")
         CONVERTED = "converted", _("Converted to Order")
     
+    # User relationship (null for guest users)
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="carts",
+        null=True,
+        blank=True,
+        verbose_name=_("User"),
+        help_text=_("Authenticated user (null for guest users)")
+    )
+    
+    # Session key for guest users
+    session_key = models.CharField(
+        max_length=40,
+        blank=True,
+        null=True,
+        db_index=True,
+        verbose_name=_("Session Key"),
+        help_text=_("Django session key for guest users")
+    )
+    
+    # Cart status
     status = models.CharField(
         max_length=20,
         choices=CartStatus.choices,
         default=CartStatus.ACTIVE,
-        verbose_name=_("Status")
+        verbose_name=_("Status"),
+        help_text=_("Active = current cart, Converted = ordered, Abandoned = not completed")
+    )
+    
+    # Coupon/Discount
+    coupon_code = models.CharField(
+        max_length=50,
+        blank=True,
+        verbose_name=_("Coupon Code"),
+        help_text=_("Applied coupon code")
+    )
+    
+    discount_amount = models.DecimalField(
+        max_digits=12,
+        decimal_places=2,
+        default=0,
+        verbose_name=_("Discount Amount")
     )
     
     class Meta:
         verbose_name = _("Cart")
         verbose_name_plural = _("Carts")
         indexes = [
-            models.Index(fields=["user", "status"]),
-            models.Index(fields=["session_key", "status"]),
+            models.Index(fields=["user", "status"], name="cart_user_status_idx"),
+            models.Index(fields=["session_key", "status"], name="cart_session_status_idx"),
+            models.Index(fields=["-created_at"], name="cart_created_at_idx"),
         ]
         ordering = ["-created_at"]
-
+    
     def __str__(self):
         if self.user:
             return f"Cart #{self.id} - {self.user.email}"
@@ -66,8 +101,13 @@ class Cart(BaseModel):
     
     @property
     def subtotal(self):
-        """Subtotal of all items"""
+        """Subtotal of all items (before discounts)"""
         return sum(item.total_price for item in self.items.all())
+    
+    @property
+    def total(self):
+        """Total after discounts"""
+        return self.subtotal - self.discount_amount
     
     @property
     def is_empty(self):
@@ -79,8 +119,11 @@ class Cart(BaseModel):
         self.items.all().delete()
     
     def merge_with(self, other_cart):
-        """Merge another cart into this cart"""
-        if not other_cart:
+        """
+        Merge another cart into this cart
+        Used when guest logs in and has items in cart
+        """
+        if not other_cart or other_cart == self:
             return
         
         for item in other_cart.items.all():
@@ -95,6 +138,7 @@ class Cart(BaseModel):
                     'price': item.price
                 }
             )
+            
             if not created:
                 # Update quantity if already exists
                 cart_item.quantity += item.quantity
@@ -103,10 +147,25 @@ class Cart(BaseModel):
         # Delete the old cart
         other_cart.delete()
     
+    def apply_coupon(self, coupon_code, discount_amount):
+        """Apply coupon to cart"""
+        self.coupon_code = coupon_code
+        self.discount_amount = discount_amount
+        self.save()
+    
+    def remove_coupon(self):
+        """Remove applied coupon"""
+        self.coupon_code = ""
+        self.discount_amount = 0
+        self.save()
+    
     @classmethod
     def get_or_create_cart(cls, user=None, session_key=None):
-        """Get or create active cart for user/session"""
-        # Authenticated user
+        """
+        Get or create active cart for user/session
+        This is the main method to retrieve user's cart
+        """
+        # For authenticated user
         if user and user.is_authenticated:
             cart, created = cls.objects.get_or_create(
                 user=user,
@@ -121,12 +180,13 @@ class Cart(BaseModel):
                     status=cls.CartStatus.ACTIVE,
                     user__isnull=True
                 ).first()
-                if guest_cart:
+                
+                if guest_cart and not guest_cart.is_empty:
                     cart.merge_with(guest_cart)
             
             return cart
         
-        # Guest user
+        # For guest user
         elif session_key:
             cart, created = cls.objects.get_or_create(
                 session_key=session_key,
@@ -138,19 +198,29 @@ class Cart(BaseModel):
         return None
 
 
-# ============== Cart Item Model ===============
+'''
+2.    CART ITEM MODEL - Individual Items in Cart
+      Usage: Each product/variant added to cart
+      Features: Snapshot of product details at add time, stock validation
+==================================================================================
+'''
+
 class CartItem(BaseModel):
-    """Individual items in shopping cart"""
+    """
+    Cart Item Model - B.Store
+    Individual items in shopping cart with price snapshot
+    """
+    
     cart = models.ForeignKey(
-        Cart, 
-        on_delete=models.CASCADE, 
+        Cart,
+        on_delete=models.CASCADE,
         related_name="items",
         verbose_name=_("Cart")
     )
     
     product = models.ForeignKey(
-        Product, 
-        on_delete=models.PROTECT, 
+        Product,
+        on_delete=models.PROTECT,
         related_name="cart_items",
         verbose_name=_("Product")
     )
@@ -162,13 +232,28 @@ class CartItem(BaseModel):
         blank=True,
         related_name="cart_items",
         verbose_name=_("Variant"),
-        help_text=_("Product variant (if any)")
+        help_text=_("Product variant (if product has variants)")
     )
     
+    # Snapshot fields (in case product changes later)
     product_name = models.CharField(
         max_length=255,
         verbose_name=_("Product Name"),
         help_text=_("Snapshot of product name at add time")
+    )
+    
+    variant_name = models.CharField(
+        max_length=255,
+        blank=True,
+        verbose_name=_("Variant Name"),
+        help_text=_("Snapshot of variant name at add time")
+    )
+    
+    sku = models.CharField(
+        max_length=100,
+        blank=True,
+        verbose_name=_("SKU"),
+        help_text=_("Product SKU at add time")
     )
     
     quantity = models.PositiveIntegerField(
@@ -177,7 +262,7 @@ class CartItem(BaseModel):
     )
     
     price = models.DecimalField(
-        max_digits=12, 
+        max_digits=12,
         decimal_places=2,
         verbose_name=_("Unit Price"),
         help_text=_("Snapshot of price at add time")
@@ -188,12 +273,12 @@ class CartItem(BaseModel):
         verbose_name = _("Cart Item")
         verbose_name_plural = _("Cart Items")
         indexes = [
-            models.Index(fields=["cart", "product"]),
-            models.Index(fields=["cart", "variant"]),
+            models.Index(fields=["cart", "product"], name="cartitem_cart_product_idx"),
+            models.Index(fields=["cart", "variant"], name="cartitem_cart_variant_idx"),
         ]
-
+    
     def __str__(self):
-        variant_text = f" ({self.variant})" if self.variant else ""
+        variant_text = f" ({self.variant_name})" if self.variant_name else ""
         return f"{self.product_name}{variant_text} x {self.quantity}"
     
     def clean(self):
@@ -205,33 +290,43 @@ class CartItem(BaseModel):
             })
         
         # Check stock availability
-        if self.variant and hasattr(self.variant, 'track_inventory') and self.variant.track_inventory:
+        if self.variant and self.variant.track_inventory:
             if self.quantity > self.variant.stock_quantity:
                 raise ValidationError({
                     'quantity': _(f"Only {self.variant.stock_quantity} items available in stock")
                 })
-        elif hasattr(self.product, 'track_inventory') and self.product.track_inventory:
+        elif self.product.track_inventory and not self.variant:
             if self.quantity > self.product.stock_quantity:
                 raise ValidationError({
                     'quantity': _(f"Only {self.product.stock_quantity} items available in stock")
                 })
     
     def save(self, *args, **kwargs):
-        """Auto-populate product_name and price before saving"""
+        """Auto-populate snapshot fields before saving"""
         # Set product_name if not provided
         if not self.product_name:
-            self.product_name = self.product.title if hasattr(self.product, 'title') else str(self.product)
+            self.product_name = self.product.title
+        
+        # Set variant_name if variant exists
+        if self.variant and not self.variant_name:
+            self.variant_name = self.variant.get_variant_name() or ""
+        
+        # Set SKU if available
+        if not self.sku:
+            if self.variant and self.variant.sku:
+                self.sku = self.variant.sku
+            elif self.product.sku:
+                self.sku = self.product.sku
         
         # Set price if not provided
         if not self.price:
             if self.variant:
                 self.price = self.variant.price
             else:
-                self.price = self.product.price if hasattr(self.product, 'price') else 0
+                self.price = self.product.price or 0
         
         # Validate before saving
         self.clean()
-        
         super().save(*args, **kwargs)
     
     @property
@@ -242,99 +337,98 @@ class CartItem(BaseModel):
     @property
     def available_stock(self):
         """Get available stock for this item"""
-        if self.variant and hasattr(self.variant, 'stock_quantity'):
+        if self.variant and self.variant.track_inventory:
             return self.variant.stock_quantity
-        elif hasattr(self.product, 'stock_quantity'):
+        elif self.product.track_inventory and not self.variant:
             return self.product.stock_quantity
         return 999
     
     def increase_quantity(self, amount=1):
-        """Increase quantity"""
-        self.quantity += amount
-        self.save()
+        """Increase item quantity"""
+        new_quantity = self.quantity + amount
+        
+        # Check stock limit
+        if new_quantity <= self.available_stock:
+            self.quantity = new_quantity
+            self.save()
+            return True
+        return False
     
     def decrease_quantity(self, amount=1):
-        """Decrease quantity"""
+        """Decrease item quantity"""
         if self.quantity > amount:
             self.quantity -= amount
             self.save()
         else:
             self.delete()
+    
+    def update_quantity(self, quantity):
+        """Update quantity to specific value"""
+        if quantity <= 0:
+            self.delete()
+        elif quantity <= self.available_stock:
+            self.quantity = quantity
+            self.save()
+            return True
+        return False
 
 
-# ============== Shipping Address Model ===============
+'''
+3.    SHIPPING ADDRESS MODEL - Delivery Address
+      Usage: User's shipping addresses for order delivery
+      Features: Multiple addresses per user, default address
+==================================================================================
+'''
+
 class ShippingAddress(BaseModel):
-    """Shipping address for order delivery"""
+    """
+    Shipping Address Model - Daraz Style
+    User's shipping addresses for order delivery
+    """
+    
+    class AddressType(models.TextChoices):
+        HOME = "home", _("Home")
+        WORK = "work", _("Work")
+        OTHER = "other", _("Other")
+    
     user = models.ForeignKey(
-        User, 
-        on_delete=models.CASCADE, 
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
         related_name="shipping_addresses",
         verbose_name=_("User")
     )
     
+    address_type = models.CharField(
+        max_length=20,
+        choices=AddressType.choices,
+        default=AddressType.HOME,
+        verbose_name=_("Address Type")
+    )
+    
+    # Recipient Information
     full_name = models.CharField(
-        max_length=255, 
-        blank=True,
-        verbose_name=_("Full Name")
+        max_length=255,
+        verbose_name=_("Full Name"),
+        help_text=_("Recipient full name")
     )
     
     phone_number = models.CharField(
-        max_length=20, 
-        blank=True,
-        verbose_name=_("Phone Number")
-    )
-    
-    street_address = models.TextField(
-        blank=True,
-        verbose_name=_("Street Address")
-    )
-    
-    country = models.ForeignKey(
-        Country, 
-        on_delete=models.CASCADE, 
-        related_name="shipping_addresses",
-        verbose_name=_("Country")
-    )
-    
-    province = models.ForeignKey(
-        Region, 
-        on_delete=models.CASCADE, 
-        related_name="shipping_addresses", 
-        null=True, 
-        blank=True,
-        verbose_name=_("Province/State")
-    )
-    
-    city = models.ForeignKey(
-        City, 
-        on_delete=models.CASCADE, 
-        related_name="shipping_addresses", 
-        null=True, 
-        blank=True,
-        verbose_name=_("City")
-    )
-    
-    postal_code = models.CharField(
-        max_length=20, 
-        blank=True,
-        verbose_name=_("Postal Code")
-    )
-    
-    is_default = models.BooleanField(
-        default=False,
-        verbose_name=_("Default Address")
-    )
-    
-    # Additional helpful fields
-    address_type = models.CharField(
         max_length=20,
-        choices=[
-            ('home', _('Home')),
-            ('work', _('Work')),
-            ('other', _('Other')),
-        ],
-        default='home',
-        verbose_name=_("Address Type")
+        verbose_name=_("Phone Number"),
+        help_text=_("Recipient contact number")
+    )
+    
+    alternate_phone = models.CharField(
+        max_length=20,
+        blank=True,
+        verbose_name=_("Alternate Phone"),
+        help_text=_("Optional alternate contact number")
+    )
+    
+    # Address Details
+    street_address = models.TextField(
+        verbose_name=_("Street Address"),
+        help_text=_("House/Flat number, Street, Area")
     )
     
     landmark = models.CharField(
@@ -344,31 +438,70 @@ class ShippingAddress(BaseModel):
         help_text=_("Nearby landmark for easy identification")
     )
     
+    # Location using cities_light
+    country = models.ForeignKey(
+        Country,
+        on_delete=models.CASCADE,
+        related_name="shipping_addresses",
+        verbose_name=_("Country")
+    )
+    
+    province = models.ForeignKey(
+        Region,
+        on_delete=models.CASCADE,
+        related_name="shipping_addresses",
+        null=True,
+        blank=True,
+        verbose_name=_("Province/State")
+    )
+    
+    city = models.ForeignKey(
+        City,
+        on_delete=models.CASCADE,
+        related_name="shipping_addresses",
+        null=True,
+        blank=True,
+        verbose_name=_("City")
+    )
+    
+    postal_code = models.CharField(
+        max_length=20,
+        blank=True,
+        verbose_name=_("Postal Code")
+    )
+    
+    # Default flag
+    is_default = models.BooleanField(
+        default=False,
+        verbose_name=_("Default Address"),
+        help_text=_("Set as default shipping address")
+    )
+    
     class Meta:
         verbose_name = _("Shipping Address")
         verbose_name_plural = _("Shipping Addresses")
         ordering = ["-is_default", "-created_at"]
         indexes = [
-            models.Index(fields=["user", "is_default"]),
-            models.Index(fields=["user", "address_type"]),
+            models.Index(fields=["user", "is_default"], name="address_user_default_idx"),
+            models.Index(fields=["user", "address_type"], name="address_user_type_idx"),
         ]
-
+    
     def __str__(self):
-        name = self.full_name or self.user.email
-        address_preview = self.street_address[:20] if self.street_address else "No address"
-        return f"{name} - {address_preview}"
+        name = self.full_name
+        city_name = self.city.name if self.city else "Unknown"
+        return f"{name} - {city_name}"
     
     def save(self, *args, **kwargs):
         """Ensure only one default address per user"""
         if self.is_default:
             ShippingAddress.objects.filter(
-                user=self.user, 
+                user=self.user,
                 is_default=True
             ).exclude(pk=self.pk).update(is_default=False)
         super().save(*args, **kwargs)
     
     def get_full_address(self):
-        """Get complete formatted address"""
+        """Get complete formatted address for display"""
         parts = []
         
         if self.full_name:
@@ -377,6 +510,7 @@ class ShippingAddress(BaseModel):
         if self.street_address:
             parts.append(self.street_address)
         
+        # City and Province
         city_parts = []
         if self.city:
             city_parts.append(self.city.name)
@@ -400,22 +534,5 @@ class ShippingAddress(BaseModel):
         return "\n".join(parts)
     
     def get_full_address_single_line(self):
-        """Get address in single line"""
+        """Get address in single line (for order summaries)"""
         return self.get_full_address().replace("\n", ", ")
-
-
-# ============== Deprecated Address Model (Remove later) ===============
-class Address(BaseModel):
-    """DEPRECATED: This model is deprecated. Use ShippingAddress instead."""
-    country = models.ForeignKey(Country, on_delete=models.CASCADE)
-    province = models.ForeignKey(Region, on_delete=models.CASCADE)
-    city = models.ForeignKey(City, on_delete=models.CASCADE)
-    street = models.TextField()
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-
-    class Meta:
-        verbose_name = _("Address (Deprecated)")
-        verbose_name_plural = _("Addresses (Deprecated)")
-    
-    def __str__(self):
-        return self.street

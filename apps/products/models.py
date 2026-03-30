@@ -1,454 +1,288 @@
-""" =========== Products App Models (Improved) ==========="""
-from django.db import models
-from django.conf import settings
-from apps.utilities.models import BaseModel
-from django.utils.text import slugify
-from django.core.exceptions import ValidationError
-from django.utils.translation import gettext_lazy as _
 import os
+from django.db import models
+from django.utils.text import slugify
+from django.utils import timezone
+from django.core.exceptions import ValidationError
+from django.conf import settings
 
-# ========== Shop ==========
+User = settings.AUTH_USER_MODEL
+
+from apps.utilities.models import BaseModel, OrderedModel, SluggedModel, TimeStampedModel
+
+# ------------------- SHOP MODEL -------------------
 class Shop(BaseModel):
-    """Shop/Store model"""
-    owner = models.OneToOneField(
-        settings.AUTH_USER_MODEL,
-        on_delete=models.CASCADE,
-        related_name="shop",
-        null=True,blank=True,
-        verbose_name=_("Owner")
-    )
-    name = models.CharField(max_length=255, verbose_name=_("Shop Name"))
-    domain = models.CharField(max_length=255, unique=True, verbose_name=_("Domain"))
-    description = models.TextField(blank=True, verbose_name=_("Description"))
-    
-    # Additional fields
-    email = models.EmailField(blank=True, verbose_name=_("Contact Email"))
-    phone = models.CharField(max_length=20, blank=True, verbose_name=_("Phone"))
-    logo = models.ImageField(upload_to="shop_logos/", blank=True, null=True)
-    is_verified = models.BooleanField(default=False, verbose_name=_("Is Verified"))
+    owner = models.OneToOneField(User, on_delete=models.CASCADE, related_name="shop")
+    name = models.CharField(max_length=255)
+    handle = models.SlugField(max_length=255, unique=True, blank=True)
+    description = models.TextField(blank=True)
+    logo = models.ImageField(upload_to="shop_logos/%Y/%m/", blank=True, null=True)
+    banner = models.ImageField(upload_to="shop_banners/%Y/%m/", blank=True, null=True)
+    rating = models.DecimalField(max_digits=3, decimal_places=2, default=0)
+    is_verified = models.BooleanField(default=False)
 
     class Meta:
-        verbose_name = _("Shop")
-        verbose_name_plural = _("Shops")
-        indexes = [
-            models.Index(fields=["domain"]),
-            models.Index(fields=["owner"]),
-        ]
+        verbose_name = "Shop"
+        verbose_name_plural = "Shops"
+        indexes = [models.Index(fields=["handle"]), models.Index(fields=["owner"])]
 
     def __str__(self):
         return self.name
-    
+
+    def generate_handle(self):
+        base = slugify(self.name)
+        slug = base
+        counter = 1
+        while Shop.objects.filter(handle=slug).exclude(pk=self.pk).exists():
+            slug = f"{base}-{counter}"
+            counter += 1
+        return slug
+
     def save(self, *args, **kwargs):
-        """Auto cleanup domain"""
-        if self.domain:
-            self.domain = self.domain.lower().strip()
+        if not self.handle or self._state.adding is False:
+            self.handle = self.generate_handle()
         super().save(*args, **kwargs)
 
-
-# ========== Category ==========
-class Category(BaseModel):
-    """Product Category with hierarchy"""
-    shop = models.ForeignKey(
-        Shop,
-        on_delete=models.CASCADE,
-        related_name="categories",
-        null=True,
-        blank=True,
-        verbose_name=_("Shop")
-    )
-    name = models.CharField(max_length=255, verbose_name=_("Category Name"))
-    slug = models.SlugField(blank=True, verbose_name=_("Slug"))
-    parent = models.ForeignKey(
-        "self",
-        null=True,
-        blank=True,
-        on_delete=models.CASCADE,
-        related_name="children",
-        verbose_name=_("Parent Category")
-    )
-    position = models.PositiveSmallIntegerField(default=0, verbose_name=_("Position"))
-    
-    # SEO fields
-    description = models.TextField(blank=True, verbose_name=_("Description"))
-    image = models.ImageField(upload_to="category_images/", blank=True, null=True)
-    is_visible = models.BooleanField(default=True, verbose_name=_("Visible in Store"))
+# ------------------- CATEGORY MODEL -------------------
+class Category(OrderedModel, SluggedModel):
+    parent = models.ForeignKey("self", null=True, blank=True, on_delete=models.CASCADE, related_name="children")
+    is_visible = models.BooleanField(default=True)
 
     class Meta:
-        unique_together = ("shop", "slug")
         ordering = ["position", "name"]
-        indexes = [
-            models.Index(fields=["shop"]),
-            models.Index(fields=["parent"]),
-            models.Index(fields=["shop", "is_visible"]),
-        ]
-        verbose_name = _("Category")
-        verbose_name_plural = _("Categories")
-
-    def __str__(self):
-        return self.name
+        verbose_name = "Category"
+        verbose_name_plural = "Categories"
 
     def clean(self):
-        """Validate category relationships"""
         if self.parent == self:
-            raise ValidationError(_("Category cannot be parent of itself"))
-        
-        # Check circular reference
+            raise ValidationError("Category cannot be parent of itself")
         parent = self.parent
         while parent:
             if parent == self:
-                raise ValidationError(_("Circular category structure detected"))
+                raise ValidationError("Circular category structure detected")
             parent = parent.parent
 
     def save(self, *args, **kwargs):
-        """Auto-generate unique slug"""
-        if not self.slug or not self.pk:  # Only generate for new categories
-            base_slug = slugify(self.name)
-            slug = base_slug
-            counter = 1
-
-            while Category.objects.filter(
-                shop=self.shop,
-                slug=slug
-            ).exclude(id=self.id).exists():
-                slug = f"{base_slug}-{counter}"
-                counter += 1
-
-            self.slug = slug
-
         self.full_clean()
         super().save(*args, **kwargs)
 
     def get_full_path(self):
-        """Get full category path"""
         path = [self.name]
         parent = self.parent
         while parent:
             path.append(parent.name)
             parent = parent.parent
         return " > ".join(reversed(path))
-    
-    @property
-    def product_count(self):
-        """Get number of active products"""
-        return self.products.filter(status=Product.ProductStatus.ACTIVE).count()
 
-
-# ========== Product ==========
-class Product(BaseModel):
-    """Product model"""
-    shop = models.ForeignKey(
-        Shop,
-        on_delete=models.CASCADE,
-        related_name="products",
-        verbose_name=_("Shop")
-    )
-
+# ------------------- PRODUCT MODEL -------------------
+class Product(BaseModel, SluggedModel):
     class ProductStatus(models.TextChoices):
-        DRAFT = "draft", _("Draft")
-        ACTIVE = "active", _("Active")
-        ARCHIVED = "archived", _("Archived")
+        DRAFT = "draft", "Draft"
+        ACTIVE = "active", "Active"
+        ARCHIVED = "archived", "Archived"
+        OUT_OF_STOCK = "out_of_stock", "Out of Stock"
 
-    title = models.CharField(max_length=255, verbose_name=_("Title"))
-    handle = models.SlugField(max_length=255, blank=True, verbose_name=_("Handle"))
-    description_html = models.TextField(blank=True, verbose_name=_("Description"))
-    vendor = models.CharField(max_length=255, blank=True, verbose_name=_("Vendor"))
-    product_type = models.CharField(max_length=255, blank=True, verbose_name=_("Product Type"))
-    status = models.CharField(
-        max_length=20,
-        choices=ProductStatus.choices,
-        default=ProductStatus.DRAFT,
-        verbose_name=_("Status")
-    )
-    published_at = models.DateTimeField(null=True, blank=True, verbose_name=_("Published At"))
     categories = models.ManyToManyField(Category, related_name="products", blank=True)
-    
-    # SEO fields
-    meta_title = models.CharField(max_length=255, blank=True, verbose_name=_("Meta Title"))
-    meta_description = models.TextField(blank=True, verbose_name=_("Meta Description"))
-    
-    # Inventory
-    track_inventory = models.BooleanField(default=False, verbose_name=_("Track Inventory"))
-    stock_quantity = models.PositiveIntegerField(default=0, verbose_name=_("Stock Quantity"))
+    title = models.CharField(max_length=255)
+    short_description = models.CharField(max_length=500, blank=True)
+    description_html = models.TextField(blank=True)
+    vendor = models.CharField(max_length=255, blank=True)
+    brand = models.CharField(max_length=255, blank=True)
+    product_type = models.CharField(max_length=255, blank=True)
+    status = models.CharField(max_length=20, choices=ProductStatus.choices, default=ProductStatus.DRAFT)
+    handle = models.SlugField(max_length=255, blank=True)
+
+    # SEO
+    meta_title = models.CharField(max_length=255, blank=True)
+    meta_description = models.TextField(blank=True)
+    meta_keywords = models.CharField(max_length=500, blank=True)
+
+    # Analytics
+    total_views = models.PositiveIntegerField(default=0)
+    total_sold = models.PositiveIntegerField(default=0)
+    total_reviews = models.PositiveIntegerField(default=0)
+    average_rating = models.DecimalField(max_digits=3, decimal_places=2, default=0)
+
+    # Flags
+    is_featured = models.BooleanField(default=False)
+    is_best_seller = models.BooleanField(default=False)
+    is_new = models.BooleanField(default=False)
+    is_on_sale = models.BooleanField(default=False)
 
     class Meta:
-        unique_together = ("shop", "handle")
-        indexes = [
-            models.Index(fields=["shop", "status"]),
-            models.Index(fields=["shop", "handle"]),
-            models.Index(fields=["vendor"]),
-            models.Index(fields=["status", "published_at"]),
-        ]
-        verbose_name = _("Product")
-        verbose_name_plural = _("Products")
-
-    def save(self, *args, **kwargs):
-        """Auto-update handle only when title changes"""
-        if not self.handle or not self.pk:  # New product
-            base_slug = slugify(self.title)
-            slug = base_slug
-            counter = 1
-
-            while Product.objects.filter(shop=self.shop, handle=slug).exists():
-                slug = f"{base_slug}-{counter}"
-                counter += 1
-
-            self.handle = slug
-        else:
-            # Check if title changed
-            original = Product.objects.get(pk=self.pk)
-            if original.title != self.title:
-                base_slug = slugify(self.title)
-                slug = base_slug
-                counter = 1
-
-                while Product.objects.filter(shop=self.shop, handle=slug).exclude(pk=self.pk).exists():
-                    slug = f"{base_slug}-{counter}"
-                    counter += 1
-
-                self.handle = slug
-
-        super().save(*args, **kwargs)
+        unique_together = ("handle",)
+        verbose_name = "Product"
+        verbose_name_plural = "Products"
 
     def __str__(self):
         return self.title
-    
-    @property
-    def is_in_stock(self):
-        """Check stock availability"""
-        if self.track_inventory:
-            if self.variants.exists():
-                return any(v.is_in_stock for v in self.variants.all())
-            return self.stock_quantity > 0
-        return True
-    
-    @property
-    def main_image(self):
-        """Get first image"""
-        return self.images.first()
-    
-    @property
-    def price_range(self):
-        """Get price range for variants"""
-        if self.variants.exists():
-            prices = [v.price for v in self.variants.all()]
-            return min(prices), max(prices)
-        return None, None
 
+    def save(self, *args, **kwargs):
+        if not self.slug or self._state.adding is False:
+            base_slug = slugify(self.title)
+            slug = base_slug
+            counter = 1
+            while Product.objects.filter(slug=slug).exclude(pk=self.pk).exists():
+                slug = f"{base_slug}-{counter}"
+                counter += 1
+            self.slug = slug
 
-# ========== ProductImages ==========
-class ProductImages(BaseModel):
-    """Product images"""
-    product = models.ForeignKey(
-        Product, 
-        on_delete=models.CASCADE, 
-        related_name="images",
-        verbose_name=_("Product")
-    )
-    images = models.ImageField(
-        upload_to="product_images/", 
-        null=True, 
-        blank=True,
-        verbose_name=_("Image")
-    )
-    alt_text = models.CharField(
-        max_length=255, 
-        blank=True,
-        verbose_name=_("Alt Text")
-    )
-    position = models.PositiveSmallIntegerField(
-        default=0,
-        verbose_name=_("Position")
-    )
+        super().save(*args, **kwargs)
+
+    def update_rating(self):
+        reviews = self.reviews.filter(is_active=True, is_approved=True)
+        self.total_reviews = reviews.count()
+        self.average_rating = reviews.aggregate(models.Avg("rating"))["rating__avg"] or 0
+        self.save(update_fields=["average_rating", "total_reviews"])
+
+# ------------------- PRODUCT IMAGE -------------------
+class ProductImage(OrderedModel):
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name="images")
+    image = models.ImageField(upload_to="products/gallery/%Y/%m/")
+    alt_text = models.CharField(max_length=255, blank=True)
 
     class Meta:
         ordering = ["position"]
-        verbose_name = _("Product Image")
-        verbose_name_plural = _("Product Images")
+        verbose_name = "Product Image"
+        verbose_name_plural = "Product Images"
 
     def __str__(self):
         return f"{self.product.title} - Image {self.position + 1}"
-    
+
     def delete(self, *args, **kwargs):
-        """Delete image file when model is deleted"""
-        if self.images:
-            if os.path.isfile(self.images.path):
-                os.remove(self.images.path)
+        if self.image and os.path.isfile(self.image.path):
+            os.remove(self.image.path)
         super().delete(*args, **kwargs)
 
-
-# ========== Product Options ==========
-class ProductOption(BaseModel):
-    """Product option (like Size, Color)"""
-    product = models.ForeignKey(
-        Product, 
-        on_delete=models.CASCADE, 
-        related_name="options",
-        verbose_name=_("Product")
-    )
-    name = models.CharField(max_length=100, verbose_name=_("Option Name"))
-    position = models.PositiveSmallIntegerField(verbose_name=_("Position"))
+# ------------------- PRODUCT OPTION -------------------
+class ProductOption(OrderedModel):
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name="options")
+    name = models.CharField(max_length=100)
 
     class Meta:
         unique_together = ("product", "name")
         ordering = ["position"]
-        verbose_name = _("Product Option")
-        verbose_name_plural = _("Product Options")
+        verbose_name = "Product Option"
+        verbose_name_plural = "Product Options"
 
     def __str__(self):
         return f"{self.product.title} - {self.name}"
 
-
-# ========== Product Option Values ==========
-class ProductOptionValue(BaseModel):
-    """Option value (like Small, Red)"""
-    option = models.ForeignKey(
-        ProductOption, 
-        on_delete=models.CASCADE, 
-        related_name="values",
-        verbose_name=_("Option")
-    )
-    value = models.CharField(max_length=100, verbose_name=_("Value"))
-    position = models.PositiveSmallIntegerField(verbose_name=_("Position"))
+# ------------------- PRODUCT OPTION VALUE -------------------
+class ProductOptionValue(OrderedModel):
+    option = models.ForeignKey(ProductOption, on_delete=models.CASCADE, related_name="values")
+    value = models.CharField(max_length=100)
 
     class Meta:
         unique_together = ("option", "value")
         ordering = ["position"]
-        verbose_name = _("Product Option Value")
-        verbose_name_plural = _("Product Option Values")
+        verbose_name = "Product Option Value"
+        verbose_name_plural = "Product Option Values"
 
     def __str__(self):
-        return f"{self.option.product.title} - {self.option.name}: {self.value}"
+        return f"{self.option.name}: {self.value}"
 
-
-# ========== Product Variant ==========
+# ------------------- PRODUCT VARIANT -------------------
 class ProductVariant(BaseModel):
-    """Product variant (like Small Red)"""
-    product = models.ForeignKey(
-        Product, 
-        on_delete=models.CASCADE, 
-        related_name="variants",
-        verbose_name=_("Product")
-    )
-    barcode = models.CharField(
-        max_length=100, 
-        unique=True, 
-        null=True, 
-        blank=True,
-        verbose_name=_("Barcode")
-    )
-    sku = models.CharField(
-        max_length=100, 
-        unique=True, 
-        null=True, 
-        blank=True,
-        verbose_name=_("SKU")
-    )
-    price = models.DecimalField(
-        max_digits=12, 
-        decimal_places=2,
-        verbose_name=_("Price")
-    )
-    compare_at_price = models.DecimalField(
-        max_digits=12, 
-        decimal_places=2, 
-        null=True, 
-        blank=True,
-        verbose_name=_("Compare at Price")
-    )
-    weight = models.DecimalField(
-        max_digits=10, 
-        decimal_places=3, 
-        null=True, 
-        blank=True,
-        verbose_name=_("Weight")
-    )
-    
-    # Options
-    option1 = models.ForeignKey(
-        ProductOptionValue, 
-        on_delete=models.CASCADE, 
-        related_name="variants_option1", 
-        null=True, 
-        blank=True,
-        verbose_name=_("Option 1")
-    )
-    option2 = models.ForeignKey(
-        ProductOptionValue, 
-        on_delete=models.CASCADE, 
-        related_name="variants_option2", 
-        null=True, 
-        blank=True,
-        verbose_name=_("Option 2")
-    )
-    option3 = models.ForeignKey(
-        ProductOptionValue, 
-        on_delete=models.CASCADE, 
-        related_name="variants_option3", 
-        null=True, 
-        blank=True,
-        verbose_name=_("Option 3")
-    )
-    position = models.PositiveSmallIntegerField(verbose_name=_("Position"))
-    
-    # Inventory per variant
-    track_inventory = models.BooleanField(default=False, verbose_name=_("Track Inventory"))
-    stock_quantity = models.PositiveIntegerField(default=0, verbose_name=_("Stock Quantity"))
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name="variants")
+    sku = models.CharField(max_length=100, null=True, blank=True, unique=True)
+    barcode = models.CharField(max_length=100, null=True, blank=True, unique=True)
+
+    option1 = models.ForeignKey(ProductOptionValue, on_delete=models.CASCADE, related_name="variants_option1", null=True, blank=True)
+    option2 = models.ForeignKey(ProductOptionValue, on_delete=models.CASCADE, related_name="variants_option2", null=True, blank=True)
+    option3 = models.ForeignKey(ProductOptionValue, on_delete=models.CASCADE, related_name="variants_option3", null=True, blank=True)
+
+    price = models.DecimalField(max_digits=12, decimal_places=2)
+    compare_at_price = models.DecimalField(max_digits=12, decimal_places=2, null=True, blank=True)
+
+    track_inventory = models.BooleanField(default=True)
+    stock_quantity = models.PositiveIntegerField(default=0)
+
+    position = models.PositiveSmallIntegerField(default=0)
 
     class Meta:
         unique_together = ("product", "option1", "option2", "option3")
-        indexes = [
-            models.Index(fields=["sku"]),
-            models.Index(fields=["product"]),
-            models.Index(fields=["barcode"]),
-        ]
-        verbose_name = _("Product Variant")
-        verbose_name_plural = _("Product Variants")
+        ordering = ["position"]
+        verbose_name = "Product Variant"
+        verbose_name_plural = "Product Variants"
 
     def __str__(self):
-        variant_name = self.get_variant_name()
-        return f"{self.product.title} - {variant_name or self.sku or 'N/A'}"
-    
-    def clean(self):
-        """Validate variant data"""
-        if self.compare_at_price and self.compare_at_price < self.price:
-            raise ValidationError({
-                'compare_at_price': _("Compare at price cannot be less than regular price")
-            })
-    
-    def save(self, *args, **kwargs):
-        """Validate before saving"""
-        self.full_clean()
-        super().save(*args, **kwargs)
-    
-    @property
-    def is_in_stock(self):
-        """Check stock availability"""
-        if self.track_inventory:
-            return self.stock_quantity > 0
-        return True
-    
-    @property
-    def discount_percentage(self):
-        """Calculate discount percentage"""
-        if self.compare_at_price and self.compare_at_price > self.price:
-            discount = ((self.compare_at_price - self.price) / self.compare_at_price) * 100
-            return round(discount, 2)
-        return 0
-    
+        return f"{self.product.title} - {self.get_variant_name() or self.sku or 'Base'}"
+
     def get_variant_name(self):
-        """Generate variant name from options"""
-        values = []
-        for opt in [self.option1, self.option2, self.option3]:
-            if opt:
-                values.append(opt.value)
+        values = [opt.value for opt in [self.option1, self.option2, self.option3] if opt]
         return " / ".join(values) if values else None
-    
-    def reduce_stock(self, quantity):
-        """Reduce stock when purchased"""
-        if self.track_inventory:
-            if self.stock_quantity >= quantity:
-                self.stock_quantity -= quantity
-                self.save()
-                return True
-            return False
-        return True
+
+# ------------------- VARIANT IMAGE -------------------
+class VariantImage(OrderedModel):
+    variant = models.ForeignKey(ProductVariant, on_delete=models.CASCADE, related_name="variant_images")
+    image = models.ImageField(upload_to="variants/gallery/%Y/%m/")
+    alt_text = models.CharField(max_length=255, blank=True)
+    is_main = models.BooleanField(default=False)
+
+    class Meta:
+        ordering = ["position"]
+        verbose_name = "Variant Image"
+        verbose_name_plural = "Variant Images"
+        unique_together = ["variant", "is_main"]
+
+    def save(self, *args, **kwargs):
+        if self.is_main:
+            VariantImage.objects.filter(variant=self.variant, is_main=True).exclude(pk=self.pk).update(is_main=False)
+        super().save(*args, **kwargs)
+
+    def delete(self, *args, **kwargs):
+        if self.image and os.path.isfile(self.image.path):
+            os.remove(self.image.path)
+        super().delete(*args, **kwargs)
+
+    def __str__(self):
+        return f"{self.variant.product.title} - {self.variant.get_variant_name() or 'Base'} - Image {self.position}"
+
+# ------------------- PRODUCT REVIEW -------------------
+class ProductReview(OrderedModel, BaseModel):
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name="reviews")
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="reviews")
+    rating = models.PositiveSmallIntegerField(choices=[(i, f"{i} Star") for i in range(1,6)])
+    title = models.CharField(max_length=200)
+    comment = models.TextField()
+    is_verified_purchase = models.BooleanField(default=False)
+    is_approved = models.BooleanField(default=False)
+    helpful_count = models.PositiveIntegerField(default=0)
+
+    class Meta:
+        unique_together = ["product", "user"]
+        ordering = ["-created_at"]
+        verbose_name = "Product Review"
+        verbose_name_plural = "Product Reviews"
+
+    def __str__(self):
+        return f"{self.user} - {self.product.title} - {self.rating}★"
+
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        self.product.update_rating()
+
+    def mark_helpful(self):
+        self.helpful_count = models.F('helpful_count') + 1
+        self.save(update_fields=['helpful_count'])
+
+# ------------------- PRODUCT REVIEW IMAGE -------------------
+class ProductReviewImage(BaseModel):
+    review = models.ForeignKey(ProductReview, on_delete=models.CASCADE, related_name="images")
+    variant_image = models.ForeignKey(VariantImage, null=True, blank=True, on_delete=models.SET_NULL, related_name="review_images")
+    alt_text = models.CharField(max_length=255, blank=True)
+
+    class Meta:
+        verbose_name = "Product Review Image"
+        verbose_name_plural = "Product Review Images"
+        ordering = ["-created_at"]
+
+    def __str__(self):
+        variant_info = self.variant_image.variant.get_variant_name() if self.variant_image else "General"
+        return f"{self.review.product.title} - {variant_info} Review Image"
+
+    def delete(self, *args, **kwargs):
+        if self.variant_image and hasattr(self.variant_image.image, 'path'):
+            if os.path.isfile(self.variant_image.image.path):
+                os.remove(self.variant_image.image.path)
+        super().delete(*args, **kwargs)
