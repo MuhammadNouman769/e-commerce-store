@@ -146,7 +146,7 @@ class SupplierProduct(BaseModel):
     lead_time_days = models.PositiveIntegerField(
         default=7,
         verbose_name=_("Lead Time (Days)"),
-        help_text_="Days from order to delivery"
+        help_text="Days from order to delivery"
     )
     
     minimum_order_quantity = models.PositiveIntegerField(

@@ -1,7 +1,10 @@
-"""
+'''
+-------------------------------------------------
                  USER CHOICES
 Purpose: Define user role choices for the platform
-"""
+-------------------------------------------------
+'''
+
 ''' ------------ iMPORTS ------------ '''
 from django.db import models
 from django.utils.translation import gettext_lazy as _

@@ -11,6 +11,9 @@ from django.db import models
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from apps.utilities.models import BaseModel, TimeStampedModel
+from apps.order_fulfillment.models import Order
+from apps.products.models import ProductVariant
+from apps.inventory_tracking.models import InventoryItem
 
 '''
 =============================================================================
@@ -20,7 +23,7 @@ from apps.utilities.models import BaseModel, TimeStampedModel
 =============================================================================
 '''
 
-class Shipment(BaseModel):
+class Shipment(TimeStampedModel, BaseModel):
     """
     Shipment Model - Track delivery to customers
     """
@@ -87,7 +90,7 @@ class Shipment(BaseModel):
         null=True,
         blank=True,
         verbose_name=_("Estimated Delivery Date"),
-        help_text_=("Shown to customer")
+        help_text="Shown to customer"
     )
     
     shipped_date = models.DateTimeField(
@@ -115,7 +118,7 @@ class Shipment(BaseModel):
     customer_notified = models.BooleanField(
         default=False,
         verbose_name=_("Customer Notified"),
-        help_text_="Has customer been notified of status?"
+        help_text="Has customer been notified of status?"
     )
     
     # Delivery Attempts
@@ -236,20 +239,20 @@ class ShipmentTrackingLog(TimeStampedModel):
     status = models.CharField(
         max_length=50,
         verbose_name=_("Status"),
-        help_text_="e.g., 'Picked Up', 'In Transit', 'Out for Delivery'"
+        help_text="e.g., 'Picked Up', 'In Transit', 'Out for Delivery'"
     )
     
     location = models.CharField(
         max_length=255,
         blank=True,
         verbose_name=_("Location"),
-        help_text_="City or facility name"
+        help_text="City or facility name"
     )
     
     description = models.TextField(
         blank=True,
         verbose_name=_("Description"),
-        help_text_="Detailed status description for customer"
+        help_text="Detailed status description for customer"
     )
     
     # For API integration with courier services
@@ -257,7 +260,7 @@ class ShipmentTrackingLog(TimeStampedModel):
         null=True,
         blank=True,
         verbose_name=_("API Response"),
-        help_text_="Raw response from courier API"
+        help_text="Raw response from courier API"
     )
     
     class Meta:

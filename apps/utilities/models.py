@@ -3,15 +3,11 @@ from django.db import models
 from django.utils import timezone
 from django.utils.text import slugify
 import uuid
-from django.contrib.auth import get_user_model
+from django.conf import settings
+from django.utils.translation import gettext_lazy as _
 
-User = get_user_model()
 
-'''
-==========================================
- Custom QuerySet & Manager for Soft Delete
-==========================================
-'''
+''' ----------------- Custom QuerySet & Manager for Soft Delete ----------------- '''
 class SoftDeleteQuerySet(models.QuerySet):
     def delete(self):
         return super().update(is_active=False, updated_at=timezone.now())
@@ -33,19 +29,24 @@ class SoftDeleteManager(models.Manager):
     def get_queryset(self):
         return SoftDeleteQuerySet(self.model, using=self._db).filter(is_active=True)
 
-'''
-==========================================
- BaseModel with Soft Delete & Timestamps
-==========================================
-'''
+''' ----------------- BaseModel with Soft Delete & Timestamps ----------------- '''
 class BaseModel(models.Model):
-    id = models.BigAutoField(primary_key=True)
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
-    is_active = models.BooleanField(default=True)
-    created_by = models.ForeignKey(User, null=True, blank=True, on_delete=models.SET_NULL, related_name="%(class)s_created")
-    updated_by = models.ForeignKey(User, null=True, blank=True, on_delete=models.SET_NULL, related_name="%(class)s_updated")
-
+    id = models.BigAutoField(
+        primary_key=True,
+        verbose_name = _("ID")
+    )
+    created_at = models.DateTimeField(
+        auto_now_add=True,null=True,blank=True,
+        verbose_name=_("Created At")
+    )
+    updated_at = models.DateTimeField(
+        auto_now=True,null=True,blank=True,
+        verbose_name=_("Updated At")
+    )
+    is_active = models.BooleanField(
+        default=True,null=True,blank=True,
+        verbose_name=_("Is Active")
+    )
     objects = SoftDeleteManager()
     all_objects = models.Manager()  # Includes inactive
 
@@ -53,53 +54,68 @@ class BaseModel(models.Model):
         abstract = True
         ordering = ["-created_at"]
 
-    def delete(self, using=None, keep_parents=False):
+    def delete(
+        self, 
+        using=None, 
+        keep_parents=False
+        ):
         self.is_active = False
-        self.save(update_fields=['is_active', 'updated_at'])
+        self.save(
+            update_fields=['is_active', 'updated_at']
+            )
 
-    def hard_delete(self, using=None, keep_parents=False):
-        super().delete(using=using, keep_parents=keep_parents)
+    def hard_delete(
+        self, 
+        using=None, 
+        keep_parents=False
+        ):
+        super().delete(
+            using=using, 
+            keep_parents=keep_parents
+            )
 
     def restore(self):
         self.is_active = True
-        self.save(update_fields=['is_active', 'updated_at'])
+        self.save(
+            update_fields=['is_active', 'updated_at']
+            )
 
     @property
     def is_deleted(self):
         return not self.is_active
 
-'''
-==========================================
- UUIDBaseModel - Secure Public IDs
-==========================================
-'''
+''' ----------------- UUIDBaseModel - Secure Public IDs ----------------- '''
 class UUIDBaseModel(BaseModel):
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    id = models.UUIDField(
+        primary_key=True, 
+        default=uuid.uuid4, 
+        editable=False
+        )
 
     class Meta:
         abstract = True
         ordering = ["-created_at"]
 
-'''
-==========================================
- TimeStampedModel - For Logs & Analytics
-==========================================
-'''
+''' ----------------- TimeStampedModel - For Logs & Analytics ----------------- '''
 class TimeStampedModel(models.Model):
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
+    created_at = models.DateTimeField(
+        auto_now_add=True
+        )
+    updated_at = models.DateTimeField(
+        auto_now=True
+        )
 
     class Meta:
         abstract = True
         ordering = ["-created_at"]
 
-'''
-==========================================
- OrderedModel - Manual Ordering
-==========================================
-'''
+''' ----------------- OrderedModel - Manual Ordering ----------------- '''
 class OrderedModel(BaseModel):
-    position = models.PositiveSmallIntegerField(default=None, null=True, blank=True)
+    position = models.PositiveSmallIntegerField(
+        default=None, 
+        null=True, 
+        blank=True
+        )
 
     class Meta:
         abstract = True
@@ -107,18 +123,24 @@ class OrderedModel(BaseModel):
 
     def save(self, *args, **kwargs):
         if self.position is None and not self.pk:
-            max_pos = self.__class__.objects.active().aggregate(models.Max('position'))['position__max']
-            self.position = (max_pos or 0) + 1
-        super().save(*args, **kwargs)
+            max_pos = self.__class__.objects.active
+            ().aggregate(
+                models.Max('position')
+                )['position__max']
+            self.position = (
+                max_pos or 0
+                ) + 1
+        super().save(
+            *args, 
+            **kwargs
+            )
 
-'''
-==========================================
- SluggedModel - SEO Friendly URLs
-==========================================
-'''
-
+''' ----------------- SluggedModel - SEO Friendly URLs ----------------- '''
 class SluggedModel(models.Model):
-    slug = models.SlugField(max_length=255, blank=True)
+    slug = models.SlugField(
+        max_length=255, 
+        blank=True
+        )
 
     class Meta:
         abstract = True
@@ -126,15 +148,22 @@ class SluggedModel(models.Model):
             models.Index(fields=['slug']),
         ]
 
-    SLUG_FIELD = "name"  # jis field se slug banega
+    SLUG_FIELD = "name"  # field from which slug will be generated
 
     def generate_slug(self):
-        value = getattr(self, self.SLUG_FIELD)
+        value = getattr(
+            self, 
+            self.SLUG_FIELD
+            )
         base_slug = slugify(value)
         slug = base_slug
         counter = 1
 
-        while self.__class__.all_objects.filter(slug=slug).exclude(pk=self.pk).exists():
+        while self.__class__.all_objects.filter(
+            slug=slug
+            ).exclude(
+                pk=self.pk
+                ).exists():
             slug = f"{base_slug}-{counter}"
             counter += 1
 
@@ -143,4 +172,7 @@ class SluggedModel(models.Model):
     def save(self, *args, **kwargs):
         if not self.slug:
             self.slug = self.generate_slug()
-        super().save(*args, **kwargs)
+        super().save(
+            *args, 
+            **kwargs
+            )

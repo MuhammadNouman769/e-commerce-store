@@ -1,4 +1,4 @@
-from .models import Category, Product, ProductImages, ProductOption, ProductOptionValue, ProductVariant
+from .models import Category, Product, ProductImage, ProductOption, ProductOptionValue, ProductVariant
 from rest_framework import serializers
 
 
@@ -47,7 +47,7 @@ class ProductVariantSerializer(serializers.ModelSerializer):
 # ---------------- Product Image Serializer ----------------
 class ProductImageSerializer(serializers.ModelSerializer):
     class Meta:
-        model = ProductImages
+        model = ProductImage
         fields = ['id', 'product', 'images', 'alt_text', 'position']
 
 # ---------------- Product Serializer ----------------

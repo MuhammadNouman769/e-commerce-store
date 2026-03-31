@@ -131,6 +131,17 @@ AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator'},
 ]
 
+CACHES = {
+    "default": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": "redis://localhost:6379/1",
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+        },
+    }
+}
+
+
 # =============== INTERNATIONALIZATION ===============
 LANGUAGE_CODE = 'en-us'
 TIME_ZONE = 'Asia/Karachi'  # Changed to Pakistan time
