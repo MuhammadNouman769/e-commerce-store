@@ -220,113 +220,113 @@ class BaseModel(models.Model):
 # --------------------------------------------------------------------------------
 # 3. OrderedModel - Adds manual ordering/positioning
 # --------------------------------------------------------------------------------
-class OrderedModel(BaseModel):
-    """
-    PURPOSE: Adds manual ordering/positioning to BaseModel.
-    Inherits all BaseModel fields + adds position field.
+# class OrderedModel(BaseModel):
+#    """
+#    PURPOSE: Adds manual ordering/positioning to BaseModel.
+#    Inherits all BaseModel fields + adds position field.
     
-    FIELDS (inherited from BaseModel):
-        - id, created_at, updated_at, is_active
+#    FIELDS (inherited from BaseModel):#
+#        - id, created_at, updated_at, i#s_active
     
-    ADDITIONAL FIELDS:
-        - position: Manual order (lower numbers appear first)
+#    ADDITIONAL FIELDS:
+#        - position: Manual order (lower numbers appear first)
     
-    FEATURES:
-        - Auto-assigns position if not provided
-        - Orders items by position automatically
-        - New items go to the end (highest position number)
+#    FEATURES:
+#        - Auto-assigns position if not provided
+#        - Orders items by position automatically
+#        - New items go to the end (highest position number)
     
-    WHEN TO USE:
-        - Categories (homepage order)
-        - Product images (gallery order)
-        - Menu items (navigation order)
-        - Banner slides (carousel order)
-        - FAQ items (question order)
+#    WHEN TO USE:
+#        - Categories (homepage order)
+#        - Product images (gallery order)
+#        - Menu items (navigation order)
+#        - Banner slides (carousel order)
+#        - FAQ items (question order)
     
-    WHY INHERIT FROM BASEMODEL:
-        - Needs soft delete (categories can be hidden)
-        - Needs timestamps (track when order changed)
-        - BaseModel provides all core fields
+#    WHY INHERIT FROM BASEMODEL:
+#        - Needs soft delete (categories can be hidden)
+#        - Needs timestamps (track when order changed)
+#        - BaseModel provides all core fields
     
-    EXAMPLE USAGE:
-        class Category(OrderedModel):
-            name = models.CharField(max_length=255)
-            parent = models.ForeignKey('self', null=True, blank=True)
-            # Inherits: id, created_at, updated_at, is_active, position
-            # Categories will appear in order of position
-    """
+#    EXAMPLE USAGE:
+#        class Category(OrderedModel):
+#            name = models.CharField(max_length=255)
+#             parent = models.ForeignKey('self', null=True, blank=True)
+#             Inherits: id, created_at, updated_at, is_active, position
+#             Categories will appear in order of position
+#    """
+#    
+#    position = models.PositiveSmallIntegerField(
+#        default=None,
+#        null=True,
+#        blank=True,
+#        verbose_name="Position",
+#        help_text="Lower numbers appear first (auto-assigned if not provided)"
+#    )
     
-    position = models.PositiveSmallIntegerField(
-        default=None,
-        null=True,
-        blank=True,
-        verbose_name="Position",
-        help_text="Lower numbers appear first (auto-assigned if not provided)"
-    )
+#    class Meta:
+#        abstract = True
+#        ordering = ["position", "-created_at"]  # First by position, then by date
+#        indexes = [
+#            models.Index(fields=['position'], name='%(class)s_position_idx'),
+#        ]
     
-    class Meta:
-        abstract = True
-        ordering = ["position", "-created_at"]  # First by position, then by date
-        indexes = [
-            models.Index(fields=['position'], name='%(class)s_position_idx'),
-        ]
-    
-    def save(self, *args, **kwargs):
-        """
-        Auto-assign position if not set.
-        New items get the next highest position number.
-        """
-        if self.position is None and not self.pk:
-            # Get current maximum position
-            max_position = self.__class__.objects.filter(
-                is_active=True
-            ).aggregate(
-                models.Max('position')
-            )['position__max']
-            self.position = (max_position or 0) + 1
-        super().save(*args, **kwargs)
+#    def save(self, *args, **kwargs):
+#        """
+#        Auto-assign position if not set.
+#        New items get the next highest position number.
+#        """
+#        if self.position is None and not self.pk:
+#            # Get current maximum position
+#            max_position = self.__class__.objects.filter(
+#                is_active=True
+#            ).aggregate(
+#                models.Max('position')
+#            )['position__max']
+#            self.position = (max_position or 0) + 1
+#        super().save(*args, **kwargs)
 
 
 # --------------------------------------------------------------------------------
 # 4. SluggedModel - Adds SEO-friendly URL slugs
 # --------------------------------------------------------------------------------
-class SluggedModel(BaseModel):
-    """
-    PURPOSE: Adds SEO-friendly URL slugs to BaseModel.
-    Inherits all BaseModel fields + adds name and slug fields.
+# class SluggedModel(BaseModel):
+#    """
+#    PURPOSE: Adds SEO-friendly URL slugs to BaseModel.
+#    Inherits all BaseModel fields + adds name and slug fields.
     
-    FIELDS (inherited from BaseModel):
-        - id, created_at, updated_at, is_active
+#    FIELDS (inherited from BaseModel):
+#        - id, created_at, updated_at, is_active
     
-    ADDITIONAL FIELDS:
-        - name: Human-readable display name
-        - slug: URL-friendly version (auto-generated)
+#    ADDITIONAL FIELDS:
+#        - name: Human-readable display name
+#        - slug: URL-friendly version (auto-generated)
     
-    FEATURES:
-        - Auto-generates slug from name
-        - Ensures slug uniqueness by adding numbers
-        - Indexed for fast database lookups
-        - Clean __str__ method returns name
+#    FEATURES:
+#        - Auto-generates slug from name
+#        - Ensures slug uniqueness by adding numbers
+#        - Indexed for fast database lookups
+#        - Clean __str__ method returns name
     
-    WHEN TO USE:
-        - Products (URL: /products/nike-air-max)
-        - Categories (URL: /categories/mens-shoes)
-        - Blog posts (URL: /blog/how-to-shop)
-        - Pages (URL: /about-us)
-        - Brands (URL: /brands/nike)
+#    WHEN TO USE:
+#        - Products (URL: /products/nike-air-max)
+#        - Categories (URL: /categories/mens-shoes)
+#        - Blog posts (URL: /blog/how-to-shop)
+#        - Pages (URL: /about-us)
+#        - Brands (URL: /brands/nike)
     
-    WHY INHERIT FROM BASEMODEL:
-        - Needs soft delete (products can be archived)
-        - Needs timestamps (track when created)
-        - BaseModel provides all core fields
+#    WHY INHERIT FROM BASEMODEL:
+#        - Needs soft delete (products can be archived)
+#        - Needs timestamps (track when created)
+#        - BaseModel provides all core fields
     
-    EXAMPLE USAGE:
-        class Product(SluggedModel):
-            price = models.DecimalField(max_digits=12, decimal_places=2)
-            description = models.TextField()
-            # Inherits: id, created_at, updated_at, is_active, name, slug
-            # URL will be: /products/nike-air-max-shoes
-    """
+#    EXAMPLE USAGE:
+#        class Product(SluggedModel):
+#            price = models.DecimalField(max_digits=12, decimal_places=2)
+#            description = models.TextField()
+#            # Inherits: id, created_at, updated_at, is_active, name, slug
+#            # URL will be: /products/nike-air-max-shoes
+#    """
     
     name = models.CharField(
         max_length=255,
