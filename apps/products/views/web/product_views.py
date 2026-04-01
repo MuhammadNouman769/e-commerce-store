@@ -4,8 +4,13 @@ from django.views.generic import ListView, DetailView
 from django.db.models import Count, Min, Max, Q
 from django.core.cache import cache
 from django.utils.translation import gettext_lazy as _
-from apps.products.models import Product, Category
-from django.db import models  
+from apps.products.choices import ProductStatus  
+from apps.products.models import (Product,
+                                Category,
+                                ProductImage,
+                                ProductVariant,
+                                ProductReview,
+                                Shop)
 
 
 """ =========== Product List View =========== """
@@ -20,7 +25,7 @@ class ProductListView(ListView):
     def get_queryset(self):
         """Get filtered and sorted products - only active ones"""
         queryset = Product.objects.filter(
-            status=Product.ProductStatus.ACTIVE  # ← IMPORTANT FIX
+            status=ProductStatus.ACTIVE
         ).select_related("shop").prefetch_related(
             "categories", "images", "variants"
         )

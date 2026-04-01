@@ -13,7 +13,7 @@ from django.utils.translation import gettext_lazy as _
 from apps.utilities.models import BaseModel, TimeStampedModel
 from apps.order_fulfillment.models import Order
 from apps.products.models import ProductVariant
-from apps.inventory_tracking.models import InventoryItem
+from apps.inventory_tracking.models import InventoryLevel
 
 '''
 =============================================================================
