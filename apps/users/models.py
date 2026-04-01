@@ -11,24 +11,31 @@ from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.utils.translation import gettext_lazy as _
 from apps.utilities.models import BaseModel
-from apps.users.choices import UserRoleChoices, UserStatusChoices
-from apps.users.manager import UserManager
+from .choices import UserRoleChoices, UserStatusChoices
+from .manager import UserManager
+from django.core.validators import RegexValidator
+
 
 ''' ----------------- USER MODEL ----------- '''
-
 class User(AbstractUser, BaseModel):
     """
-              Custom User Model
-    Uses email as username field instead of username
+        Custom User Model
+    Remove username field because 
+    we are using email as username
     """
-    username = None # Remove username field because we are using email as username
+    username = None 
     email = models.EmailField(
         unique=True,
         verbose_name=_("Email Address"),
         help_text=_("Used for login and communication")
     )
+    phone_validator = RegexValidator(
+        regex=r'^\+?1?\d{9,15}$',
+        message=_("Phone number must be entered in the format: '+923001234567'. Up to 15 digits allowed.")
+    )
     phone = models.CharField(
-        max_length=20,
+        validators=[phone_validator],
+        max_length=11,
         unique=True,
         verbose_name=_("Phone Number")
     )
@@ -55,7 +62,8 @@ class User(AbstractUser, BaseModel):
         blank=True,
         verbose_name=_("Profile Picture")
     )
-    # here we are using boolean fields to check if the user is verified or not not use email again and again  
+    # here we are using boolean fields to check if 
+    # the user is verified or not not use email again and again  
     email_verified = models.BooleanField(
         default=False,
         verbose_name=_("Email Verified")
