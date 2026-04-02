@@ -1,4 +1,5 @@
 """
+
 ================================================================================
             PRODUCTS MODELS - BTR Mall Product Management
 ================================================================================
@@ -14,9 +15,9 @@ from django.db import models
 from django.utils.text import slugify
 from django.core.exceptions import ValidationError
 from django.conf import settings
-from apps.users.models import User
+from apps.accounts.models import User
 from .choices import ProductStatus
-from apps.utilities.models import(
+from apps.utils.models import(
     BaseModel, 
     OrderedModel, 
     SluggedModel, 
@@ -24,11 +25,11 @@ from apps.utilities.models import(
     )
 
 '''
-================================================================================
-    1. SHOP MODEL - Seller Storefront
-    Usage: Represents a seller's shop with branding and verification
-    Features: Multiple shops per user, rating, verification
-================================================================================
+=========================================================================
+1. SHOP MODEL - Seller Storefront
+   Usage: Represents a seller's shop with branding and verification
+   Features: Multiple shops per user, rating, verification
+=========================================================================
 '''
 class Shop(BaseModel, SluggedModel):
     owner = models.OneToOneField(
@@ -99,11 +100,11 @@ class Shop(BaseModel, SluggedModel):
 
 
 '''
-================================================================================
-    2. CATEGORY MODEL - Product Classifications
-    Usage: Organize products into hierarchical categories
-    Features: Nested categories, visibility control
-================================================================================
+=========================================================================
+2. CATEGORY MODEL - Product Classifications
+   Usage: Organize products into hierarchical categories
+   Features: Nested categories, visibility control
+=========================================================================
 '''
 class Category(OrderedModel, SluggedModel):
     parent = models.ForeignKey(
@@ -157,11 +158,11 @@ class Category(OrderedModel, SluggedModel):
 
 
 '''
-================================================================================
-    3. PRODUCT MODEL - Core Product Information
-    Usage: Main product entity with descriptions, categories, and SEO
-    Features: Hierarchical categories, SEO fields, analytics tracking
-================================================================================
+=========================================================================
+3. PRODUCT MODEL - Core Product Information
+   Usage: Main product entity with descriptions, categories, and SEO
+   Features: Hierarchical categories, SEO fields, analytics tracking
+=========================================================================
 '''
 class Product(BaseModel, SluggedModel):
 
@@ -260,11 +261,11 @@ class Product(BaseModel, SluggedModel):
 
 
 '''
-================================================================================
-    4. PRODUCT IMAGE MODEL - Visual Assets
-    Usage: Store multiple images for each product
-    Features: Ordering, alt text, automatic cleanup
-================================================================================
+=========================================================================
+4. PRODUCT IMAGE MODEL - Visual Assets
+   Usage: Store multiple images for each product
+   Features: Ordering, alt text, automatic cleanup
+=========================================================================
 '''
 class ProductImage(OrderedModel):
     product = models.ForeignKey(
@@ -297,11 +298,11 @@ class ProductImage(OrderedModel):
 
 
 '''
-================================================================================
-    5. PRODUCT VARIANT MODEL - Stock Keeping Units
-    Usage: Manage product variations with unique SKUs and barcodes
-    Features: Multiple options, pricing, inventory tracking
-================================================================================
+=========================================================================
+5. PRODUCT VARIANT MODEL - Stock Keeping Units
+   Usage: Manage product variations with unique SKUs and barcodes
+   Features: Multiple options, pricing, inventory tracking
+=========================================================================
 '''
 class ProductVariant(BaseModel):
     product = models.ForeignKey(
@@ -389,11 +390,11 @@ class ProductVariant(BaseModel):
 
 
 '''
-================================================================================
-    6. VARIANT IMAGE MODEL - Visual Assets
-    Usage: Store multiple images for each product variant
-    Features: Ordering, alt text, automatic cleanup
-================================================================================
+=========================================================================
+6. VARIANT IMAGE MODEL - Visual Assets
+   Usage: Store multiple images for each product variant
+   Features: Ordering, alt text, automatic cleanup
+=========================================================================
 '''
 class VariantImage(OrderedModel):
     variant = models.ForeignKey(
@@ -438,11 +439,11 @@ class VariantImage(OrderedModel):
 
 
 '''
-================================================================================
-    7. PRODUCT OPTION MODEL - Variant Dimensions
-    Usage: Define options like size, color, material for variants
-    Features: Hierarchical options, ordering
-================================================================================
+=========================================================================
+7. PRODUCT OPTION MODEL - Variant Dimensions
+   Usage: Define options like size, color, material for variants
+   Features: Hierarchical options, ordering
+=========================================================================
 '''
 class ProductOption(OrderedModel):
     product = models.ForeignKey(
@@ -464,11 +465,11 @@ class ProductOption(OrderedModel):
 
 
 '''
-================================================================================
-    8. PRODUCT OPTION VALUE MODEL - Variant Values
-    Usage: Define specific values for each option (e.g., "Red", "XL")
-    Features: Linked to options, ordering
-================================================================================
+=========================================================================
+8. PRODUCT OPTION VALUE MODEL - Variant Values
+   Usage: Define specific values for each option (e.g., "Red", "XL")
+   Features: Linked to options, ordering
+=========================================================================
 '''
 class ProductOptionValue(OrderedModel):
     option = models.ForeignKey(
@@ -491,11 +492,11 @@ class ProductOptionValue(OrderedModel):
 
 
 '''
-================================================================================
-    9. PRODUCT REVIEW MODEL - User Feedback
-    Usage: Store customer reviews and ratings for products
-    Features: Rating system, approval workflow, verified purchase tracking
-================================================================================
+=========================================================================
+9. PRODUCT REVIEW MODEL - User Feedback
+   Usage: Store customer reviews and ratings for products
+   Features: Rating system, approval workflow, verified purchase tracking
+=========================================================================
 '''
 class ProductReview(OrderedModel, BaseModel):
     product = models.ForeignKey(
@@ -545,11 +546,11 @@ class ProductReview(OrderedModel, BaseModel):
 
 
 '''
-================================================================================
-    10. PRODUCT REVIEW IMAGE MODEL - Visual Assets
-    Usage: Store images uploaded with product reviews
-    Features: Linked to reviews, variant images supported
-================================================================================
+=========================================================================
+10. PRODUCT REVIEW IMAGE MODEL - Visual Assets
+   Usage: Store images uploaded with product reviews
+   Features: Linked to reviews, variant images supported
+=========================================================================
 '''
 class ProductReviewImage(BaseModel):
     review = models.ForeignKey(

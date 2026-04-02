@@ -381,11 +381,8 @@ class CartItem(BaseModel):
 '''
 
 class ShippingAddress(BaseModel):
-    """
-    Shipping Address Model - Daraz Style
-    User's shipping addresses for order delivery
-    """
-    
+    # Shipping Address Model
+    # User's shipping addresses for order delivery
     class AddressType(models.TextChoices):
         HOME = "home", _("Home")
         WORK = "work", _("Work")

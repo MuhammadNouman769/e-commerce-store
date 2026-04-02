@@ -1,9 +1,10 @@
 """
--------------------------------------------------
-                 USERS MODELS
-Purpose: User authentication and profile management
-Author: Muhammad Nouman
--------------------------------------------------
+            ===============================================================
+                                USERS MODELS
+            ===============================================================
+            Purpose: User authentication and profile management
+            Author: Muhammad Nouman
+            ===============================================================
 """
 
 ''' ------------ iMPORTS ------------ '''
@@ -16,7 +17,11 @@ from .manager import UserManager
 from django.core.validators import RegexValidator
 
 
-''' ----------------- USER MODEL ----------- '''
+'''
+            ===================================================
+                                USER MODEL
+            ===================================================
+'''
 class User(AbstractUser, BaseModel):
     """
         Custom User Model

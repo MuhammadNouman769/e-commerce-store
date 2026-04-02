@@ -1,10 +1,10 @@
 """
-================================================================================
-            INVENTORY TRACKING MODELS - B.Store Stock Management
-================================================================================
+=========================================================================
+INVENTORY TRACKING MODELS - B.Store Stock Management
+=========================================================================
 Purpose: Warehouse management, stock tracking, inventory levels
 Author: Muhammad Nouman
-================================================================================
+=========================================================================
 """
 
 ''' ------------ IMPORTS ------------ '''
@@ -18,11 +18,12 @@ from django.db.models import F
 import uuid
 
 '''
-================================================================================
-    1. WAREHOUSE MODEL - Storage Locations
-       Usage: Physical or virtual warehouses where stock is stored
-       Features: Multiple warehouses per product, location tracking
-================================================================================
+=========================================================================
+1. WAREHOUSE MODEL - Storage Locations
+=========================================================================
+Usage: Physical or virtual warehouses where stock is stored
+Features: Multiple warehouses per product, location tracking
+=========================================================================
 '''
 
 class Warehouse(BaseModel):
@@ -65,11 +66,12 @@ class Warehouse(BaseModel):
 
 
 '''
-================================================================================
-    2. INVENTORY LEVEL MODEL - Stock per Warehouse
-       Usage: Track stock levels for each variant in each warehouse
-       Features: Available stock, incoming stock, stock movements
-================================================================================
+=========================================================================
+2. INVENTORY LEVEL MODEL - Stock per Warehouse
+=========================================================================
+Usage: Track stock levels for each variant in each warehouse
+Features: Available stock, incoming stock, stock movements
+=========================================================================
 '''
 
 class InventoryLevel(BaseModel):
@@ -161,11 +163,12 @@ class InventoryLevel(BaseModel):
 
 
 '''
-================================================================================
-    3. STOCK MOVEMENT MODEL - Audit Trail
-       Usage: Track all stock movements (inbound, outbound, adjustments)
-       Features: Complete audit trail, reason tracking
-================================================================================
+=========================================================================
+3. STOCK MOVEMENT MODEL - Audit Trail
+=========================================================================
+Usage: Track all stock movements (inbound, outbound, adjustments)
+Features: Complete audit trail, reason tracking
+=========================================================================
 '''
 
 class StockMovement(BaseModel):

@@ -56,13 +56,14 @@ urlpatterns = [
     # ===== App APIs =====
     path('', include('apps.main.urls')),
     path('shop/', include('apps.cart.urls')),
-    path('users/', include('apps.users.urls')),
-   # path('admin_panel/', include('apps.admin_panel.urls')),
-    # path('api/orders/', include('apps.order_fulfillment.urls')),
-    path('api/products/', include('apps.products.urls.api_urls')),
-    path('products/', include('apps.products.urls.template_urls')),
-    # path('api/suppliers/', include('apps.supplier_monitoring.urls')),
-    # path('api/shipments/', include('apps.shipment_monitoring.urls')),
+    path('accounts/', include('apps.accounts.urls')),
+    path('dashboard/', include('apps.dashboard.urls')),
+    path('inventory/', include('apps.inventory_tracking.urls')),
+    path('logistics/', include('apps.logistics.urls')),
+    path('order_fulfillment/', include('apps.order_fulfillment.urls')),
+    path('products/', include('apps.products.urls')),
+    path('shipment_monitoring/', include('apps.shipment_monitoring.urls')),
+    path('utils/', include('apps.utils.urls')),
 
     # ===== API Documentation =====
     path('swagger/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),

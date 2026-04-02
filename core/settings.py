@@ -6,7 +6,7 @@ Author: Muhammad Noman
 from pathlib import Path
 import os
 
-# =============== BASE & SECURITY CONFIGURATION ===============
+'''# =============== BASE & SECURITY CONFIGURATION ==============='''
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = 'django-insecure-p=3-93xin6_y494m)=*xg!ros5qoq8*8(c3^h2==!82*l97z0i'
@@ -34,16 +34,15 @@ INSTALLED_APPS = [
     'cities_light',
     
     # Custom Apps
-    'apps.admin_panel',
+    'apps.dashboard',
     'apps.inventory_tracking',
+    'apps.logistics',
     'apps.main',
     'apps.order_fulfillment',
     'apps.products',
     'apps.shipment_monitoring',
-    'apps.supplier_monitoring',
-    'apps.supplychain',
-    'apps.users',
-    'apps.utilities',
+    'apps.accounts',
+    'apps.utils',
     'apps.cart',
 ]
 
@@ -76,7 +75,7 @@ REST_FRAMEWORK = {
 }
 
 # =============== CUSTOM USER MODEL ===============
-AUTH_USER_MODEL = 'users.User'
+AUTH_USER_MODEL = 'accounts.User'
 
 # =============== MIDDLEWARE ===============
 MIDDLEWARE = [
