@@ -513,11 +513,6 @@ class OrderHistory(BaseModel):
 # Keep original model for backward compatibility (deprecated)
 class BillingDetail(BaseModel):
     """DEPRECATED: Use Order model instead"""
-    class PaymentMethods(models.TextChoices):
-        CARD = "card", "Credit/Debit Card"
-        PAYPAL = "paypal", "PayPal"
-        BANK = "bank", "Bank Transfer"
-        COD = "cod", "Cash on Delivery"
 
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="billing_details")
     shipping_address = models.ForeignKey(
