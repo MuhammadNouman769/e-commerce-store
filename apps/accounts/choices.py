@@ -1,6 +1,6 @@
 '''
 -------------------------------------------------
-                 USER CHOICES
+                USER CHOICES
 Purpose: Define user role choices for the platform
 -------------------------------------------------
 '''

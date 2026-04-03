@@ -1,13 +1,13 @@
 """
-            ===============================================================
-                                USERS MODELS
-            ===============================================================
-            Purpose: User authentication and profile management
-            Author: Muhammad Nouman
-            ===============================================================
+===============================================================
+        USERS MODELS
+Purpose: User authentication and profile management
+        (Customer, Seller, Admin, Staff) 
+Author: Muhammad Nouman
+===============================================================
 """
 
-''' ------------ iMPORTS ------------ '''
+''' ==================== IMPORTS ==================== '''
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.utils.translation import gettext_lazy as _
@@ -18,16 +18,29 @@ from django.core.validators import RegexValidator
 
 
 '''
-            ===================================================
-                                USER MODEL
-            ===================================================
+===================================================
+    1. USER MODEL IMPLEMENTATION
+    Purpose: User authentication and profile management
+    Features: 
+        - Email and Phone verification
+        - Role based access control
+        - Profile management
+        - Account status management
+        - Last login IP tracking
+        - Custom manager for user authentication
+        - Email as username (not using username field)
+        - Phone number field (unique and required)
+        - Profile picture field (optional)
+        - Email and Phone verification fields (boolean)
+        - Account status field (choices)
+        - Last login IP tracking field (optional)
+===================================================
 '''
 class User(AbstractUser, BaseModel):
-    """
-        Custom User Model
-    Remove username field because 
-    we are using email as username
-    """
+    
+    #    Custom User Model
+    #    Remove username field because 
+    #    we are using email as username
     username = None 
     email = models.EmailField(
         unique=True,

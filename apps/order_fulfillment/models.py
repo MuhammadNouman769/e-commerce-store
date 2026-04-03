@@ -19,7 +19,13 @@ from apps.utilities.models import BaseModel
 from apps.products.models import Product, ProductVariant
 
 
-''' ========================= ORDER ========================='''
+'''
+=============================================================================
+    1.  ORDER INFORMATION
+        Purpose: Track individual shipments from warehouse to customer
+        When to use: When order is shipped, create a shipment record
+        Features: Location, timestamp, status updates (like Daraz tracking page)
+============================================================================='''
 
 class Order(BaseModel):
 
@@ -98,28 +104,83 @@ class Order(BaseModel):
         db_index=True
     )
 
-    transaction_id = models.CharField(max_length=100, blank=True, null=True)
+    transaction_id = models.CharField(
+        max_length=100, 
+        blank=True, 
+        null=True
+    )
 
-    payment_gateway_response = models.JSONField(null=True, blank=True, default=dict)
+    payment_gateway_response = models.JSONField(
+        null=True, 
+        blank=True, 
+        default=dict
+    )
 
-    subtotal = models.DecimalField(max_digits=12, decimal_places=2)
-    tax = models.DecimalField(max_digits=12, decimal_places=2, default=Decimal("0.00"))
-    shipping_fee = models.DecimalField(max_digits=12, decimal_places=2, default=Decimal("0.00"))
-    discount = models.DecimalField(max_digits=12, decimal_places=2, default=Decimal("0.00"))
-    total_amount = models.DecimalField(max_digits=12, decimal_places=2)
+    subtotal = models.DecimalField(
+        max_digits=12, 
+        decimal_places=2
+    )
+    tax = models.DecimalField(
+        max_digits=12, 
+        decimal_places=2, 
+        default=Decimal("0.00")
+    )
+    shipping_fee = models.DecimalField(
+        max_digits=12, 
+        decimal_places=2, 
+        default=Decimal("0.00")
+    )
+    discount = models.DecimalField(
+        max_digits=12, 
+        decimal_places=2, 
+        default=Decimal("0.00")
+    )
+    total_amount = models.DecimalField(
+        max_digits=12, 
+        decimal_places=2
+    )
 
-    paid_at = models.DateTimeField(null=True, blank=True)
-    shipped_at = models.DateTimeField(null=True, blank=True)
-    delivered_at = models.DateTimeField(null=True, blank=True)
-    cancelled_at = models.DateTimeField(null=True, blank=True)
+    paid_at = models.DateTimeField(
+        null=True, 
+        blank=True
+    )
+    shipped_at = models.DateTimeField(
+        null=True, 
+        blank=True
+    )
+    delivered_at = models.DateTimeField(
+        null=True, 
+        blank=True
+    )
+    cancelled_at = models.DateTimeField(
+        null=True, 
+        blank=True
+    )
 
-    tracking_number = models.CharField(max_length=100, blank=True)
-    courier_company = models.CharField(max_length=100, blank=True)
-    tracking_url = models.URLField(blank=True)
+    tracking_number = models.CharField(
+        max_length=100, 
+        blank=True
+    )
+    courier_company = models.CharField(
+        max_length=100, 
+        blank=True
+    )
+    tracking_url = models.URLField(
+        blank=True
+    )
 
-    customer_notes = models.TextField(max_length=400, blank=True)
-    admin_notes = models.TextField(max_length=400, blank=True)
-    coupon_code = models.CharField(max_length=50, blank=True)
+    customer_notes = models.TextField(
+        max_length=400, 
+        blank=True
+    )
+    admin_notes = models.TextField(
+        max_length=400, 
+        blank=True
+    )
+    coupon_code = models.CharField(
+        max_length=50, 
+        blank=True
+    )
 
     class Meta:
         ordering = ["-created_at"]
@@ -150,24 +211,60 @@ class Order(BaseModel):
         return self.order_status in [self.OrderStatus.PENDING, self.OrderStatus.PROCESSING]
 
 
-'''============= ORDER ITEM ============='''
+'''
+=============================================================================
+     2. ORDER ITEM INFORMATION AND TRACKING
+        Purpose: Track individual shipments from warehouse to customer
+        When to use: When order is shipped, create a shipment record
+        Features: Location, timestamp, status updates (like Daraz tracking page)
+============================================================================='''
 
 class OrderItem(BaseModel):
 
-    order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name="items")
-    product = models.ForeignKey(Product, on_delete=models.PROTECT)
-    variant = models.ForeignKey(ProductVariant, on_delete=models.PROTECT, null=True, blank=True)
+    order = models.ForeignKey(
+        Order, 
+        on_delete=models.CASCADE, 
+        related_name="items"
+    )
+    product = models.ForeignKey(
+        Product, 
+        on_delete=models.PROTECT
+    )
+    variant = models.ForeignKey(
+        ProductVariant, 
+        on_delete=models.PROTECT, 
+        null=True, 
+        blank=True
+    )
 
-    product_name = models.CharField(max_length=255)
-    variant_name = models.CharField(max_length=255, blank=True)
-    sku = models.CharField(max_length=100, blank=True)
+    product_name = models.CharField(
+        max_length=255
+    )
+    variant_name = models.CharField(
+        max_length=255, 
+        blank=True
+    )
+    sku = models.CharField(
+        max_length=100, 
+        blank=True
+    )
 
     quantity = models.PositiveIntegerField()
-    price = models.DecimalField(max_digits=12, decimal_places=2)
-    total_price = models.DecimalField(max_digits=12, decimal_places=2)
+    price = models.DecimalField(
+        max_digits=12, 
+        decimal_places=2
+    )
+    total_price = models.DecimalField(
+        max_digits=12, 
+        decimal_places=2
+    )
 
     returned_quantity = models.PositiveIntegerField(default=0)
-    refund_amount = models.DecimalField(max_digits=12, decimal_places=2, default=Decimal("0.00"))
+    refund_amount = models.DecimalField(
+        max_digits=12, 
+        decimal_places=2, 
+        default=Decimal("0.00")
+    )
 
     class Meta:
         ordering = ["id"]
@@ -177,7 +274,13 @@ class OrderItem(BaseModel):
         super().save(*args, **kwargs)
 
 
-'''============= ORDER HISTORY ============='''
+'''
+=============================================================================
+     3. ORDER HISTORY
+        Purpose: Track individual shipments from warehouse to customer
+        When to use: When order is shipped, create a shipment record
+        Features: Location, timestamp, status updates (like Daraz tracking page)
+============================================================================='''
 
 class OrderHistory(BaseModel):
 
@@ -189,12 +292,24 @@ class OrderHistory(BaseModel):
         DELIVERED = "delivered"
         CANCELLED = "cancelled"
 
-    order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name="history")
+    order = models.ForeignKey(
+        Order, 
+        on_delete=models.CASCADE, 
+        related_name="history"
+    )
 
-    status_from = models.CharField(max_length=20, blank=True)
-    status_to = models.CharField(max_length=20)
+    status_from = models.CharField(
+        max_length=20, 
+        blank=True
+    )
+    status_to = models.CharField(
+        max_length=20
+    )
 
-    action = models.CharField(max_length=50, choices=ActionType.choices)
+    action = models.CharField(
+        max_length=50, 
+        choices=ActionType.choices
+    )
 
     performed_by = models.ForeignKey(
         settings.AUTH_USER_MODEL,

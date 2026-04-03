@@ -22,12 +22,8 @@ from apps.inventory_tracking.models import InventoryLevel
          When to use: When order is shipped, create a shipment record
 =============================================================================
 '''
-
 class Shipment(TimeStampedModel, BaseModel):
-    """
-    Shipment Model - Track delivery to customers
-    """
-    
+
     class ShipmentStatus(models.TextChoices):
         PENDING = "pending", _("Pending Dispatch")
         PICKED = "picked", _("Picked Up by Courier")
@@ -36,7 +32,7 @@ class Shipment(TimeStampedModel, BaseModel):
         DELIVERED = "delivered", _("Delivered")
         FAILED = "failed", _("Delivery Failed")
         RETURNED = "returned", _("Returned to Sender")
-    
+
     class CourierCompany(models.TextChoices):
         LEOPARDS = "leopards", _("Leopards Courier")
         TCS = "tcs", _("TCS")
@@ -44,177 +40,92 @@ class Shipment(TimeStampedModel, BaseModel):
         PAKISTAN_POST = "pakistan_post", _("Pakistan Post")
         CALL_COURIER = "call_courier", _("Call Courier")
         OTHER = "other", _("Other")
-    
-    # Reference
+
     shipment_number = models.CharField(
-        max_length=50,
-        unique=True,
-        editable=False,
-        verbose_name=_("Shipment Number")
+        max_length=50, 
+        unique=True, 
+        editable=False
     )
-    
+
     order = models.ForeignKey(
         "order_fulfillment.Order",
         on_delete=models.CASCADE,
-        related_name="shipments",
-        verbose_name=_("Order")
+        related_name="shipments"
     )
-    
-    # Courier Information
+
     courier_company = models.CharField(
-        max_length=20,
-        choices=CourierCompany.choices,
-        verbose_name=_("Courier Company")
+        max_length=20, 
+        choices=CourierCompany.choices
     )
-    
     tracking_number = models.CharField(
-        max_length=100,
-        verbose_name=_("Tracking Number")
+        max_length=100
     )
-    
     tracking_url = models.URLField(
-        blank=True,
-        verbose_name=_("Tracking URL")
+        blank=True
     )
-    
-    # Status
+
     status = models.CharField(
         max_length=20,
         choices=ShipmentStatus.choices,
         default=ShipmentStatus.PENDING,
-        verbose_name=_("Shipment Status")
+        db_index=True
     )
-    
-    # Important Dates for Customer
+
     estimated_delivery_date = models.DateField(
-        null=True,
-        blank=True,
-        verbose_name=_("Estimated Delivery Date"),
-        help_text="Shown to customer"
+        null=True, 
+        blank=True
     )
-    
     shipped_date = models.DateTimeField(
-        null=True,
-        blank=True,
-        verbose_name=_("Shipped Date")
+        null=True, 
+        blank=True
     )
-    
     delivered_date = models.DateTimeField(
-        null=True,
-        blank=True,
-        verbose_name=_("Delivered Date")
+        null=True, 
+        blank=True
     )
-    
-    # Package Details
+
     weight = models.DecimalField(
-        max_digits=10,
-        decimal_places=2,
-        null=True,
-        blank=True,
-        verbose_name=_("Weight (kg)")
+        max_digits=10, 
+        decimal_places=2, 
+        null=True, 
+        blank=True
     )
-    
-    # Customer Communication
+
     customer_notified = models.BooleanField(
-        default=False,
-        verbose_name=_("Customer Notified"),
-        help_text="Has customer been notified of status?"
+        default=False
     )
-    
-    # Delivery Attempts
     delivery_attempts = models.PositiveSmallIntegerField(
-        default=0,
-        verbose_name=_("Delivery Attempts")
+        default=0
     )
-    
     failure_reason = models.TextField(
-        blank=True,
-        verbose_name=_("Failure Reason")
+        blank=True
     )
-    
+
     class Meta:
-        verbose_name = _("Shipment")
-        verbose_name_plural = _("Shipments")
         ordering = ["-created_at"]
         indexes = [
-            models.Index(fields=["shipment_number"], name="shipment_number_idx"),
-            models.Index(fields=["tracking_number"], name="shipment_tracking_idx"),
-            models.Index(fields=["status"], name="shipment_status_idx"),
-            models.Index(fields=["order"], name="shipment_order_idx"),
+            models.Index(fields=["shipment_number"]),
+            models.Index(fields=["tracking_number"]),
+            models.Index(fields=["status"]),
+            models.Index(fields=["order"]),
         ]
-    
+
     def __str__(self):
-        return f"Shipment #{self.shipment_number} - {self.get_status_display()}"
-    
+        return f"Shipment #{self.shipment_number}"
+
     def save(self, *args, **kwargs):
-        """Auto-generate shipment number"""
         if not self.shipment_number:
-            from django.utils import timezone
             year = timezone.now().year
-            last_shipment = Shipment.objects.filter(
+            last = Shipment.objects.filter(
                 shipment_number__startswith=f"SHP-{year}-"
             ).order_by('-shipment_number').first()
-            
-            if last_shipment:
-                last_number = int(last_shipment.shipment_number.split('-')[-1])
-                new_number = last_number + 1
-            else:
-                new_number = 1
-            
-            self.shipment_number = f"SHP-{year}-{new_number:06d}"
-        
-        # Update dates based on status
-        if self.status == self.ShipmentStatus.PICKED and not self.shipped_date:
-            self.shipped_date = timezone.now()
-        elif self.status == self.ShipmentStatus.DELIVERED and not self.delivered_date:
-            self.delivered_date = timezone.now()
-        
-        super().save(*args, **kwargs)
-    
-    def update_status(self, status, location=None, description=None):
-        """Update shipment status with tracking log"""
-        self.status = status
-        self.save()
-        
-        # Add tracking log
-        ShipmentTrackingLog.objects.create(
-            shipment=self,
-            status=status,
-            location=location or "",
-            description=description or ""
-        )
-    
-    def mark_as_picked(self):
-        """Mark as picked by courier"""
-        self.update_status(self.ShipmentStatus.PICKED, 
-                          description="Picked up by courier")
-    
-    def mark_as_in_transit(self, location=None):
-        """Mark as in transit"""
-        self.update_status(self.ShipmentStatus.IN_TRANSIT, 
-                          location=location,
-                          description="Shipment in transit")
-    
-    def mark_as_out_for_delivery(self):
-        """Mark as out for delivery"""
-        self.update_status(self.ShipmentStatus.OUT_FOR_DELIVERY,
-                          description="Out for delivery")
-    
-    def mark_as_delivered(self):
-        """Mark as delivered"""
-        self.update_status(self.ShipmentStatus.DELIVERED,
-                          description="Delivered successfully")
-        # Update order status
-        self.order.mark_as_delivered()
-    
-    def mark_as_failed(self, reason):
-        """Mark delivery as failed"""
-        self.update_status(self.ShipmentStatus.FAILED,
-                          description=f"Delivery failed: {reason}")
-        self.delivery_attempts += 1
-        self.failure_reason = reason
-        self.save()
 
+            num = int(last.shipment_number.split('-')[-1]) + 1 if last else 1
+            self.shipment_number = f"SHP-{year}-{num:06d}"
+
+        super().save(*args, **kwargs)
+
+        
 '''
 =============================================================================
      2. SHIPMENT TRACKING LOG - Detailed Tracking History

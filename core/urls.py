@@ -54,17 +54,18 @@ urlpatterns = [
     path('admin/', admin.site.urls),
 
     # ===== App APIs =====
-    path('', include('apps.main.urls')),
-    path('shop/', include('apps.cart.urls')),
-    path('accounts/', include('apps.accounts.urls')),
-    path('dashboard/', include('apps.dashboard.urls')),
-    path('inventory/', include('apps.inventory_tracking.urls')),
-    path('logistics/', include('apps.logistics.urls')),
-    path('order_fulfillment/', include('apps.order_fulfillment.urls')),
-    path('products/', include('apps.products.urls')),
-    path('shipment_monitoring/', include('apps.shipment_monitoring.urls')),
     path('utils/', include('apps.utils.urls')),
-
+    path('accounts/', include('apps.accounts.urls')),
+    path('products/', include('apps.products.urls')),
+    path('inventory/', include('apps.inventory_tracking.urls')),
+    path('orders/', include('apps.order_fulfillment.urls')),
+    path('shipments/', include('apps.shipment_monitoring.urls')),
+    path('cart/', include('apps.cart.urls')),
+    # path('', include('apps.main.urls')),
+    # path('accounts/', include('apps.accounts.urls')),
+    # path('dashboard/', include('apps.dashboard.urls')),
+    # path('logistics/', include('apps.logistics.urls')),
+    
     # ===== API Documentation =====
     path('swagger/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
     path('redoc/', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),

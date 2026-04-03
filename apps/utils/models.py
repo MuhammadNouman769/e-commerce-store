@@ -1,4 +1,12 @@
-'''---------- IMPORTS ----------'''
+
+'''=================================================================================
+  UTILITIES MODELS INFORMATION
+  Purpose: Handle automatic warehouse management and inventory synchronization
+  Author: Muhammad Nouman
+=================================================================================
+'''
+
+'''=================== IMPORTS ========================'''
 from django.db import models
 from django.utils import timezone
 from django.utils.text import slugify
@@ -7,7 +15,16 @@ from django.conf import settings
 from django.utils.translation import gettext_lazy as _
 
 
-''' ----------------- Custom QuerySet & Manager for Soft Delete ----------------- '''
+''' 
+=================================================================================
+  1. SOFT DELETE QUERYSET INFORMATION
+  Purpose: Handle automatic deletion of models instead of permanent deletion
+  When to use: When you want to delete a model but want to restore it later
+  Features: in this model we have 4 methods delete, hard_delete, restore,
+  active, inactive
+  Author: Muhammad Nouman
+=================================================================================
+'''
 class SoftDeleteQuerySet(models.QuerySet):
     def delete(self):
         return super().update(is_active=False, updated_at=timezone.now())
@@ -29,7 +46,14 @@ class SoftDeleteManager(models.Manager):
     def get_queryset(self):
         return SoftDeleteQuerySet(self.model, using=self._db).filter(is_active=True)
 
-''' ----------------- BaseModel with Soft Delete & Timestamps ----------------- '''
+'''
+=================================================================================
+  2. BASE MODEL INFORMATION
+  Purpose: Handle automatic fields like id, created_at, updated_at, is_active for
+           equil use in models, logs, stock tracking & other purposes
+  Author: Muhammad Nouman
+=================================================================================
+'''
 class BaseModel(models.Model):
     id = models.BigAutoField(
         primary_key=True,
@@ -84,7 +108,14 @@ class BaseModel(models.Model):
     def is_deleted(self):
         return not self.is_active
 
-''' ----------------- UUIDBaseModel - Secure Public IDs ----------------- '''
+'''
+=================================================================================
+  3. UUID BASE MODEL INFORMATION
+  Purpose: Handle secure public IDs for models instead of auto incremented IDs
+  & also provide unique IDs for models for security purpose
+  Author: Muhammad Nouman
+=================================================================================
+'''
 class UUIDBaseModel(BaseModel):
     id = models.UUIDField(
         primary_key=True, 
@@ -96,7 +127,13 @@ class UUIDBaseModel(BaseModel):
         abstract = True
         ordering = ["-created_at"]
 
-''' ----------------- TimeStampedModel - For Logs & Analytics ----------------- '''
+'''
+=================================================================================
+  4. TIME STAMPED MODEL INFORMATION
+  Purpose: Handle automatic timestamping of models for logs & analytics 
+  Author: Muhammad Nouman
+=================================================================================
+'''
 class TimeStampedModel(models.Model):
     created_at = models.DateTimeField(
         auto_now_add=True
@@ -109,7 +146,13 @@ class TimeStampedModel(models.Model):
         abstract = True
         ordering = ["-created_at"]
 
-''' ----------------- OrderedModel - Manual Ordering ----------------- '''
+'''
+=================================================================================
+  5. ORDERED MODEL INFORMATION
+  Purpose: Handle manual ordering of models
+  Author: Muhammad Nouman
+=================================================================================
+'''
 class OrderedModel(BaseModel):
     position = models.PositiveSmallIntegerField(
         default=None, 
@@ -135,7 +178,13 @@ class OrderedModel(BaseModel):
             **kwargs
             )
 
-''' ----------------- SluggedModel - SEO Friendly URLs ----------------- '''
+'''
+=================================================================================
+  5. SLUGGED MODEL INFORMATION
+  Purpose: Handle automatic slug generation for SEO friendly URLs
+  Author: Muhammad Nouman
+=================================================================================
+'''
 class SluggedModel(models.Model):
     slug = models.SlugField(
         max_length=255, 

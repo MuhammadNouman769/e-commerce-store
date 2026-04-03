@@ -102,8 +102,8 @@ class Shop(BaseModel, SluggedModel):
 '''
 =========================================================================
 2. CATEGORY MODEL - Product Classifications
-   Usage: Organize products into hierarchical categories
-   Features: Nested categories, visibility control
+    Usage: Organize products into hierarchical categories
+    Features: Nested categories, visibility control
 =========================================================================
 '''
 class Category(OrderedModel, SluggedModel):
@@ -548,8 +548,8 @@ class ProductReview(OrderedModel, BaseModel):
 '''
 =========================================================================
 10. PRODUCT REVIEW IMAGE MODEL - Visual Assets
-   Usage: Store images uploaded with product reviews
-   Features: Linked to reviews, variant images supported
+    Usage: Store images uploaded with product reviews
+    Features: Linked to reviews, variant images supported
 =========================================================================
 '''
 class ProductReviewImage(BaseModel):

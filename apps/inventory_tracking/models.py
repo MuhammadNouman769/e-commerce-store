@@ -1,10 +1,10 @@
 """
-=========================================================================
+=================================================================================
 INVENTORY TRACKING MODELS - B.Store Stock Management
-=========================================================================
+=================================================================================
 Purpose: Warehouse management, stock tracking, inventory levels
 Author: Muhammad Nouman
-=========================================================================
+=================================================================================
 """
 
 ''' ------------ IMPORTS ------------ '''
@@ -18,12 +18,11 @@ from django.db.models import F
 import uuid
 
 '''
-=========================================================================
-1. WAREHOUSE MODEL - Storage Locations
-=========================================================================
-Usage: Physical or virtual warehouses where stock is stored
-Features: Multiple warehouses per product, location tracking
-=========================================================================
+=================================================================================
+  1. WAREHOUSE MODEL INFORMATION
+      Purpose: Physical or virtual warehouses where stock is stored
+      Features: Multiple warehouses per product, location tracking
+=================================================================================
 '''
 
 class Warehouse(BaseModel):
@@ -49,11 +48,19 @@ class Warehouse(BaseModel):
         verbose_name=_("Warehouse Code")
     )
 
-    city = models.CharField(max_length=100)
-    province = models.CharField(max_length=100)
-    postal_code = models.CharField(max_length=10)
+    city = models.CharField(
+        max_length=100
+    )
+    province = models.CharField(
+        max_length=100
+    )
+    postal_code = models.CharField(
+        max_length=10
+    )
     
-    is_main = models.BooleanField(default=False)
+    is_main = models.BooleanField(
+        default=False
+    )
     
     class Meta:
         indexes = [
@@ -66,22 +73,21 @@ class Warehouse(BaseModel):
 
 
 '''
-=========================================================================
-2. INVENTORY LEVEL MODEL - Stock per Warehouse
-=========================================================================
-Usage: Track stock levels for each variant in each warehouse
-Features: Available stock, incoming stock, stock movements
-=========================================================================
+=================================================================================
+  2. INVENTORY LEVEL MODEL INFORMATION
+      Purpose: Track stock levels for each variant in each warehouse
+      Features: Available stock, incoming stock, stock movements
+=================================================================================
 '''
 
 class InventoryLevel(BaseModel):
-    """
-    Every stock of product is tracked in every warehouse like:
-    product shoes size 42
-    warehouse Lahore may 10
-    warehouse Karachi may 20
-    total stock = 30
-    """
+    
+   # Every stock of product is tracked in every warehouse like:
+   # product shoes size 42
+   # warehouse Lahore may 10
+   # warehouse Karachi may 20
+   # total stock = 30
+
     variant = models.ForeignKey(
         ProductVariant,
         on_delete=models.CASCADE,
@@ -123,11 +129,11 @@ class InventoryLevel(BaseModel):
     
     @property
     def total_quantity(self):
-        """Return available sellable stock"""
+        # Return available sellable stock
         return self.available_quantity
     
     def reduce_stock(self, qty):
-        """After order placement, reserve stock using DB atomic F() update"""
+        # After order placement, reserve stock using DB atomic F() update
         updated = InventoryLevel.objects.filter(
             pk=self.pk,
             available_quantity__gte=qty
@@ -139,7 +145,7 @@ class InventoryLevel(BaseModel):
             raise ValidationError("Not enough stock")
     
     def release(self, qty):
-        """If order is canceled, release reserved stock back to available using F()"""
+       # If order is canceled, release reserved stock back to available using F()
         updated = InventoryLevel.objects.filter(
             pk=self.pk,
             reserved_quantity__gte=qty
@@ -151,7 +157,7 @@ class InventoryLevel(BaseModel):
             raise ValidationError("Invalid release quantity")
     
     def deduct(self, qty):
-        """After order completion, deduct reserved stock using F()"""
+        # After order completion, deduct reserved stock using F()
         updated = InventoryLevel.objects.filter(
             pk=self.pk,
             reserved_quantity__gte=qty
@@ -163,18 +169,17 @@ class InventoryLevel(BaseModel):
 
 
 '''
-=========================================================================
-3. STOCK MOVEMENT MODEL - Audit Trail
-=========================================================================
-Usage: Track all stock movements (inbound, outbound, adjustments)
-Features: Complete audit trail, reason tracking
-=========================================================================
+=================================================================================
+  3. STOCK MOVEMENT MODEL INFORMATION
+      Purpose: Track all stock movements (inbound, outbound, adjustments)
+      Features: Complete audit trail, reason tracking
+=================================================================================
 '''
 
 class StockMovement(BaseModel):
-    """
-    Track all stock changes for audit and reconciliation
-    """
+    
+    # Track all stock changes for audit and reconciliation
+    
     class Type(models.TextChoices):
         SALE = "sale", _("Sale")
         RETURN = "return", _("Customer Return")
