@@ -1,0 +1,69 @@
+{% extends 'base.html' %}
+
+{% block title %}Order #{{ billing.id }}{% endblock %}
+
+{% block content %}
+<section class="banner-area organic-breadcrumb">
+    <div class="container">
+        <div class="breadcrumb-banner d-flex flex-wrap align-items-center justify-content-end">
+            <div class="col-first">
+                <h1>Order Details</h1>
+                <nav class="d-flex align-items-center">
+                    <a href="{% url 'home' %}">Home<span class="lnr lnr-arrow-right"></span></a>
+					<a href="{% url 'home' %}">My Account</a>
+                </nav>
+            </div>
+        </div>
+    </div>
+</section>
+
+<div class="container" style="margin-top: 24px;">
+    <div class="row">
+        <div class="col-lg-7">
+            <h3 class="mb-3">Items</h3>
+
+            <div class="list-group">
+                {% for item in cart_items %}
+                    <div class="list-group-item">
+                        <div class="d-flex justify-content-between gap-3">
+                            <div>
+                                <strong>{{ item.product_name }}</strong>
+                                <div class="text-muted" style="font-size: 0.9rem;">
+                                    Qty: {{ item.quantity }}
+                                </div>
+                            </div>
+                            <div class="text-end">
+                                Rs {{ item.price|floatformat:0 }} <br />
+                                <span class="text-muted">Line total: Rs {{ item.total_price|floatformat:0 }}</span>
+                            </div>
+                        </div>
+                    </div>
+                {% empty %}
+                    <div class="alert alert-info">No items.</div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="col-lg-5">
+            <h3 class="mb-3">Summary</h3>
+            <div class="card">
+                <div class="card-body">
+                    <p class="mb-1"><strong>Order ID:</strong> {{ billing.id }}</p>
+                    <p class="mb-1"><strong>Date:</strong> {{ billing.created_at|date:"Y-m-d H:i" }}</p>
+                    <p class="mb-1"><strong>Payment:</strong> {{ billing.payment_method }}</p>
+                    <hr />
+                    <p class="mb-1"><strong>Total:</strong> Rs {{ billing.total_amount|floatformat:0 }}</p>
+
+                    {% if billing.shipping_address %}
+                        <hr />
+                        <p class="mb-1"><strong>Ship To:</strong></p>
+                        <p class="mb-0">{{ billing.shipping_address.full_name }}</p>
+                        <p class="mb-0">{{ billing.shipping_address.street_address }}</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

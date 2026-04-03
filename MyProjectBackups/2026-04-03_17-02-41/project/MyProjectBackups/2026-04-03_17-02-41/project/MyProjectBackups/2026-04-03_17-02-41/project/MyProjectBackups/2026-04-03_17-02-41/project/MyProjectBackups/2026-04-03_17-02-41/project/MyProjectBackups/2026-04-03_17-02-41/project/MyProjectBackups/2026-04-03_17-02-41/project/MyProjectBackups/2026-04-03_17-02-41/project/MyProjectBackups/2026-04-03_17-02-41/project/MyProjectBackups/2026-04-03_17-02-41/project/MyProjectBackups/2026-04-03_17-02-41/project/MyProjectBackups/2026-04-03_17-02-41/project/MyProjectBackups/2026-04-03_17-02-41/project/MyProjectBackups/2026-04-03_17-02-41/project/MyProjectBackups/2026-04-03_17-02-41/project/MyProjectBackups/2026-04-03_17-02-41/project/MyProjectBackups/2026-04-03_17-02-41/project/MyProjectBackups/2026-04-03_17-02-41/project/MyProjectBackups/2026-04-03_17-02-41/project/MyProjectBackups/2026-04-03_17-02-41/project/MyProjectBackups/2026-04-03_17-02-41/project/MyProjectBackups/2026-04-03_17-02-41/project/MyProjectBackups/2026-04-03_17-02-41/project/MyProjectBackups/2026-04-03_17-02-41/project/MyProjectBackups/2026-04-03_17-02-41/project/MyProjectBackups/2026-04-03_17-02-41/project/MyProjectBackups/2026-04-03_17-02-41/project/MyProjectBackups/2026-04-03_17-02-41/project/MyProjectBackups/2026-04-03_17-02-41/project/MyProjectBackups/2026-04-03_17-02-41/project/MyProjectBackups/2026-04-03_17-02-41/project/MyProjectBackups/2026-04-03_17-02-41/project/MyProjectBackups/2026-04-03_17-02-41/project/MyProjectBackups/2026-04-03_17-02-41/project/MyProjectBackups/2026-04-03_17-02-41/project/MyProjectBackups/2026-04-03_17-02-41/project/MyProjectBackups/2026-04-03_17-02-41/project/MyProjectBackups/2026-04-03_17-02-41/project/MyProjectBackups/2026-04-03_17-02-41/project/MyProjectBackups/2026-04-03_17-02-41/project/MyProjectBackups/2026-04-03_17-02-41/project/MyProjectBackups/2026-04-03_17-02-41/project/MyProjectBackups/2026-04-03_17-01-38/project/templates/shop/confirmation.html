@@ -1,0 +1,182 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}B.Store - Confirmation{% endblock %}
+{% block content %}
+<body>
+	<!-- Start Banner Area -->
+	<section class="banner-area organic-breadcrumb">
+		<div class="container">
+			<div class="breadcrumb-banner d-flex flex-wrap align-items-center justify-content-end">
+				<div class="col-first">
+					<h1>Confirmation</h1>
+					<nav class="d-flex align-items-center">
+						<a href="{% url 'home' %}">Home<span class="lnr lnr-arrow-right"></span></a>
+						<a href="{% url 'confirm' %}">Confirmation</a>
+					</nav>
+				</div>
+			</div>
+		</div>
+	</section>
+	<!-- End Banner Area -->
+	<!--================Order Details Area =================-->
+	<section class="order_details section_gap">
+		<div class="container">
+			<h3 class="title_confirmation">Thank you. Your order has been received.</h3>
+			<div class="row order_d_inner">
+				<div class="col-lg-4">
+					<div class="details_item">
+						<h4>Order Info</h4>
+						<ul class="list">
+							<li>
+								<a href="#">
+									<span>Order number</span> : {{ billing.id|default:"-" }}
+								</a>
+							</li>
+							<li>
+								<a href="#">
+									<span>Date</span> : {{ billing.created_at|date:"M d, Y"|default:"-" }}
+								</a>
+							</li>
+							<li>
+								<a href="#">
+									<span>Total</span> : Rs {{ billing.total_amount|default:0|floatformat:0 }}
+								</a>
+							</li>
+							<li>
+								<a href="#">
+									<span>Payment method</span> : {{ billing.get_payment_method_display|default:"-" }}
+								</a>
+							</li>
+						</ul>
+					</div>
+				</div>
+				<div class="col-lg-4">
+					<div class="details_item">
+						<h4>Billing Address</h4>
+						<ul class="list">
+							<li>
+								<a href="#">
+									<span>Street</span> : {{ shipping_address.street_address|default:"-" }}
+								</a>
+							</li>
+							<li>
+								<a href="#">
+									<span>City</span> : {{ shipping_address.city.name|default:"-" }}
+								</a>
+							</li>
+							<li>
+								<a href="#">
+									<span>Country</span> : {{ shipping_address.country.name|default:"-" }}
+								</a>
+							</li>
+							<li>
+								<a href="#">
+									<span>Postcode</span> : {{ shipping_address.postal_code|default:"-" }}
+								</a>
+							</li>
+						</ul>
+					</div>
+				</div>
+				<div class="col-lg-4">
+					<div class="details_item">
+						<h4>Shipping Address</h4>
+						<ul class="list">
+							<li>
+								<a href="#">
+									<span>Street</span> : {{ shipping_address.street_address|default:"-" }}
+								</a>
+							</li>
+							<li>
+								<a href="#">
+									<span>City</span> : {{ shipping_address.city.name|default:"-" }}
+								</a>
+							</li>
+							<li>
+								<a href="#">
+									<span>Country</span> : {{ shipping_address.country.name|default:"-" }}
+								</a>
+							</li>
+							<li>
+								<a href="#">
+									<span>Postcode</span> : {{ shipping_address.postal_code|default:"-" }}
+								</a>
+							</li>
+						</ul>
+					</div>
+				</div>
+			</div>
+			<div class="order_details_table">
+				<h2>Order Details</h2>
+				<div class="table-responsive">
+					<table class="table">
+						<thead>
+							<tr>
+								<th scope="col">Product</th>
+								<th scope="col">Quantity</th>
+								<th scope="col">Total</th>
+							</tr>
+						</thead>
+						<tbody>
+							{% if cart_items %}
+								{% for ci in cart_items %}
+									<tr>
+										<td>
+											<p>{{ ci.product_name }}</p>
+										</td>
+										<td>
+											<h5>x {{ ci.quantity }}</h5>
+										</td>
+										<td>
+											<p>Rs {{ ci.total_price|floatformat:0 }}</p>
+										</td>
+									</tr>
+								{% endfor %}
+							{% else %}
+								<tr>
+									<td colspan="3">
+										<p>No items found for this order.</p>
+									</td>
+								</tr>
+							{% endif %}
+							<tr>
+								<td>
+									<h4>Subtotal</h4>
+								</td>
+								<td>
+									<h5></h5>
+								</td>
+								<td>
+									<p>Rs {{ billing.subtotal|default:0|floatformat:0 }}</p>
+								</td>
+							</tr>
+							<tr>
+								<td>
+									<h4>Shipping</h4>
+								</td>
+								<td>
+									<h5></h5>
+								</td>
+								<td>
+									<p>Rs {{ billing.shipping_fee|default:0|floatformat:0 }}</p>
+								</td>
+							</tr>
+							<tr>
+								<td>
+									<h4>Total</h4>
+								</td>
+								<td>
+									<h5></h5>
+								</td>
+								<td>
+									<p>Rs {{ billing.total_amount|default:0|floatformat:0 }}</p>
+								</td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+			</div>
+		</div>
+	</section>
+	<!--================End Order Details Area =================-->
+</body>
+{% endblock %}

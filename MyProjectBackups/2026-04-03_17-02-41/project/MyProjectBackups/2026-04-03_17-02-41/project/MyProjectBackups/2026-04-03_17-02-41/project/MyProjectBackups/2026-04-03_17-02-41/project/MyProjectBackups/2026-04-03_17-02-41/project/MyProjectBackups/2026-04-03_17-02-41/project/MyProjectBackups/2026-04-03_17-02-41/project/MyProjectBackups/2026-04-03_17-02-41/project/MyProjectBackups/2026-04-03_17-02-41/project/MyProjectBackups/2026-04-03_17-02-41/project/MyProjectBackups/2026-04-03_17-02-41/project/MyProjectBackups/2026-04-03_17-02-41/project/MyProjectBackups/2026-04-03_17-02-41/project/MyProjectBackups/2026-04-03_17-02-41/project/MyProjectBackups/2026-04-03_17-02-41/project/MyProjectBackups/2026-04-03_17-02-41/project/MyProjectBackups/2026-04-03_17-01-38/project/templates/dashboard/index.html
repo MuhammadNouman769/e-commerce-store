@@ -1,0 +1,595 @@
+<!DOCTYPE html>
+<html lang="ur">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DarazPro - Seller Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        
+        :root {
+            --primary: #ff6600;
+        }
+        
+        * {
+            font-family: 'Inter', system-ui, sans-serif;
+        }
+        
+        .sidebar-link {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .sidebar-link:hover {
+            background-color: #1f2937;
+            transform: translateX(6px);
+        }
+        
+        .active-link {
+            background-color: #1f2937;
+            border-left: 4px solid #ff6600;
+            color: #ff6600;
+        }
+        
+        .card-hover {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .card-hover:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 20px 25px -5px rgb(255 102 0 / 0.15);
+        }
+        
+        .section {
+            display: none;
+        }
+        
+        .section.active {
+            display: block;
+        }
+        
+        .stat-card {
+            background: linear-gradient(145deg, #1f2937, #111827);
+        }
+        
+        .table-row:hover {
+            background-color: #1f2937;
+        }
+        
+        .nav-item {
+            transition: all 0.2s;
+        }
+    </style>
+</head>
+<body class="bg-gray-950 text-white overflow-hidden">
+    <div class="flex h-screen">
+        
+        <!-- Sidebar -->
+        <div class="w-72 bg-gray-900 border-r border-gray-800 flex flex-col">
+            <div class="px-8 py-7 border-b border-gray-800 flex items-center gap-3">
+                <div class="w-11 h-11 bg-gradient-to-br from-orange-500 to-amber-500 rounded-2xl flex items-center justify-center text-3xl font-bold shadow-lg">D</div>
+                <div>
+                    <h1 class="text-3xl font-bold tracking-tighter">Daraz<span class="text-orange-500">Pro</span></h1>
+                    <p class="text-[10px] text-gray-400 -mt-1">SELLER CENTER</p>
+                </div>
+            </div>
+            
+            <nav class="flex-1 px-5 py-6 overflow-y-auto">
+                <ul class="space-y-1">
+                    <li><a onclick="switchSection('dashboard')" id="nav-dashboard" class="sidebar-link active-link flex items-center gap-4 px-5 py-4 rounded-2xl text-[15px] font-medium"><i class="fa-solid fa-house w-5"></i> Dashboard</a></li>
+                    <li><a onclick="switchSection('stock')" id="nav-stock" class="sidebar-link flex items-center gap-4 px-5 py-4 rounded-2xl text-[15px] font-medium"><i class="fa-solid fa-boxes-stacked w-5"></i> Inventory</a></li>
+                    <li><a onclick="switchSection('orders')" id="nav-orders" class="sidebar-link flex items-center gap-4 px-5 py-4 rounded-2xl text-[15px] font-medium"><i class="fa-solid fa-shopping-bag w-5"></i> Orders</a></li>
+                    <li><a onclick="switchSection('users')" id="nav-users" class="sidebar-link flex items-center gap-4 px-5 py-4 rounded-2xl text-[15px] font-medium"><i class="fa-solid fa-users w-5"></i> Customers</a></li>
+                    <li><a onclick="switchSection('sales')" id="nav-sales" class="sidebar-link flex items-center gap-4 px-5 py-4 rounded-2xl text-[15px] font-medium"><i class="fa-solid fa-chart-line w-5"></i> Sales Analytics</a></li>
+                    <li><a onclick="switchSection('payments')" id="nav-payments" class="sidebar-link flex items-center gap-4 px-5 py-4 rounded-2xl text-[15px] font-medium"><i class="fa-solid fa-credit-card w-5"></i> Payments</a></li>
+                </ul>
+                
+                <div class="px-5 mt-10 mb-3 text-xs font-semibold text-gray-500 tracking-widest">MORE</div>
+                <ul class="space-y-1">
+                    <li><a onclick="switchSection('promotions')" id="nav-promotions" class="sidebar-link flex items-center gap-4 px-5 py-4 rounded-2xl text-[15px] font-medium"><i class="fa-solid fa-gift w-5"></i> Promotions</a></li>
+                    <li><a onclick="switchSection('reports')" id="nav-reports" class="sidebar-link flex items-center gap-4 px-5 py-4 rounded-2xl text-[15px] font-medium"><i class="fa-solid fa-file-chart-pie w-5"></i> Reports</a></li>
+                    <li><a onclick="switchSection('settings')" id="nav-settings" class="sidebar-link flex items-center gap-4 px-5 py-4 rounded-2xl text-[15px] font-medium"><i class="fa-solid fa-gear w-5"></i> Settings</a></li>
+                </ul>
+            </nav>
+            
+            <div class="p-5 border-t border-gray-800">
+                <div class="flex items-center gap-3 bg-gray-800/70 rounded-3xl p-3">
+                    <div class="w-10 h-10 bg-orange-400 rounded-2xl flex items-center justify-center text-2xl">🧔</div>
+                    <div class="flex-1 min-w-0">
+                        <p class="font-semibold text-sm truncate">Ahmed Raza</p>
+                        <p class="text-xs text-emerald-400">Online • Lahore</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="flex-1 flex flex-col">
+            
+            <!-- Topbar -->
+            <div class="h-16 bg-gray-900 border-b border-gray-800 px-8 flex items-center justify-between">
+                <div class="flex items-center gap-6">
+                    <div class="relative w-96">
+                        <input id="globalSearch" type="text" placeholder="Search anything..." 
+                               class="w-full bg-gray-800 border border-gray-700 focus:border-orange-500 rounded-3xl py-3 pl-12 text-sm outline-none">
+                        <i class="fa-solid fa-magnifying-glass absolute left-5 top-3.5 text-gray-400"></i>
+                    </div>
+                </div>
+                
+                <div class="flex items-center gap-7">
+                    <div onclick="showNotifications()" class="relative cursor-pointer">
+                        <i class="fa-solid fa-bell text-2xl"></i>
+                        <span class="absolute -top-1 -right-1 bg-red-500 text-[10px] h-5 w-5 flex items-center justify-center rounded-full">12</span>
+                    </div>
+                    
+                    <button onclick="quickAdd()" 
+                            class="bg-orange-500 hover:bg-orange-600 text-white px-7 py-2.5 rounded-3xl font-semibold flex items-center gap-2">
+                        <i class="fa-solid fa-plus"></i> New
+                    </button>
+                    
+                    <div class="flex items-center gap-3 cursor-pointer">
+                        <div class="text-right text-sm">
+                            <p class="font-medium">Ahmed Khan</p>
+                            <p class="text-xs text-gray-400">Seller ID: DZ-78421</p>
+                        </div>
+                        <div class="w-9 h-9 bg-gradient-to-br from-orange-400 to-amber-500 rounded-2xl flex items-center justify-center text-xl">👨‍💼</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Content -->
+            <div class="flex-1 overflow-auto p-8 bg-gray-950">
+                
+                <!-- DASHBOARD -->
+                <div id="dashboard" class="section active">
+                    <div class="flex justify-between mb-8">
+                        <div>
+                            <h1 class="text-4xl font-semibold">Assalam-o-Alaikum, Ahmed 👋</h1>
+                            <p class="text-gray-400">Your store performance at a glance</p>
+                        </div>
+                        <div class="text-sm text-gray-400">26 March 2026</div>
+                    </div>
+                    
+                    <div class="grid grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
+                        <div class="stat-card rounded-3xl p-7 card-hover">
+                            <p class="text-gray-400">Today's Revenue</p>
+                            <p class="text-4xl font-semibold mt-2 stat-number text-orange-400">₹ 2,84,720</p>
+                            <p class="text-emerald-400 text-sm mt-4">↑ 32% from yesterday</p>
+                        </div>
+                        <div class="stat-card rounded-3xl p-7 card-hover">
+                            <p class="text-gray-400">Orders Today</p>
+                            <p class="text-4xl font-semibold mt-2 stat-number">124</p>
+                            <p class="text-teal-400 text-sm mt-4">41 ready to ship</p>
+                        </div>
+                        <div class="stat-card rounded-3xl p-7 card-hover">
+                            <p class="text-gray-400">Low Stock Items</p>
+                            <p class="text-4xl font-semibold mt-2 stat-number text-amber-400">19</p>
+                            <p class="text-amber-400 text-sm mt-4">Need attention</p>
+                        </div>
+                        <div class="stat-card rounded-3xl p-7 card-hover">
+                            <p class="text-gray-400">Conversion Rate</p>
+                            <p class="text-4xl font-semibold mt-2 stat-number">4.8%</p>
+                            <p class="text-emerald-400 text-sm mt-4">↑ 0.9%</p>
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                        <div class="lg:col-span-8 bg-gray-900 border border-gray-800 rounded-3xl p-8 card-hover">
+                            <h2 class="font-semibold mb-6">Revenue Trend</h2>
+                            <canvas id="revenueChart" height="100"></canvas>
+                        </div>
+                        <div class="lg:col-span-4 bg-gray-900 border border-gray-800 rounded-3xl p-8 card-hover">
+                            <h2 class="font-semibold mb-6">Order Status</h2>
+                            <canvas id="statusChart" height="220"></canvas>
+                        </div>
+                        
+                        <div class="lg:col-span-12 bg-gray-900 border border-gray-800 rounded-3xl p-8">
+                            <div class="flex justify-between mb-6">
+                                <h2 class="font-semibold text-xl">Recent Activity</h2>
+                                <button onclick="switchSection('orders')" class="text-orange-500 text-sm">View All →</button>
+                            </div>
+                            <table class="w-full">
+                                <thead><tr class="text-xs text-gray-400 border-b"><th class="p-4 text-left">Time</th><th class="p-4 text-left">Activity</th><th class="p-4 text-left">Details</th></tr></thead>
+                                <tbody id="activityBody" class="text-sm"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- STOCK -->
+                <div id="stock" class="section">
+                    <h1 class="text-3xl font-semibold mb-8">Inventory Management</h1>
+                    <div class="flex gap-4 mb-6">
+                        <input id="stockSearch" onkeyup="filterStock()" placeholder="Search products..." class="flex-1 bg-gray-900 border border-gray-700 rounded-3xl px-6 py-4">
+                        <button onclick="addNewProduct()" class="bg-orange-500 px-8 py-4 rounded-3xl font-medium">+ Add Product</button>
+                    </div>
+                    <div class="bg-gray-900 rounded-3xl overflow-hidden border border-gray-800">
+                        <table class="w-full">
+                            <thead class="bg-gray-800">
+                                <tr class="text-xs text-gray-400">
+                                    <th class="p-6 text-left">Product</th>
+                                    <th class="p-6 text-left">SKU</th>
+                                    <th class="p-6 text-left">Stock</th>
+                                    <th class="p-6 text-left">Price</th>
+                                    <th class="p-6 text-center">Status</th>
+                                    <th class="p-6">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="stockTableBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+                
+                <!-- ORDERS -->
+                <div id="orders" class="section">
+                    <h1 class="text-3xl font-semibold mb-8">Orders</h1>
+                    <div class="bg-gray-900 rounded-3xl overflow-hidden border border-gray-800">
+                        <table class="w-full">
+                            <thead class="bg-gray-800">
+                                <tr class="text-xs text-gray-400">
+                                    <th class="p-6 text-left">Order ID</th>
+                                    <th class="p-6 text-left">Customer</th>
+                                    <th class="p-6 text-left">Date</th>
+                                    <th class="p-6 text-left">Amount</th>
+                                    <th class="p-6 text-center">Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="ordersTableBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+                
+                <!-- CUSTOMERS -->
+                <div id="users" class="section">
+                    <h1 class="text-3xl font-semibold mb-8">Customers</h1>
+                    <div class="bg-gray-900 rounded-3xl overflow-hidden border border-gray-800">
+                        <table class="w-full">
+                            <thead class="bg-gray-800">
+                                <tr class="text-xs text-gray-400">
+                                    <th class="p-6 text-left">Name</th>
+                                    <th class="p-6 text-left">Email</th>
+                                    <th class="p-6 text-left">Orders</th>
+                                    <th class="p-6 text-center">Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="usersTableBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+                
+                <!-- SALES -->
+                <div id="sales" class="section">
+                    <h1 class="text-3xl font-semibold mb-8">Sales Analytics</h1>
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <div class="bg-gray-900 border border-gray-800 rounded-3xl p-8">
+                            <canvas id="monthlyChart" height="120"></canvas>
+                        </div>
+                        <div class="bg-gray-900 border border-gray-800 rounded-3xl p-8">
+                            <h2 class="font-semibold mb-6">Top Products</h2>
+                            <div id="topProducts" class="space-y-6"></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- PAYMENTS -->
+                <div id="payments" class="section">
+                    <h1 class="text-3xl font-semibold mb-8">Payments</h1>
+                    <div class="bg-gray-900 rounded-3xl overflow-hidden border border-gray-800">
+                        <table class="w-full">
+                            <thead class="bg-gray-800">
+                                <tr class="text-xs text-gray-400">
+                                    <th class="p-6 text-left">Txn ID</th>
+                                    <th class="p-6 text-left">Date</th>
+                                    <th class="p-6 text-left">Amount</th>
+                                    <th class="p-6 text-left">Method</th>
+                                    <th class="p-6 text-center">Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="paymentsTableBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+                
+                <!-- PROMOTIONS -->
+                <div id="promotions" class="section">
+                    <h1 class="text-3xl font-semibold mb-8">Promotions & Campaigns</h1>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div class="bg-gray-900 border border-gray-800 rounded-3xl p-8">
+                            <h3 class="font-semibold text-lg mb-2">Flash Sale</h3>
+                            <p class="text-gray-400">Ongoing - Ends in 2 days</p>
+                            <button onclick="alert('Manage this promotion')" class="mt-6 text-orange-500">Manage →</button>
+                        </div>
+                        <div class="bg-gray-900 border border-gray-800 rounded-3xl p-8">
+                            <h3 class="font-semibold text-lg mb-2">Bundle Offer</h3>
+                            <p class="text-gray-400">Create new bundle deal</p>
+                            <button onclick="alert('Create bundle offer')" class="mt-6 bg-orange-500 text-white px-6 py-2 rounded-2xl">Create</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- REPORTS -->
+                <div id="reports" class="section">
+                    <h1 class="text-3xl font-semibold mb-8">Reports</h1>
+                    <div class="grid grid-cols-2 gap-6">
+                        <div onclick="alert('Generating Sales Report...')" class="bg-gray-900 border border-gray-800 rounded-3xl p-10 text-center cursor-pointer card-hover">
+                            <i class="fa-solid fa-file-invoice text-5xl text-orange-400 mb-4"></i>
+                            <p class="font-semibold">Monthly Sales Report</p>
+                        </div>
+                        <div onclick="alert('Generating Inventory Report...')" class="bg-gray-900 border border-gray-800 rounded-3xl p-10 text-center cursor-pointer card-hover">
+                            <i class="fa-solid fa-boxes-stacked text-5xl text-teal-400 mb-4"></i>
+                            <p class="font-semibold">Stock Summary Report</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- SETTINGS - Rich Page -->
+                <div id="settings" class="section">
+                    <h1 class="text-3xl font-semibold mb-8">Store Settings</h1>
+                    
+                    <div class="max-w-4xl mx-auto">
+                        <div class="bg-gray-900 border border-gray-800 rounded-3xl p-8 mb-8">
+                            <h2 class="font-semibold text-xl mb-6 flex items-center gap-3"><i class="fa-solid fa-store"></i> Store Information</h2>
+                            <div class="grid grid-cols-2 gap-6">
+                                <div>
+                                    <label class="text-sm text-gray-400 block mb-2">Store Name</label>
+                                    <input type="text" value="Ahmed Electronics Store" class="w-full bg-gray-800 border border-gray-700 rounded-2xl p-4">
+                                </div>
+                                <div>
+                                    <label class="text-sm text-gray-400 block mb-2">Contact Email</label>
+                                    <input type="email" value="ahmed@darazpro.pk" class="w-full bg-gray-800 border border-gray-700 rounded-2xl p-4">
+                                </div>
+                            </div>
+                            <button onclick="saveSettings()" class="mt-8 bg-orange-500 text-white px-10 py-3 rounded-3xl">Save Changes</button>
+                        </div>
+                        
+                        <!-- AI Insights -->
+                        <div class="bg-gray-900 border border-gray-800 rounded-3xl p-8 mb-8">
+                            <h2 class="font-semibold text-xl mb-6 flex items-center gap-3"><i class="fa-solid fa-brain"></i> AI Insights & Recommendations</h2>
+                            <div class="p-6 bg-gray-800 rounded-2xl mb-4">
+                                <p class="text-emerald-400 font-medium">Recommendation:</p>
+                                <p class="mt-2">Increase stock of Wireless Earbuds - demand rising 42% this week.</p>
+                            </div>
+                            <div class="p-6 bg-gray-800 rounded-2xl">
+                                <p class="text-amber-400 font-medium">Alert:</p>
+                                <p class="mt-2">Your conversion rate dropped 1.2% last 7 days. Consider running a promotion.</p>
+                            </div>
+                        </div>
+                        
+                        <!-- Security & Preferences -->
+                        <div class="bg-gray-900 border border-gray-800 rounded-3xl p-8">
+                            <h2 class="font-semibold text-xl mb-6">Preferences</h2>
+                            <div class="space-y-6">
+                                <div class="flex justify-between items-center">
+                                    <div>Dark Mode</div>
+                                    <label class="relative inline-flex items-center cursor-pointer">
+                                        <input type="checkbox" checked class="sr-only peer">
+                                        <div class="w-11 h-6 bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:bg-orange-500"></div>
+                                    </label>
+                                </div>
+                                <div class="flex justify-between items-center">
+                                    <div>Email Notifications</div>
+                                    <label class="relative inline-flex items-center cursor-pointer">
+                                        <input type="checkbox" checked class="sr-only peer">
+                                        <div class="w-11 h-6 bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:bg-orange-500"></div>
+                                    </label>
+                                </div>
+                                <div class="flex justify-between items-center">
+                                    <div>Two-Factor Authentication</div>
+                                    <button onclick="alert('2FA Enabled!')" class="text-orange-500">Enable</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Quick Add Modal -->
+    <div id="quickModal" class="hidden fixed inset-0 bg-black/70 flex items-center justify-center z-50">
+        <div class="bg-gray-900 w-full max-w-md rounded-3xl p-8">
+            <h3 class="text-2xl font-semibold mb-6 text-center">Quick Add</h3>
+            <div class="grid grid-cols-2 gap-4">
+                <button onclick="quickAction('product')" class="p-10 bg-gray-800 hover:bg-orange-500 hover:text-black rounded-3xl text-center transition-all">
+                    <i class="fa-solid fa-box text-5xl mb-4"></i>
+                    <p>New Product</p>
+                </button>
+                <button onclick="quickAction('order')" class="p-10 bg-gray-800 hover:bg-teal-400 hover:text-black rounded-3xl text-center transition-all">
+                    <i class="fa-solid fa-bag-shopping text-5xl mb-4"></i>
+                    <p>New Order</p>
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Data
+        let stockData = [
+            {id: 1, name: "Wireless Earbuds Pro", sku: "EB-2026", qty: 245, price: 1899, status: "In Stock"},
+            {id: 2, name: "Smart LED Bulbs", sku: "LB-450", qty: 12, price: 899, status: "Low Stock"},
+            {id: 3, name: "4K Webcam", sku: "WC-4K", qty: 0, price: 5499, status: "Out of Stock"}
+        ];
+        
+        let ordersData = [
+            {id: "DZ-784291", customer: "Sara Malik", date: "26 Mar", amount: 12490, status: "Processing"},
+            {id: "DZ-784290", customer: "Usman Khan", date: "26 Mar", amount: 3499, status: "Shipped"}
+        ];
+        
+        // Render functions (simplified from previous)
+        function renderStockTable() {
+            const tbody = document.getElementById('stockTableBody');
+            tbody.innerHTML = '';
+            stockData.forEach(item => {
+                let statusClass = item.status === "In Stock" ? "bg-emerald-500" : item.status === "Low Stock" ? "bg-amber-500" : "bg-red-500";
+                tbody.innerHTML += `
+                    <tr class="table-row border-b border-gray-800">
+                        <td class="p-6">${item.name}</td>
+                        <td class="p-6 text-gray-400">${item.sku}</td>
+                        <td class="p-6 font-semibold">${item.qty}</td>
+                        <td class="p-6">₹ ${item.price}</td>
+                        <td class="p-6"><span class="${statusClass} text-white text-xs px-5 py-1 rounded-3xl">${item.status}</span></td>
+                        <td class="p-6">
+                            <button onclick="editStock(${item.id})" class="text-orange-400 mr-4"><i class="fa-solid fa-pen"></i></button>
+                            <button onclick="deleteStock(${item.id})" class="text-red-400"><i class="fa-solid fa-trash"></i></button>
+                        </td>
+                    </tr>`;
+            });
+        }
+        
+        function renderOrdersTable() {
+            const tbody = document.getElementById('ordersTableBody');
+            tbody.innerHTML = '';
+            ordersData.forEach(o => {
+                tbody.innerHTML += `
+                    <tr class="table-row border-b border-gray-800">
+                        <td class="p-6">${o.id}</td>
+                        <td class="p-6">${o.customer}</td>
+                        <td class="p-6 text-gray-400">${o.date}</td>
+                        <td class="p-6 font-medium">₹ ${o.amount}</td>
+                        <td class="p-6 text-center"><span class="bg-blue-500 text-white px-6 py-1 rounded-3xl text-xs">${o.status}</span></td>
+                    </tr>`;
+            });
+        }
+        
+        function renderUsersTable() {
+            const tbody = document.getElementById('usersTableBody');
+            tbody.innerHTML = `
+                <tr class="table-row border-b border-gray-800">
+                    <td class="p-6">Bilal Ahmed</td>
+                    <td class="p-6 text-gray-400">bilal@example.com</td>
+                    <td class="p-6">18</td>
+                    <td class="p-6 text-center"><span class="bg-emerald-500 text-white px-6 py-1 rounded-3xl text-xs">Active</span></td>
+                </tr>`;
+        }
+        
+        function renderPaymentsTable() {
+            const tbody = document.getElementById('paymentsTableBody');
+            tbody.innerHTML = `
+                <tr class="table-row border-b border-gray-800">
+                    <td class="p-6">TX-99821</td>
+                    <td class="p-6">26 Mar</td>
+                    <td class="p-6 font-medium">₹ 12490</td>
+                    <td class="p-6">JazzCash</td>
+                    <td class="p-6 text-center"><span class="bg-emerald-500 text-white px-6 py-1 rounded-3xl text-xs">Success</span></td>
+                </tr>`;
+        }
+        
+        function renderTopProducts() {
+            document.getElementById('topProducts').innerHTML = `
+                <div class="flex justify-between"><span>Wireless Earbuds Pro</span><span class="text-emerald-400">₹4,82,300</span></div>
+                <div class="h-2 bg-gray-700 rounded-full mt-2"><div class="h-2 bg-orange-500 w-11/12 rounded-full"></div></div>
+            `;
+        }
+        
+        function renderActivity() {
+            document.getElementById('activityBody').innerHTML = `
+                <tr><td class="p-4 text-gray-400">2 min ago</td><td>New Order Received</td><td>DZ-784291 - Sara Malik</td></tr>
+                <tr><td class="p-4 text-gray-400">15 min ago</td><td>Payment Received</td><td>₹12,490 via JazzCash</td></tr>
+            `;
+        }
+        
+        // Charts
+        let revenueChartInstance = null;
+        function createCharts() {
+            // Revenue Chart
+            const revCtx = document.getElementById('revenueChart');
+            if (revenueChartInstance) revenueChartInstance.destroy();
+            revenueChartInstance = new Chart(revCtx, {
+                type: 'line',
+                data: {
+                    labels: ['1 Mar','8 Mar','15 Mar','22 Mar'],
+                    datasets: [{ label: 'Revenue', data: [89000, 142000, 198000, 284720], borderColor: '#ff6600', tension: 0.4, borderWidth: 4 }]
+                },
+                options: { plugins: { legend: { display: false } }, scales: { y: { grid: { color: '#374151' } } } }
+            });
+            
+            // Status Chart
+            new Chart(document.getElementById('statusChart'), {
+                type: 'doughnut',
+                data: {
+                    labels: ['Processing','Shipped','Delivered'],
+                    datasets: [{ data: [35, 48, 92], backgroundColor: ['#f59e0b','#3b82f6','#10b981'] }]
+                },
+                options: { cutout: '75%' }
+            });
+            
+            // Monthly Chart
+            new Chart(document.getElementById('monthlyChart'), {
+                type: 'bar',
+                data: {
+                    labels: ['Jan','Feb','Mar'],
+                    datasets: [{ data: [1240000, 1890000, 2840000], backgroundColor: '#ff6600', borderRadius: 12 }]
+                }
+            });
+        }
+        
+        function switchSection(section) {
+            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+            document.getElementById(section).classList.add('active');
+            
+            document.querySelectorAll('.sidebar-link').forEach(l => l.classList.remove('active-link'));
+            const active = document.getElementById('nav-' + section);
+            if (active) active.classList.add('active-link');
+        }
+        
+        function addNewProduct() {
+            const name = prompt("Product Name?");
+            if (name) {
+                stockData.unshift({id: Date.now(), name, sku: "NEW-"+Math.floor(Math.random()*9999), qty: 50, price: 1999, status: "In Stock"});
+                renderStockTable();
+            }
+        }
+        
+        function editStock(id) {
+            alert(`Editing product #${id}`);
+        }
+        
+        function deleteStock(id) {
+            if (confirm("Delete?")) {
+                stockData = stockData.filter(i => i.id !== id);
+                renderStockTable();
+            }
+        }
+        
+        function quickAdd() {
+            document.getElementById('quickModal').classList.toggle('hidden');
+            document.getElementById('quickModal').classList.toggle('flex');
+        }
+        
+        function quickAction(type) {
+            quickAdd();
+            if (type === 'product') {
+                switchSection('stock');
+                setTimeout(addNewProduct, 400);
+            } else {
+                switchSection('orders');
+            }
+        }
+        
+        function showNotifications() {
+            alert("🛎 12 new notifications\n• 5 new orders\n• 3 low stock alerts\n• AI suggestion ready");
+        }
+        
+        function saveSettings() {
+            alert("✅ Settings saved successfully!");
+        }
+        
+        // Init
+        function initialize() {
+            renderStockTable();
+            renderOrdersTable();
+            renderUsersTable();
+            renderPaymentsTable();
+            renderTopProducts();
+            renderActivity();
+            createCharts();
+            
+            console.log("%c✅ DarazPro Dashboard with Settings & AI Features Loaded!", "color:#ff6600;font-weight:600");
+        }
+        
+        window.onload = initialize;
+    </script>
+</body>
+</html>
