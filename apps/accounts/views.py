@@ -62,7 +62,7 @@ def register(request):
 
         messages.success(request, "Account created successfully!")
         if role == UserRoleChoices.SELLER:
-            return redirect("admin_panel:seller_shop_setup")
+            return redirect("products:product_list")
         return redirect("login")
 
     return render(request, "users/register.html", {"initial_role": initial_role})
@@ -98,7 +98,7 @@ def user_login(request):
 
         #  SELLER → dashboard
         if user.role == UserRoleChoices.SELLER:
-            return redirect("admin_panel:seller_dashboard")
+            return redirect("products:product_list")
 
         #  CUSTOMER → next ya home
         if next_url and next_url != "None":
@@ -233,8 +233,8 @@ def seller_login(request):
         messages.success(request, "Seller login successfully!")
 
         if Shop.objects.filter(owner=user).exists():
-            return redirect("admin_panel:seller_dashboard")
-        return redirect("admin_panel:seller_shop_setup")
+            return redirect("products:product_list")
+        return redirect("products:product_list")
 
     return render(request, "users/seller/login.html")
 

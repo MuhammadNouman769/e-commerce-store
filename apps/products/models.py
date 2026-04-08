@@ -187,6 +187,8 @@ class Category(OrderedModel, SluggedModel):
 '''
 
 class Product(SluggedModel):
+    ProductStatus = ProductStatus
+    SLUG_FIELD = "title"
     shop = models.ForeignKey(
         Shop,
         on_delete=models.CASCADE,
@@ -271,7 +273,18 @@ class Product(SluggedModel):
     def __str__(self):
         return self.title
 
+    def generate_handle(self):
+        base = slugify(self.title) or "product"
+        handle = base
+        counter = 1
+        while Product.all_objects.filter(handle=handle).exclude(pk=self.pk).exists():
+            handle = f"{base}-{counter}"
+            counter += 1
+        return handle
+
     def save(self, *args, **kwargs):
+        if not self.handle:
+            self.handle = self.generate_handle()
         if not self.slug:
             self.slug = self.generate_slug()
         super().save(*args, **kwargs)            
@@ -317,6 +330,11 @@ class ProductImage(OrderedModel):
 
     def __str__(self):
         return f"{self.product.title} - Image {self.position + 1}"
+
+    @property
+    def images(self):
+        # Backward-compatible alias used in legacy templates.
+        return self.image
 
     def delete(self, *args, **kwargs):
         if self.image and os.path.isfile(self.image.path):
@@ -393,6 +411,9 @@ class ProductVariant(BaseModel):
         null=True, 
         blank=True
         )
+    stock_quantity = models.PositiveIntegerField(default=0)
+    track_inventory = models.BooleanField(default=False)
+    allow_backorder = models.BooleanField(default=False)
 
 
 
@@ -424,6 +445,14 @@ class ProductVariant(BaseModel):
             if opt:
                 values.append(opt.value)
         return " / ".join(values) if values else None
+
+    @property
+    def is_in_stock(self):
+        if not self.track_inventory:
+            return True
+        if self.allow_backorder:
+            return True
+        return self.stock_quantity > 0
 
 
 

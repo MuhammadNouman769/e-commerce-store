@@ -259,10 +259,6 @@ class CartItem(BaseModel):
             raise ValidationError(
                 {"quantity": _(f"Only {self.variant.stock_quantity} items available")}
             )
-        elif self.product.track_inventory and not self.variant and self.quantity > self.product.stock_quantity:
-            raise ValidationError(
-                {"quantity": _(f"Only {self.product.stock_quantity} items available")}
-            )
 
     def save(self, *args, **kwargs):
         if not self.product_name:
@@ -272,10 +268,10 @@ class CartItem(BaseModel):
         if not self.sku:
             if self.variant and self.variant.sku:
                 self.sku = self.variant.sku
-            elif self.product.sku:
-                self.sku = self.product.sku
+            else:
+                self.sku = ""
         if not self.price:
-            self.price = self.variant.price if self.variant else self.product.price or 0
+            self.price = self.variant.price if self.variant else 0
         self.clean()
         super().save(*args, **kwargs)
 
@@ -287,8 +283,6 @@ class CartItem(BaseModel):
     def available_stock(self):
         if self.variant and self.variant.track_inventory:
             return self.variant.stock_quantity
-        elif self.product.track_inventory and not self.variant:
-            return self.product.stock_quantity
         return 999
 
 

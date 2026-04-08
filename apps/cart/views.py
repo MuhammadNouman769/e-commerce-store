@@ -11,6 +11,7 @@ from django.db import models as django_models
 
 # Models
 from apps.products.models import Product, ProductVariant
+from apps.products.choices import ProductStatus
 from .models import Cart, CartItem
 
 # Geo Models
@@ -45,7 +46,7 @@ def cart(request):
     # Handle add to cart from URL
     if add_id:
         try:
-            product = get_object_or_404(Product, id=add_id, status=Product.ProductStatus.ACTIVE)
+            product = get_object_or_404(Product, id=add_id, status=ProductStatus.ACTIVE)
             variant = product.variants.first()
             
             cart_item, created = CartItem.objects.get_or_create(
@@ -113,7 +114,7 @@ def cart(request):
     # Remove invalid items
     valid_items = []
     for item in cart_items:
-        if item.product and item.product.status == Product.ProductStatus.ACTIVE:
+        if item.product and item.product.status == ProductStatus.ACTIVE:
             valid_items.append(item)
         else:
             item.delete()
@@ -173,12 +174,21 @@ def cities_for_region(request):
 
 
 """ ============== Add to Cart AJAX =============== """
-@login_required
 @csrf_exempt
 @require_POST
 def add_to_cart_ajax(request):
     """AJAX endpoint to add product to cart"""
     try:
+        if not request.user.is_authenticated:
+            return JsonResponse(
+                {
+                    "success": False,
+                    "error": "Please login first",
+                    "login_url": f"{reverse('login')}?next={request.META.get('HTTP_REFERER', '/products/')}",
+                },
+                status=401,
+            )
+
         # Parse JSON body
         try:
             data = json.loads(request.body)
@@ -199,7 +209,7 @@ def add_to_cart_ajax(request):
         product = get_object_or_404(
             Product, 
             id=product_id, 
-            status=Product.ProductStatus.ACTIVE
+            status=ProductStatus.ACTIVE
         )
         
         # Get or create active cart

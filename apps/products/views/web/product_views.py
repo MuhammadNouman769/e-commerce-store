@@ -3,8 +3,10 @@ from django.shortcuts import get_object_or_404
 from django.db.models import Q, Min, Max, Count, F
 from django.core.cache import cache
 from django.utils.translation import gettext_lazy as _
+from urllib.parse import urlencode
 
-from apps.products.models import Product, Category, ProductStatus
+from apps.products.models import Product, Category
+from apps.products.choices import ProductStatus
 
 
 class ProductListView(ListView):
@@ -68,7 +70,7 @@ class ProductListView(ListView):
             queryset = queryset.annotate(min_price=Min("variants__price")).order_by("min_price", "-id")
         elif sort == "price_desc":
             queryset = queryset.annotate(min_price=Min("variants__price")).order_by("-min_price", "-id")
-        elif sort == "brand_asc":
+        elif sort == "vendor_asc":
             queryset = queryset.order_by("brand", "-id")
         elif sort == "newest":
             queryset = queryset.order_by("-created_at")
@@ -89,14 +91,20 @@ class ProductListView(ListView):
 
         # Categories caching
         cache_key = f"categories_list_{self.request.GET.get('shop', 'all')}"
-        categories = cache.get(cache_key)
+        try:
+            categories = cache.get(cache_key)
+        except Exception:
+            categories = None
         if categories is None:
             categories = Category.objects.filter(parent=None).prefetch_related(
                 "children",
                 "children__children",
                 "products"
             )
-            cache.set(cache_key, categories, 3600)
+            try:
+                cache.set(cache_key, categories, 3600)
+            except Exception:
+                pass
         context["categories"] = categories
 
         # Vendors/Brands
@@ -155,6 +163,48 @@ class ProductListView(ListView):
         # Preserved filters
         preserved_filters = [(k, v) for k, v in self.request.GET.items() if k not in ("page", "per_page")]
         context["preserved_filters"] = preserved_filters
+        params = self.request.GET.copy()
+        for key in ("page",):
+            params.pop(key, None)
+        context["querystring_without_page"] = params.urlencode()
+
+        params_no_per_page = self.request.GET.copy()
+        params_no_per_page.pop("page", None)
+        params_no_per_page.pop("per_page", None)
+        context["querystring_without_page_and_per_page"] = params_no_per_page.urlencode()
+
+        params_no_view = self.request.GET.copy()
+        params_no_view.pop("page", None)
+        params_no_view.pop("layout", None)
+        params_no_view.pop("cols", None)
+        context["querystring_without_page_and_view"] = params_no_view.urlencode()
+
+        params_no_price = self.request.GET.copy()
+        params_no_price.pop("page", None)
+        params_no_price.pop("min_price", None)
+        params_no_price.pop("max_price", None)
+        context["querystring_without_page_and_price"] = params_no_price.urlencode()
+
+        params_no_filters = self.request.GET.copy()
+        for key in ("q", "category", "vendor", "min_price", "max_price"):
+            params_no_filters.pop(key, None)
+        context["querystring_without_filters"] = params_no_filters.urlencode()
+
+        active_count = 0
+        if self.request.GET.get("q"):
+            active_count += 1
+        if self.request.GET.get("category"):
+            active_count += 1
+        if self.request.GET.getlist("vendor"):
+            active_count += 1
+        if self.request.GET.get("min_price") or self.request.GET.get("max_price"):
+            active_count += 1
+        context["active_filters_count"] = active_count
+
+        context["deals_of_week"] = Product.objects.filter(
+            status=ProductStatus.ACTIVE,
+            is_on_sale=True,
+        ).prefetch_related("images", "variants").order_by("-updated_at")[:6]
 
         return context
 
@@ -168,7 +218,7 @@ class ProductDetailView(DetailView):
     def get_queryset(self):
         """Only active products"""
         return Product.objects.filter(
-            status=Product.ProductStatus.ACTIVE  # ← IMPORTANT FIX
+            status=ProductStatus.ACTIVE
         ).select_related("shop").prefetch_related(
             "categories",
             "images",
@@ -216,14 +266,14 @@ class ProductDetailView(DetailView):
         if category_ids:
             related = Product.objects.filter(
                 categories__id__in=category_ids,
-                status=Product.ProductStatus.ACTIVE
+                status=ProductStatus.ACTIVE
             ).exclude(pk=product.pk).select_related("shop").prefetch_related(
                 "images", "variants"
             ).distinct()[:6]
         else:
             related = Product.objects.filter(
                 shop=product.shop,
-                status=Product.ProductStatus.ACTIVE
+                status=ProductStatus.ACTIVE
             ).exclude(pk=product.pk).select_related("shop").prefetch_related(
                 "images", "variants"
             )[:6]
@@ -274,10 +324,10 @@ class CategoryListView(ListView):
         shop_id = self.request.GET.get("shop")
         queryset = Category.objects.filter(
             is_visible=True
-        ).select_related("shop").prefetch_related(
+        ).prefetch_related(
             "children", "products"
         ).annotate(
-            product_count=Count("products", filter=Q(products__status=Product.ProductStatus.ACTIVE))
+            product_count=Count("products", filter=Q(products__status=ProductStatus.ACTIVE))
         )
         
         if shop_id:

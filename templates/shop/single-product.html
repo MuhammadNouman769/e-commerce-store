@@ -63,10 +63,10 @@
                 <h1 class="pd-title">{{ product.title }}</h1>
                 
                 <!-- Vendor/Brand -->
-                {% if product.vendor %}
+                {% if product.brand %}
                 <div class="pd-vendor">
                     <span class="pd-vendor-label">Brand:</span>
-                    <span class="pd-vendor-name">{{ product.vendor }}</span>
+                    <span class="pd-vendor-name">{{ product.brand }}</span>
                 </div>
                 {% endif %}
 
@@ -120,10 +120,11 @@
                     <div class="pd-option-title">{{ opt.name }}</div>
                     
                     {% if opt.name|lower == "color" or opt.name|lower == "colour" or opt.name|lower == "colours" %}
-                    <div class="pd-colors" data-option-id="{{ opt.id }}">
+                    <div class="pd-colors" data-option-id="{{ opt.id }}" data-slot="{{ forloop.counter }}">
                         {% for val in opt.values.all %}
                         <div class="pd-color-box {% if forloop.first %}active{% endif %}"
                              data-option-id="{{ opt.id }}"
+                             data-slot="{{ forloop.parentloop.counter }}"
                              data-value-id="{{ val.id }}"
                              data-value-name="{{ val.value }}"
                              data-option-name="{{ opt.name }}"
@@ -142,11 +143,12 @@
                         {% endfor %}
                     </div>
                     {% else %}
-                    <div class="pd-options-group" data-option-id="{{ opt.id }}">
+                    <div class="pd-options-group" data-option-id="{{ opt.id }}" data-slot="{{ forloop.counter }}">
                         {% for val in opt.values.all %}
                         <button type="button"
                                 class="pd-option-btn {% if forloop.first %}active{% endif %}"
                                 data-option-id="{{ opt.id }}"
+                                data-slot="{{ forloop.parentloop.counter }}"
                                 data-value-id="{{ val.id }}"
                                 data-value-name="{{ val.value }}">
                             {{ val.value }}
@@ -351,7 +353,7 @@
     // Add to Cart function
     function addToCart(productId) {
         if (!currentVariant) {
-            showNotification("Please select product options first", "error");
+            showToast("Please select product options first", "error");
             return;
         }
         
@@ -370,31 +372,77 @@
                 "quantity": quantity
             })
         })
-        .then(response => response.json())
+        .then(response => {
+            if (response.status === 401) {
+                return response.json().then(data => {
+                    showToast("Please login first", "error");
+                    setTimeout(() => {
+                        window.location.href = data.login_url || "{% url 'login' %}";
+                    }, 800);
+                    return null;
+                });
+            }
+            return response.json();
+        })
         .then(data => {
+            if (!data) return;
             if (data.success) {
-                showNotification(data.message || "Added to cart successfully!", "success");
+                showToast(data.message || "Added to cart successfully!", "success");
                 updateCartCount(data.cart_count);
             } else {
-                showNotification(data.error || "Something went wrong", "error");
+                showToast(data.error || "Something went wrong", "error");
             }
         })
         .catch(err => {
             console.error("Fetch Error:", err);
-            showNotification("Network error. Please try again.", "error");
+            showToast("Network error. Please try again.", "error");
         });
     }
 
     // Buy Now function
     function buyNow(productId) {
         if (!currentVariant) {
-            showNotification("Please select product options first", "error");
+            showToast("Please select product options first", "error");
             return;
         }
         
         const quantity = parseInt(document.getElementById('quantity').value);
-        const url = `{% url 'checkout' %}?buy_now=${productId}&variant=${currentVariant.id}&quantity=${quantity}`;
-        window.location.href = url;
+        const csrfToken = getCookie('csrftoken');
+        fetch("{% url 'add_to_cart_ajax' %}", {
+            method: "POST",
+            headers: {
+                "X-CSRFToken": csrfToken,
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                "product_id": productId,
+                "variant_id": currentVariant.id,
+                "quantity": quantity
+            })
+        })
+        .then(response => {
+            if (response.status === 401) {
+                return response.json().then(data => {
+                    showToast("Please login first", "error");
+                    setTimeout(() => {
+                        window.location.href = data.login_url || "{% url 'login' %}";
+                    }, 800);
+                    return null;
+                });
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (!data) return;
+            if (data.success) {
+                window.location.href = "{% url 'cart' %}";
+            } else {
+                showToast(data.error || "Unable to proceed", "error");
+            }
+        })
+        .catch(() => {
+            showToast("Network error. Please try again.", "error");
+        });
     }
 
     // Update cart count in navbar
@@ -404,32 +452,6 @@
             cartCountElement.textContent = count;
             cartCountElement.style.display = count > 0 ? 'inline-block' : 'none';
         }
-    }
-
-    // Show notification
-    function showNotification(message, type = 'success') {
-        let notification = document.createElement('div');
-        notification.className = `notification notification-${type}`;
-        notification.innerHTML = message;
-        notification.style.cssText = `
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            background: ${type === 'success' ? '#28a745' : '#dc3545'};
-            color: white;
-            padding: 12px 20px;
-            border-radius: 4px;
-            z-index: 9999;
-            animation: slideIn 0.3s ease;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        `;
-        
-        document.body.appendChild(notification);
-        
-        setTimeout(() => {
-            notification.style.animation = 'slideOut 0.3s ease';
-            setTimeout(() => notification.remove(), 300);
-        }, 3000);
     }
 
     // Get CSRF token
@@ -480,10 +502,9 @@
                 container.querySelectorAll('.pd-color-box').forEach(b => b.classList.remove('active'));
                 this.classList.add('active');
 
-                const optId = parseInt(this.dataset.optionId);
+                const slot = parseInt(this.dataset.slot);
                 const valId = parseInt(this.dataset.valueId);
-
-                selectedOptions[optId] = valId;
+                selectedOptions[slot] = valId;
                 
                 const variant = findVariant();
                 updatePriceAndStock(variant);
@@ -497,10 +518,9 @@
                 container.querySelectorAll('.pd-option-btn').forEach(b => b.classList.remove('active'));
                 this.classList.add('active');
 
-                const optId = parseInt(this.dataset.optionId);
+                const slot = parseInt(this.dataset.slot);
                 const valId = parseInt(this.dataset.valueId);
-
-                selectedOptions[optId] = valId;
+                selectedOptions[slot] = valId;
                 
                 const variant = findVariant();
                 updatePriceAndStock(variant);
@@ -532,6 +552,15 @@
         initOptions();
         initQuantity();
         
+        // seed selections from default active options
+        document.querySelectorAll('.pd-color-box.active, .pd-option-btn.active').forEach(el => {
+            const slot = parseInt(el.dataset.slot);
+            const valId = parseInt(el.dataset.valueId);
+            if (!Number.isNaN(slot) && !Number.isNaN(valId)) {
+                selectedOptions[slot] = valId;
+            }
+        });
+        
         // Initial load - find first matching variant
         const initialVariant = findVariant();
         if (initialVariant) {
@@ -555,29 +584,6 @@
 </script>
 
 <style>
-    /* Animations */
-    @keyframes slideIn {
-        from {
-            transform: translateX(100%);
-            opacity: 0;
-        }
-        to {
-            transform: translateX(0);
-            opacity: 1;
-        }
-    }
-    
-    @keyframes slideOut {
-        from {
-            transform: translateX(0);
-            opacity: 1;
-        }
-        to {
-            transform: translateX(100%);
-            opacity: 0;
-        }
-    }
-    
     /* Sale Badge */
     .pd-sale-badge {
         position: absolute;

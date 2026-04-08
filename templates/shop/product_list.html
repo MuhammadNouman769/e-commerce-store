@@ -11,7 +11,7 @@
 					<h1>Products</h1>
 					<nav class="d-flex align-items-center">
 						<a href="{% url 'home' %}">Home<span class="lnr lnr-arrow-right"></span></a>
-						<a href="{% url 'product_list' %}">Products</a>
+						<a href="{% url 'products:product_list' %}">Products</a>
 					</nav>
 				</div>
 			</div>
@@ -344,11 +344,11 @@
 					{% else %}
 					<!-- Empty State -->
 					<div class="empty-products text-center py-5">
-						<img src="{% static 'img/empty-cart.svg' %}" alt="No products" style="max-width: 200px;">
+						<img src="{% static 'img/placeholder.jpg' %}" alt="No products" style="max-width: 200px;">
 						<h3 class="mt-4">No products found</h3>
 						<p class="text-muted">We couldn't find any products matching your criteria.</p>
 						<p>Try adjusting your filters or search criteria</p>
-						<a href="{% url 'product_list' %}" class="btn btn-primary mt-3">Clear All Filters</a>
+						<a href="{% url 'products:product_list' %}" class="btn btn-primary mt-3">Clear All Filters</a>
 					</div>
 					{% endif %}
 				</section>
@@ -719,7 +719,7 @@
 			let productId = this.getAttribute('data-product-id');
 			
 			// AJAX call to add to cart
-			fetch('/api/cart/add/', {
+			fetch(ADD_TO_CART_URL, {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json',
@@ -730,17 +730,33 @@
 					quantity: 1
 				})
 			})
-			.then(response => response.json())
+			.then(response => {
+				if (response.status === 401) {
+					return response.json().then(data => {
+						showToast('Please login first', 'error');
+						setTimeout(() => {
+							window.location.href = data.login_url || "{% url 'login' %}";
+						}, 800);
+						return null;
+					});
+				}
+				return response.json();
+			})
 			.then(data => {
+				if (!data) return;
 				if (data.success) {
-					showNotification('Product added to cart!', 'success');
+					showToast('Product added to cart!', 'success');
+					const cartCountEl = document.getElementById('cart-count');
+					if (cartCountEl && typeof data.cart_count !== 'undefined') {
+						cartCountEl.textContent = data.cart_count;
+					}
 				} else {
-					showNotification(data.error || 'Error adding to cart', 'error');
+					showToast(data.error || 'Error adding to cart', 'error');
 				}
 			})
 			.catch(error => {
 				console.error('Error:', error);
-				showNotification('Error adding to cart', 'error');
+				showToast('Error adding to cart', 'error');
 			});
 		});
 	});
@@ -761,56 +777,5 @@
 		return cookieValue;
 	}
 	
-	// Show notification
-	function showNotification(message, type = 'success') {
-		let notification = document.createElement('div');
-		notification.className = `notification notification-${type}`;
-		notification.innerHTML = message;
-		notification.style.cssText = `
-			position: fixed;
-			top: 20px;
-			right: 20px;
-			background: ${type === 'success' ? '#4caf50' : '#f44336'};
-			color: white;
-			padding: 12px 20px;
-			border-radius: 4px;
-			z-index: 9999;
-			animation: slideIn 0.3s ease;
-		`;
-		
-		document.body.appendChild(notification);
-		
-		setTimeout(() => {
-			notification.style.animation = 'slideOut 0.3s ease';
-			setTimeout(() => notification.remove(), 300);
-		}, 3000);
-	}
-	
-	// Add animations
-	let style = document.createElement('style');
-	style.textContent = `
-		@keyframes slideIn {
-			from {
-				transform: translateX(100%);
-				opacity: 0;
-			}
-			to {
-				transform: translateX(0);
-				opacity: 1;
-			}
-		}
-		
-		@keyframes slideOut {
-			from {
-				transform: translateX(0);
-				opacity: 1;
-			}
-			to {
-				transform: translateX(100%);
-				opacity: 0;
-			}
-		}
-	`;
-	document.head.appendChild(style);
 </script>
 {% endblock %}

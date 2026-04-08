@@ -29,10 +29,16 @@ class CategoryListView(ListView):
         # Caching categories for 1 hour
         shop_key = self.request.GET.get("shop", "all")
         cache_key = f"categories_list_{shop_key}"
-        categories = cache.get(cache_key)
+        try:
+            categories = cache.get(cache_key)
+        except Exception:
+            categories = None
         if categories is None:
             categories = self.get_queryset()
-            cache.set(cache_key, categories, 3600)  # cache 1 hour
+            try:
+                cache.set(cache_key, categories, 3600)  # cache 1 hour
+            except Exception:
+                pass
         context["categories"] = categories
 
         return context

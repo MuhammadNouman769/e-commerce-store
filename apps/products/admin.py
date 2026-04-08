@@ -3,7 +3,8 @@ from django.contrib import admin
 from django.utils.html import format_html
 from .models import (
     Shop, Category, Product, ProductImage,
-    ProductOption, ProductOptionValue, ProductVariant
+    ProductOption, ProductOptionValue, ProductVariant,
+    VariantImage, ProductReview, ProductReviewImage,
 )
 
 # ==============================
@@ -38,13 +39,16 @@ class ProductOptionInline(admin.TabularInline):
     extra = 1
     fields = ('name', 'position')
     ordering = ('position',)
-    inlines = [ProductOptionValueInline]
 
 
 class ProductVariantInline(admin.TabularInline):
     model = ProductVariant
     extra = 1
-    fields = ('sku', 'barcode', 'price', 'compare_at_price', 'option1', 'option2', 'option3', 'position')
+    fields = (
+        'sku', 'barcode', 'price', 'compare_at_price',
+        'stock_quantity', 'track_inventory', 'allow_backorder',
+        'option1', 'option2', 'option3', 'position'
+    )
     autocomplete_fields = ('option1', 'option2', 'option3')
     ordering = ('position',)
 
@@ -54,7 +58,8 @@ class ProductVariantInline(admin.TabularInline):
 # ==============================
 @admin.register(Shop)
 class ShopAdmin(admin.ModelAdmin):
-    list_display = ('name', 'owner', 'created_at')
+    list_display = ('name', 'owner', 'is_verified', 'created_at')
+    list_filter = ('is_verified', 'created_at')
     search_fields = ('name', 'owner__email', 'owner__phone')
     readonly_fields = ('created_at', 'updated_at')
     list_select_related = ('owner',)
@@ -81,8 +86,8 @@ class CategoryAdmin(admin.ModelAdmin):
 # ==============================
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
-    list_display = ('title', 'shop', 'status', 'display_categories', 'has_variants', 'created_at')
-    list_filter = ('shop', 'status', 'created_at')
+    list_display = ('title', 'shop', 'status', 'display_categories', 'has_variants', 'is_featured', 'created_at')
+    list_filter = ('shop', 'status', 'is_featured', 'is_on_sale', 'created_at')
     search_fields = ('title', 'description_html')
     filter_horizontal = ('categories',)
     readonly_fields = ('created_at', 'updated_at')
@@ -96,7 +101,10 @@ class ProductAdmin(admin.ModelAdmin):
             'fields': ('categories',),
         }),
         ("Status & Publishing", {
-            'fields': ('status',),
+            'fields': ('status', 'is_featured', 'is_best_seller', 'is_new', 'is_on_sale'),
+        }),
+        ("SEO", {
+            'fields': ('meta_title', 'meta_description', 'meta_keywords'),
         }),
         ("System Information", {
             'fields': ('created_at', 'updated_at'),
@@ -150,8 +158,12 @@ class ProductOptionValueAdmin(admin.ModelAdmin):
 # ==============================
 @admin.register(ProductVariant)
 class ProductVariantAdmin(admin.ModelAdmin):
-    list_display = ('product', 'sku', 'barcode', 'price', 'compare_at_price', 'get_options_display', 'position')
-    list_filter = ('product',)
+    list_display = (
+        'product', 'sku', 'barcode', 'price', 'compare_at_price',
+        'stock_quantity', 'track_inventory', 'allow_backorder',
+        'get_options_display', 'position'
+    )
+    list_filter = ('product', 'track_inventory', 'allow_backorder')
     search_fields = ('sku', 'barcode', 'product__title')
     autocomplete_fields = ('option1', 'option2', 'option3')
     ordering = ('product', 'position')
@@ -160,3 +172,30 @@ class ProductVariantAdmin(admin.ModelAdmin):
         values = [opt.value for opt in [obj.option1, obj.option2, obj.option3] if opt]
         return " / ".join(values) if values else "-"
     get_options_display.short_description = "Options"
+
+
+@admin.register(ProductImage)
+class ProductImageAdmin(admin.ModelAdmin):
+    list_display = ("product", "position", "alt_text")
+    search_fields = ("product__title", "alt_text")
+    ordering = ("product", "position")
+
+
+@admin.register(VariantImage)
+class VariantImageAdmin(admin.ModelAdmin):
+    list_display = ('variant', 'is_main', 'position')
+    list_filter = ('is_main',)
+    ordering = ('variant', 'position')
+
+
+@admin.register(ProductReview)
+class ProductReviewAdmin(admin.ModelAdmin):
+    list_display = ('product', 'user', 'rating', 'is_approved', 'is_verified_purchase', 'created_at')
+    list_filter = ('is_approved', 'is_verified_purchase', 'rating', 'created_at')
+    search_fields = ('product__title', 'user__email', 'title', 'comment')
+
+
+@admin.register(ProductReviewImage)
+class ProductReviewImageAdmin(admin.ModelAdmin):
+    list_display = ('review', 'variant_image', 'created_at')
+    search_fields = ('review__product__title', 'alt_text')

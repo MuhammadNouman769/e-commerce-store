@@ -66,7 +66,7 @@
                         {% if cart_items %}
                             <div class="cart-items-container">
                                 {% for item in cart_items %}
-                                <div class="cart-item" data-item-id="{{ item.id }}" data-product-id="{{ item.product.id }}" data-unit-price="{{ item.price }}">
+                                <div class="cart-item" data-item-id="{{ item.id }}" data-product-id="{{ item.product.id }}" data-variant-id="{% if item.variant %}{{ item.variant.id }}{% endif %}" data-unit-price="{{ item.price }}">
                                     <img class="cart-item__img" src="{% if item.product.images.first.images %}{{ item.product.images.first.images.url }}{% else %}{% static 'img/placeholder.jpg' %}{% endif %}" alt="{{ item.product_name }}">
                                     
                                     <div class="cart-item__info">
@@ -118,7 +118,7 @@
                             </div>
                         {% else %}
                             <div class="empty-cart text-center py-5">
-                                <img src="{% static 'img/empty-cart.svg' %}" alt="Empty Cart" style="max-width: 200px;">
+                                <img src="{% static 'img/placeholder.jpg' %}" alt="Empty Cart" style="max-width: 200px;">
                                 <h3 class="mt-4">Your cart is empty</h3>
                                 <p class="text-muted">Looks like you haven't added anything to your cart yet</p>
                                 <a class="primary-btn mt-3" href="{% url 'products:product_list' %}">
@@ -189,32 +189,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
     
-    // Show notification
-    function showNotification(message, type = 'success') {
-        let notification = document.createElement('div');
-        notification.className = `notification notification-${type}`;
-        notification.innerHTML = message;
-        notification.style.cssText = `
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            background: ${type === 'success' ? '#28a745' : '#dc3545'};
-            color: white;
-            padding: 12px 20px;
-            border-radius: 4px;
-            z-index: 9999;
-            animation: slideIn 0.3s ease;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        `;
-        
-        document.body.appendChild(notification);
-        
-        setTimeout(() => {
-            notification.style.animation = 'slideOut 0.3s ease';
-            setTimeout(() => notification.remove(), 300);
-        }, 3000);
-    }
-    
     // Update cart totals
     function updateTotals() {
         var subtotal = 0;
@@ -261,15 +235,18 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     // AJAX update cart item
-    function updateCartItem(itemId, quantity) {
-        fetch("{% url 'add_to_cart_ajax' %}", {
+    function updateCartItem(row, quantity) {
+        const productId = row.dataset.productId;
+        const variantId = row.dataset.variantId || null;
+        fetch("{% url 'update_cart_ajax' %}", {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
                 'X-CSRFToken': getCookie('csrftoken')
             },
             body: JSON.stringify({
-                item_id: itemId,
+                product_id: productId,
+                variant_id: variantId,
                 quantity: quantity
             })
         })
@@ -277,24 +254,27 @@ document.addEventListener('DOMContentLoaded', function() {
         .then(data => {
             if (data.success) {
                 updateTotals();
-                showNotification(data.message, 'success');
+                showToast(data.message || 'Cart updated', 'success');
             } else {
-                showNotification(data.error, 'error');
+                showToast(data.error || 'Update failed', 'error');
                 // Revert quantity
                 location.reload();
             }
         })
         .catch(error => {
             console.error('Error:', error);
-            showNotification('Error updating cart', 'error');
+            showToast('Error updating cart', 'error');
         });
     }
     
     // AJAX remove cart item
-    function removeCartItem(itemId) {
+    function removeCartItem(row) {
         if (!confirm('Are you sure you want to remove this item?')) {
             return;
         }
+        const itemId = row.dataset.itemId;
+        const productId = row.dataset.productId;
+        const variantId = row.dataset.variantId || null;
         
         fetch("{% url 'remove_from_cart_ajax' %}", {
             method: 'POST',
@@ -303,7 +283,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 'X-CSRFToken': getCookie('csrftoken')
             },
             body: JSON.stringify({
-                item_id: itemId
+                product_id: productId,
+                variant_id: variantId
             })
         })
         .then(response => response.json())
@@ -323,14 +304,14 @@ document.addEventListener('DOMContentLoaded', function() {
                     updateTotals();
                 }
                 
-                showNotification(data.message, 'success');
+                showToast(data.message || 'Item removed', 'success');
             } else {
-                showNotification(data.error, 'error');
+                showToast(data.error || 'Remove failed', 'error');
             }
         })
         .catch(error => {
             console.error('Error:', error);
-            showNotification('Error removing item', 'error');
+            showToast('Error removing item', 'error');
         });
     }
     
@@ -356,13 +337,12 @@ document.addEventListener('DOMContentLoaded', function() {
         var plus = row.querySelector('.js-qty-plus');
         var minus = row.querySelector('.js-qty-minus');
         var removeBtn = row.querySelector('.js-remove-item');
-        var itemId = row.dataset.itemId;
         
         if (plus) {
             plus.addEventListener('click', function() {
                 var newQty = toNumber(input.value) + 1;
                 input.value = newQty;
-                updateCartItem(itemId, newQty);
+                updateCartItem(row, newQty);
                 updateTotals();
             });
         }
@@ -372,7 +352,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 var newQty = toNumber(input.value) - 1;
                 if (newQty >= 1) {
                     input.value = newQty;
-                    updateCartItem(itemId, newQty);
+                    updateCartItem(row, newQty);
                     updateTotals();
                 }
             });
@@ -383,49 +363,22 @@ document.addEventListener('DOMContentLoaded', function() {
                 var newQty = toNumber(input.value);
                 if (newQty < 1) newQty = 1;
                 input.value = newQty;
-                updateCartItem(itemId, newQty);
+                updateCartItem(row, newQty);
                 updateTotals();
             });
         }
         
         if (removeBtn) {
             removeBtn.addEventListener('click', function() {
-                removeCartItem(itemId);
+                removeCartItem(row);
             });
         }
     });
     
     // Update cart button (batch update)
     document.getElementById('update-cart-btn')?.addEventListener('click', function() {
-        var updates = [];
-        
-        document.querySelectorAll('.cart-item').forEach(function(row) {
-            var itemId = row.dataset.itemId;
-            var qty = toNumber(row.querySelector('.js-qty-input').value);
-            updates.push({item_id: itemId, quantity: qty});
-        });
-        
-        fetch("{% url 'update_cart_ajax' %}", {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRFToken': getCookie('csrftoken')
-            },
-            body: JSON.stringify({updates: updates})
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                updateTotals();
-                showNotification('Cart updated successfully!', 'success');
-            } else {
-                showNotification(data.error, 'error');
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            showNotification('Error updating cart', 'error');
-        });
+        updateTotals();
+        showToast('Cart updated successfully!', 'success');
     });
     
     // Apply promo code
@@ -443,15 +396,15 @@ document.addEventListener('DOMContentLoaded', function() {
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                showNotification(data.message, 'success');
+                showToast(data.message, 'success');
                 location.reload();
             } else {
-                showNotification(data.error, 'error');
+                showToast(data.error, 'error');
             }
         })
         .catch(error => {
             console.error('Error:', error);
-            showNotification('Error applying promo code', 'error');
+            showToast('Error applying promo code', 'error');
         });
     });
     
@@ -459,31 +412,8 @@ document.addEventListener('DOMContentLoaded', function() {
     updateTotals();
 });
 
-// Add animations
 var style = document.createElement('style');
 style.textContent = `
-    @keyframes slideIn {
-        from {
-            transform: translateX(100%);
-            opacity: 0;
-        }
-        to {
-            transform: translateX(0);
-            opacity: 1;
-        }
-    }
-    
-    @keyframes slideOut {
-        from {
-            transform: translateX(0);
-            opacity: 1;
-        }
-        to {
-            transform: translateX(100%);
-            opacity: 0;
-        }
-    }
-    
     .cart-summary-notice {
         background: #fff3cd;
         padding: 8px 12px;
