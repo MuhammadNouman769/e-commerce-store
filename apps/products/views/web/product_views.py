@@ -1,19 +1,12 @@
-""" =========== Importations =========== """
-from django.shortcuts import render, get_object_or_404
 from django.views.generic import ListView, DetailView
-from django.db.models import Count, Min, Max, Q
+from django.shortcuts import get_object_or_404
+from django.db.models import Q, Min, Max, Count, F
 from django.core.cache import cache
 from django.utils.translation import gettext_lazy as _
-from apps.products.choices import ProductStatus  
-from apps.products.models import (Product,
-                                Category,
-                                ProductImage,
-                                ProductVariant,
-                                ProductReview,
-                                Shop)
+
+from apps.products.models import Product, Category, ProductStatus
 
 
-""" =========== Product List View =========== """
 class ProductListView(ListView):
     model = Product
     template_name = "shop/product_list.html"
@@ -24,40 +17,40 @@ class ProductListView(ListView):
 
     def get_queryset(self):
         """Get filtered and sorted products - only active ones"""
-        queryset = Product.objects.filter(
-            status=ProductStatus.ACTIVE
-        ).select_related("shop").prefetch_related(
+        queryset = Product.objects.filter(status=ProductStatus.ACTIVE).select_related(
+            "shop"
+        ).prefetch_related(
             "categories", "images", "variants"
         )
 
-        # ========== Search Query ==========
+        # Search query
         q = self.request.GET.get("q", "").strip()
         if q:
             queryset = queryset.filter(
                 Q(title__icontains=q) |
                 Q(description_html__icontains=q) |
-                Q(vendor__icontains=q)
+                Q(brand__icontains=q)
             )
 
-        # ========== Shop Filter ==========
+        # Shop filter
         shop_id = self.request.GET.get("shop")
         if shop_id:
             queryset = queryset.filter(shop_id=shop_id)
 
-        # ========== Vendor Filter ==========
+        # Vendor/Brand filter
         vendors = [v for v in self.request.GET.getlist("vendor") if v]
         if vendors:
-            vq = Q()
+            vendor_q = Q()
             for v in vendors:
-                vq |= Q(vendor__iexact=v)
-            queryset = queryset.filter(vq)
+                vendor_q |= Q(brand__iexact=v)
+            queryset = queryset.filter(vendor_q)
 
-        # ========== Category Filter ==========
+        # Category filter
         category_id = self.request.GET.get("category")
         if category_id:
             queryset = queryset.filter(categories__id=category_id)
 
-        # ========== Price Filter ==========
+        # Price filter
         try:
             min_price = int(self.request.GET.get("min_price")) if self.request.GET.get("min_price") else None
             max_price = int(self.request.GET.get("max_price")) if self.request.GET.get("max_price") else None
@@ -69,19 +62,18 @@ class ProductListView(ListView):
         if max_price is not None:
             queryset = queryset.filter(variants__price__lte=max_price)
 
-        # ========== Sorting ==========
+        # Sorting
         sort = self.request.GET.get("sort", "").strip()
-        
         if sort == "price_asc":
             queryset = queryset.annotate(min_price=Min("variants__price")).order_by("min_price", "-id")
         elif sort == "price_desc":
             queryset = queryset.annotate(min_price=Min("variants__price")).order_by("-min_price", "-id")
-        elif sort == "vendor_asc":
-            queryset = queryset.order_by("vendor", "-id")
+        elif sort == "brand_asc":
+            queryset = queryset.order_by("brand", "-id")
         elif sort == "newest":
             queryset = queryset.order_by("-created_at")
         else:
-            queryset = queryset.order_by("-created_at")  # Default newest first
+            queryset = queryset.order_by("-created_at")  # default newest first
 
         return queryset.distinct()
 
@@ -90,59 +82,37 @@ class ProductListView(ListView):
             per_page = int(self.request.GET.get("per_page", self.paginate_by))
         except (TypeError, ValueError):
             per_page = self.paginate_by
-
-        if per_page not in self.allowed_per_page:
-            per_page = self.paginate_by
-
-        return per_page
+        return per_page if per_page in self.allowed_per_page else self.paginate_by
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        
-        # ========== Categories (with caching) ==========
+
+        # Categories caching
         cache_key = f"categories_list_{self.request.GET.get('shop', 'all')}"
         categories = cache.get(cache_key)
-        
         if categories is None:
-            categories = Category.objects.filter(
-                parent=None
-            ).select_related("shop").prefetch_related(
+            categories = Category.objects.filter(parent=None).prefetch_related(
                 "children",
                 "children__children",
-                "children__children__children"
+                "products"
             )
-            if self.request.GET.get("shop"):
-                categories = categories.filter(shop_id=self.request.GET.get("shop"))
-            cache.set(cache_key, categories, 3600)  # Cache 1 hour
-        
+            cache.set(cache_key, categories, 3600)
         context["categories"] = categories
-        
-        # ========== Vendors ==========
-        vendors_qs = (
-            Product.objects.filter(status=Product.ProductStatus.ACTIVE)
-            .exclude(vendor__isnull=True)
-            .exclude(vendor__exact="")
-            .values("vendor")
-            .annotate(count=Count("id"))
-            .order_by("vendor")
-        )
-        
-        context["vendors"] = [v["vendor"] for v in vendors_qs]
-        context["vendor_counts"] = {v["vendor"]: v["count"] for v in vendors_qs}
+
+        # Vendors/Brands
+        vendors_qs = Product.objects.filter(status=ProductStatus.ACTIVE).exclude(brand__isnull=True).exclude(brand__exact="").values("brand").annotate(count=Count("id")).order_by("brand")
+        context["vendors"] = [v["brand"] for v in vendors_qs]
+        context["vendor_counts"] = {v["brand"]: v["count"] for v in vendors_qs}
         context["selected_vendors"] = [v for v in self.request.GET.getlist("vendor") if v]
-        
-        # ========== Vendor Logos ==========
+
+        # Vendor logos (example)
         known_logos = {
             "apple": "img/brands/apple.svg",
             "samsung": "img/brands/samsung.svg",
             "oppo": "img/brands/oppo.svg",
             "vivo": "img/brands/vivo.svg",
             "xiaomi": "img/brands/xiaomi.svg",
-            "infinix": "img/brands/infinix.svg",
-            "tecno": "img/brands/tecno.svg",
-            "nothing": "img/brands/nothing.svg",
         }
-        
         vendor_items = []
         for name in context["vendors"]:
             key = (name or "").strip().lower()
@@ -152,88 +122,40 @@ class ProductListView(ListView):
                 "count": context["vendor_counts"].get(name, 0)
             })
         context["vendor_items"] = vendor_items
-        
-        # ========== Dynamic Price Ranges ==========
-        price_stats = Product.objects.filter(
-            status=Product.ProductStatus.ACTIVE,
-            variants__price__isnull=False
-        ).aggregate(
+
+        # Price ranges
+        price_stats = Product.objects.filter(status=ProductStatus.ACTIVE, variants__price__isnull=False).aggregate(
             min_price=Min("variants__price"),
             max_price=Max("variants__price")
         )
-        
         actual_min = int(price_stats["min_price"] or 0)
         actual_max = int(price_stats["max_price"] or 100000)
-        
-        ranges = []
-        
-        # Below first range
-        ranges.append({
-            "min": None,
-            "max": actual_min + 10000,
-            "label": _("Below Rs {:,}").format(actual_min + 10000)
-        })
-        
-        # Middle ranges
         step = 10000
+        ranges = [{"min": None, "max": actual_min + step, "label": _("Below Rs {:,}").format(actual_min + step)}]
         start = actual_min + step
         while start < actual_max:
             end = min(start + step, actual_max)
-            ranges.append({
-                "min": start,
-                "max": end,
-                "label": f"Rs {start:,} - Rs {end:,}"
-            })
+            ranges.append({"min": start, "max": end, "label": f"Rs {start:,} - Rs {end:,}"})
             start += step
-        
         context["price_ranges"] = ranges
-        
-        # ========== Pagination Helpers ==========
+
+        # Pagination & layout
         context["per_page"] = self.get_paginate_by(self.get_queryset())
         context["allowed_per_page"] = self.allowed_per_page
         context["sort"] = self.request.GET.get("sort", "").strip() or "newest"
-        
-        # ========== Layout Settings ==========
         layout = self.request.GET.get("layout", "grid").strip().lower()
         context["layout"] = layout if layout in ("grid", "list") else "grid"
-        
         try:
             cols = int(self.request.GET.get("cols", 4))
         except (TypeError, ValueError):
             cols = 4
         context["cols"] = cols if cols in self.allowed_cols else 4
         context["allowed_cols"] = self.allowed_cols
-        
-        # ========== Query Strings ==========
+
+        # Preserved filters
         preserved_filters = [(k, v) for k, v in self.request.GET.items() if k not in ("page", "per_page")]
         context["preserved_filters"] = preserved_filters
-        
-        qs_no_page = self.request.GET.copy()
-        qs_no_page.pop("page", None)
-        context["querystring_without_page"] = qs_no_page.urlencode()
-        
-        qs_no_per_page = qs_no_page.copy()
-        qs_no_per_page.pop("per_page", None)
-        context["querystring_without_page_and_per_page"] = qs_no_per_page.urlencode()
-        
-        qs_no_view = qs_no_page.copy()
-        qs_no_view.pop("cols", None)
-        qs_no_view.pop("layout", None)
-        context["querystring_without_page_and_view"] = qs_no_view.urlencode()
-        
-        qs_no_price = qs_no_page.copy()
-        qs_no_price.pop("min_price", None)
-        qs_no_price.pop("max_price", None)
-        context["querystring_without_page_and_price"] = qs_no_price.urlencode()
-        
-        # ========== Deals of the Week (Dynamic) ==========
-        context["deals_of_week"] = Product.objects.filter(
-            status=Product.ProductStatus.ACTIVE,
-            variants__compare_at_price__isnull=False
-        ).annotate(
-            discount=models.F("variants__compare_at_price") - models.F("variants__price")
-        ).order_by("-discount")[:9]
-        
+
         return context
 
 

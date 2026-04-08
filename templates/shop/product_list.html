@@ -11,7 +11,7 @@
 					<h1>Products</h1>
 					<nav class="d-flex align-items-center">
 						<a href="{% url 'home' %}">Home<span class="lnr lnr-arrow-right"></span></a>
-						<a href="{% url 'products:product_list' %}">Products</a>
+						<a href="{% url 'product_list' %}">Products</a>
 					</nav>
 				</div>
 			</div>
@@ -348,7 +348,7 @@
 						<h3 class="mt-4">No products found</h3>
 						<p class="text-muted">We couldn't find any products matching your criteria.</p>
 						<p>Try adjusting your filters or search criteria</p>
-						<a href="{% url 'products:product_list' %}" class="btn btn-primary mt-3">Clear All Filters</a>
+						<a href="{% url 'product_list' %}" class="btn btn-primary mt-3">Clear All Filters</a>
 					</div>
 					{% endif %}
 				</section>

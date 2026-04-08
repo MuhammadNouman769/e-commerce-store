@@ -225,12 +225,12 @@ body.loading::after {
             <img src="{% static 'img/logo-1.png' %}" style="height:40px;">
         </a>
         <a class="nav-link" href="{% url 'home' %}">Home</a>
-        <a class="nav-link" href="{% url 'products:product_list' %}">Products</a>
+        <a class="nav-link" href="{% url 'product_list' %}">Products</a>
         <a class="nav-link" href="{% url 'contact_us' %}">Contact</a>
     </div>
     <!-- CENTER SEARCH  -->
     <div class="search-box">
-        <form method="GET" action="{% url 'products:product_list' %}">
+        <form method="GET" action="{% url 'product_list' %}">
     <input type="text" name="q" placeholder="Search products..." value="{{ request.GET.q|default:'' }}">
     <button type="submit">
         <i class="fas fa-search"></i>

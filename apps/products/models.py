@@ -1,7 +1,7 @@
 """
 
 ================================================================================
-            PRODUCTS MODELS - BTR Mall Product Management
+    PRODUCTS MODELS - BTR Mall Product Management
     Author: Muhammad Nouman
     Purpose: Product management, Product variant management, Shop management, 
              Category management, Product image management, variant attribute management
@@ -39,7 +39,8 @@ from apps.utils.models import(
 =========================================================================
 '''
 class Shop(SluggedModel):
-    owner = models.OneToOneField(settings.AUTH_USER_MODEL,
+    owner = models.OneToOneField(
+        settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
         null=False, 
         blank=False
@@ -186,10 +187,12 @@ class Category(OrderedModel, SluggedModel):
 '''
 
 class Product(SluggedModel):
-
-    title = models.CharField(
-        max_length=255
-        )
+    shop = models.ForeignKey(
+        Shop,
+        on_delete=models.CASCADE,
+        related_name="products"
+    )
+    title = models.CharField(max_length=255)
     short_description = models.CharField(
         max_length=500, 
         blank=True

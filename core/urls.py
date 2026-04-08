@@ -54,6 +54,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
 
     # ===== App APIs =====
+    path('', include('apps.main.urls')), # Main app APIs
     path('accounts/', include('apps.accounts.urls')), # Account APIs
     path('products/', include('apps.products.urls')), # Product APIs
     path('inventory/', include('apps.inventory_tracking.urls')), # nventory APIs

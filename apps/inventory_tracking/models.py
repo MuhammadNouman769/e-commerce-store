@@ -38,8 +38,9 @@ class Warehouse(BaseModel):
         related_name="warehouses",
     )
     name = models.CharField(
-        max_length=255,
-        verbose_name=_("Warehouse Name")
+        max_length=255,verbose_name=_("Warehouse Name"),
+        null=False,
+        blank=False,
     )    
     code = models.UUIDField(
         default=uuid.uuid4,
@@ -48,19 +49,10 @@ class Warehouse(BaseModel):
         verbose_name=_("Warehouse Code")
     )
 
-    city = models.CharField(
-        max_length=100
-    )
-    province = models.CharField(
-        max_length=100
-    )
-    postal_code = models.CharField(
-        max_length=10
-    )
-    
-    is_main = models.BooleanField(
-        default=False
-    )
+    city = models.CharField(max_length=100)
+    province = models.CharField(max_length=100)
+    postal_code = models.CharField(max_length=10)
+    is_main = models.BooleanField(default=False)
     
     class Meta:
         indexes = [
