@@ -1,9 +1,9 @@
 ''' 
-==================================================
-    here we are creating a model for order 
-    fulfillment & order history, order cancellation, 
-    order payment, order shipping, order delivery
-==================================================
+================================================================================
+    ORDER FULFILLMENT MODELS - BTR Mall Order Fulfillment
+    Purpose: Track individual shipments from warehouse to customer
+    Author: Muhammad Nouman
+================================================================================
 '''
 '''============= IMPORTING MODELS ============='''
 
@@ -21,10 +21,17 @@ from apps.products.models import Product, ProductVariant
 
 '''
 =============================================================================
-    1.  ORDER INFORMATION
-        Purpose: Track individual shipments from warehouse to customer
-        When to use: When order is shipped, create a shipment record
-        Features: Location, timestamp, status updates (like Daraz tracking page)
+    1.  ORDER MODEL IMPLEMENTATION
+      Purpose: Track individual shipments from warehouse to customer
+      Features:
+        - Order number (CharField) - the order number
+        - User (ForeignKey to User model) - the user who owns the order
+        - Cart (ForeignKey to Cart model) - the cart that the order is from
+        - Shipping address (ForeignKey to ShippingAddress model) - the shipping address for the order
+        - Billing address (ForeignKey to ShippingAddress model) - the billing address for the order
+        - Order status (CharField) - the status of the order
+        - Payment method (CharField) - the method of payment used for the order
+        - Payment status (CharField) - the status of the payment
 ============================================================================='''
 
 class Order(BaseModel):
@@ -213,10 +220,17 @@ class Order(BaseModel):
 
 '''
 =============================================================================
-     2. ORDER ITEM INFORMATION AND TRACKING
-        Purpose: Track individual shipments from warehouse to customer
-        When to use: When order is shipped, create a shipment record
-        Features: Location, timestamp, status updates (like Daraz tracking page)
+     2. ORDER ITEM MODEL IMPLEMENTATION
+      Purpose: Track individual shipments from warehouse to customer
+      Features:
+        - Order (ForeignKey to Order model) - the order that the item belongs to
+        - Product (ForeignKey to Product model) - the product that the item is for
+        - Variant (ForeignKey to ProductVariant model) - the variant that the item is for
+        - Product name (CharField) - the name of the product
+        - Variant name (CharField) - the name of the variant
+        - SKU (CharField) - the SKU of the product
+        - Quantity (PositiveIntegerField) - the quantity of the product
+        - Price (DecimalField) - the price of the product
 ============================================================================='''
 
 class OrderItem(BaseModel):
@@ -276,10 +290,15 @@ class OrderItem(BaseModel):
 
 '''
 =============================================================================
-     3. ORDER HISTORY
-        Purpose: Track individual shipments from warehouse to customer
-        When to use: When order is shipped, create a shipment record
-        Features: Location, timestamp, status updates (like Daraz tracking page)
+     3. ORDER HISTORY MODEL IMPLEMENTATION
+      Purpose: Track individual shipments from warehouse to customer
+      Features:
+        - Order (ForeignKey to Order model) - the order that the history belongs to
+        - Status from (CharField) - the status of the order from the previous status
+        - Status to (CharField) - the status of the order to the new status
+        - Action (CharField) - the action that was performed on the order
+        - Performed by (ForeignKey to User model) - the user that performed the action
+        - Notes (TextField) - the notes of the action
 ============================================================================='''
 
 class OrderHistory(BaseModel):

@@ -2,14 +2,13 @@
 
 ================================================================================
             PRODUCTS MODELS - BTR Mall Product Management
-================================================================================
-Purpose: Product management, Product variant management, Shop management, 
-         Category management, Product image management, variant attribute management
-Author: Muhammad Nouman
+    Author: Muhammad Nouman
+    Purpose: Product management, Product variant management, Shop management, 
+             Category management, Product image management, variant attribute management
 ================================================================================
 """
 
-''' ------------------- IMPORT ------------------- '''
+''' ================ IMPORTING MODELS ================ '''
 import os
 from django.db import models
 from django.utils.text import slugify
@@ -26,9 +25,17 @@ from apps.utils.models import(
 
 '''
 =========================================================================
-1. SHOP MODEL - Seller Storefront
+1. SHOP MODEL IMPLEMENTATION
    Usage: Represents a seller's shop with branding and verification
-   Features: Multiple shops per user, rating, verification
+      Features:
+        - Owner (ForeignKey to User model) - the user who owns the shop
+        - Name (CharField) - the name of the shop
+        - Handle (SlugField) - the handle of the shop
+        - Description (TextField) - the description of the shop
+        - Logo (ImageField) - the logo of the shop
+        - Banner (ImageField) - the banner of the shop
+        - Rating (DecimalField) - the rating of the shop
+        - Is verified (BooleanField) - whether the shop is verified
 =========================================================================
 '''
 class Shop(BaseModel, SluggedModel):
@@ -101,9 +108,14 @@ class Shop(BaseModel, SluggedModel):
 
 '''
 =========================================================================
-2. CATEGORY MODEL - Product Classifications
-    Usage: Organize products into hierarchical categories
-    Features: Nested categories, visibility control
+2. CATEGORY MODEL IMPLEMENTATION
+    Purpose: Organize products into hierarchical categories
+    Features:
+        - Parent (ForeignKey to Category model) - the parent category
+        - Name (CharField) - the name of the category
+        - Logo (ImageField) - the logo of the category
+        - Is visible (BooleanField) - whether the category is visible
+        - Children (ManyToManyField to Category model) - the children categories
 =========================================================================
 '''
 class Category(OrderedModel, SluggedModel):
@@ -159,9 +171,23 @@ class Category(OrderedModel, SluggedModel):
 
 '''
 =========================================================================
-3. PRODUCT MODEL - Core Product Information
-   Usage: Main product entity with descriptions, categories, and SEO
-   Features: Hierarchical categories, SEO fields, analytics tracking
+3. PRODUCT MODEL IMPLEMENTATION
+   Purpose: Main product entity with descriptions, categories, and SEO
+   Features:
+        - Title (CharField) - the title of the product
+        - Short description (CharField) - the short description of the product
+        - Description (TextField) - the description of the product
+        - Categories (ManyToManyField to Category model) - the categories of the product
+        - Brand (CharField) - the brand of the product
+        - Status (CharField) - the status of the product
+        - Handle (SlugField) - the handle of the product
+        - SEO fields (CharField) - the SEO fields of the product
+        - Analytics tracking (PositiveIntegerField) - the analytics tracking of the product
+        - Flags (BooleanField) - the flags of the product
+        - Total views (PositiveIntegerField) - the total views of the product
+        - Total sold (PositiveIntegerField) - the total sold of the product
+        - Total reviews (PositiveIntegerField) - the total reviews of the product
+        - Average rating (DecimalField) - the average rating of the product
 =========================================================================
 '''
 class Product(BaseModel, SluggedModel):
@@ -262,9 +288,14 @@ class Product(BaseModel, SluggedModel):
 
 '''
 =========================================================================
-4. PRODUCT IMAGE MODEL - Visual Assets
-   Usage: Store multiple images for each product
-   Features: Ordering, alt text, automatic cleanup
+4. PRODUCT IMAGE MODEL IMPLEMENTATION
+   Purpose: Store multiple images for each product
+   Features:
+        - Product (ForeignKey to Product model) - the product that the image belongs to
+        - Image (ImageField) - the image of the product
+        - Alt text (CharField) - the alt text of the image
+        - Is main (BooleanField) - whether the image is the main image of the product
+        - Position (PositiveSmallIntegerField) - the position of the image
 =========================================================================
 '''
 class ProductImage(OrderedModel):
@@ -299,9 +330,18 @@ class ProductImage(OrderedModel):
 
 '''
 =========================================================================
-5. PRODUCT VARIANT MODEL - Stock Keeping Units
-   Usage: Manage product variations with unique SKUs and barcodes
-   Features: Multiple options, pricing, inventory tracking
+5. PRODUCT VARIANT MODEL IMPLEMENTATION
+   Purpose: Manage product variations with unique SKUs and barcodes
+   Features:
+        - Product (ForeignKey to Product model) - the product that the variant belongs to
+        - SKU (CharField) - the SKU of the variant
+        - Barcode (CharField) - the barcode of the variant
+        - Option1 (ForeignKey to ProductOptionValue model) - the first option of the variant
+        - Option2 (ForeignKey to ProductOptionValue model) - the second option of the variant
+        - Option3 (ForeignKey to ProductOptionValue model) - the third option of the variant
+        - Price (DecimalField) - the price of the variant
+        - Compare at price (DecimalField) - the compare at price of the variant
+        - Position (PositiveSmallIntegerField) - the position of the variant
 =========================================================================
 '''
 class ProductVariant(BaseModel):
@@ -391,9 +431,14 @@ class ProductVariant(BaseModel):
 
 '''
 =========================================================================
-6. VARIANT IMAGE MODEL - Visual Assets
-   Usage: Store multiple images for each product variant
-   Features: Ordering, alt text, automatic cleanup
+6   . VARIANT IMAGE MODEL IMPLEMENTATION
+   Purpose: Store multiple images for each product variant
+   Features:
+        - Variant (ForeignKey to ProductVariant model) - the variant that the image belongs to
+        - Image (ImageField) - the image of the variant
+        - Alt text (CharField) - the alt text of the image
+        - Is main (BooleanField) - whether the image is the main image of the variant
+        - Position (PositiveSmallIntegerField) - the position of the image
 =========================================================================
 '''
 class VariantImage(OrderedModel):
@@ -440,9 +485,12 @@ class VariantImage(OrderedModel):
 
 '''
 =========================================================================
-7. PRODUCT OPTION MODEL - Variant Dimensions
-   Usage: Define options like size, color, material for variants
-   Features: Hierarchical options, ordering
+7. PRODUCT OPTION MODEL IMPLEMENTATION
+   Purpose: Define options like size, color, material for variants
+   Features:
+        - Product (ForeignKey to Product model) - the product that the option belongs to
+        - Name (CharField) - the name of the option
+        - Position (PositiveSmallIntegerField) - the position of the option
 =========================================================================
 '''
 class ProductOption(OrderedModel):
@@ -466,9 +514,12 @@ class ProductOption(OrderedModel):
 
 '''
 =========================================================================
-8. PRODUCT OPTION VALUE MODEL - Variant Values
-   Usage: Define specific values for each option (e.g., "Red", "XL")
-   Features: Linked to options, ordering
+8. PRODUCT OPTION VALUE MODEL IMPLEMENTATION
+   Purpose: Define specific values for each option (e.g., "Red", "XL")
+   Features:
+        - Option (ForeignKey to ProductOption model) - the option that the value belongs to
+        - Value (CharField) - the value of the option
+        - Position (PositiveSmallIntegerField) - the position of the value
 =========================================================================
 '''
 class ProductOptionValue(OrderedModel):
@@ -493,9 +544,17 @@ class ProductOptionValue(OrderedModel):
 
 '''
 =========================================================================
-9. PRODUCT REVIEW MODEL - User Feedback
-   Usage: Store customer reviews and ratings for products
-   Features: Rating system, approval workflow, verified purchase tracking
+9. PRODUCT REVIEW MODEL IMPLEMENTATION
+   Purpose: Store customer reviews and ratings for products
+   Features:
+        - Product (ForeignKey to Product model) - the product that the review belongs to
+        - User (ForeignKey to User model) - the user that the review belongs to
+        - Rating (PositiveSmallIntegerField) - the rating of the review
+        - Title (CharField) - the title of the review
+        - Comment (TextField) - the comment of the review
+        - Is verified purchase (BooleanField) - whether the purchase is verified
+        - Is approved (BooleanField) - whether the review is approved
+        - Helpful count (PositiveIntegerField) - the helpful count of the review
 =========================================================================
 '''
 class ProductReview(OrderedModel, BaseModel):
@@ -547,9 +606,12 @@ class ProductReview(OrderedModel, BaseModel):
 
 '''
 =========================================================================
-10. PRODUCT REVIEW IMAGE MODEL - Visual Assets
-    Usage: Store images uploaded with product reviews
-    Features: Linked to reviews, variant images supported
+10. PRODUCT REVIEW IMAGE MODEL IMPLEMENTATION
+   Purpose: Store images uploaded with product reviews
+   Features:
+        - Review (ForeignKey to ProductReview model) - the review that the image belongs to
+        - Variant image (ForeignKey to VariantImage model) - the variant image that the image belongs to
+        - Alt text (CharField) - the alt text of the image
 =========================================================================
 '''
 class ProductReviewImage(BaseModel):

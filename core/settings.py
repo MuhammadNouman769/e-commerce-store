@@ -36,7 +36,7 @@ INSTALLED_APPS = [
     # Custom Apps
     'apps.dashboard',
     'apps.inventory_tracking',
-    'apps.logistics',
+    'apps.supplychain',
     'apps.main',
     'apps.order_fulfillment',
     'apps.products',

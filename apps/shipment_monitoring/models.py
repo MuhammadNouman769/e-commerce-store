@@ -1,12 +1,12 @@
 """
 ================================================================================
-            SHIPMENT MONITORING MODELS - Customer Delivery Tracking
-================================================================================
-Purpose: Track shipments from warehouse to customer (Last Mile Delivery)
-Author: Muhammad Nouman
+            SHIPMENT MONITORING MODELS BTR Mall - Customer Delivery Tracking
+    Purpose: Track shipments from warehouse to customer (Last Mile Delivery)
+    Author: Muhammad Nouman
 ================================================================================
 """
 
+''' ================ IMPORTING MODELS ================ '''
 from django.db import models
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
@@ -17,10 +17,17 @@ from apps.inventory_tracking.models import InventoryLevel
 
 '''
 =============================================================================
-     1. SHIPMENT MODEL - Package Tracking to Customer
-         Purpose: Track individual shipments from warehouse to customer
-         When to use: When order is shipped, create a shipment record
-=============================================================================
+     1. SHIPMENT MODEL IMPLEMENTATION
+      Purpose: Track individual shipments from warehouse to customer
+      Features:
+        - Shipment number (CharField) - the shipment number
+        - Order (ForeignKey to Order model) - the order that the shipment belongs to
+        - Courier company (CharField) - the courier company that the shipment belongs to
+        - Tracking number (CharField) - the tracking number of the shipment
+        - Tracking URL (URLField) - the tracking URL of the shipment
+        - Status (CharField) - the status of the shipment
+        - Estimated delivery date (DateField) - the estimated delivery date of the shipment
+        - Shipped date (DateTimeField) - the date and time the shipment was shipped
 '''
 class Shipment(TimeStampedModel, BaseModel):
 
@@ -128,18 +135,16 @@ class Shipment(TimeStampedModel, BaseModel):
         
 '''
 =============================================================================
-     2. SHIPMENT TRACKING LOG - Detailed Tracking History
-        Purpose: Show customer the journey of their package
-        Features: Location, timestamp, status updates (like Daraz tracking page)
-=============================================================================
-'''
-
+     2. SHIPMENT TRACKING LOG IMPLEMENTATION
+      Purpose: Show customer the journey of their package
+      Features:
+        - Shipment (ForeignKey to Shipment model) - the shipment that the tracking log belongs to
+        - Status (CharField) - the status of the tracking log
+        - Location (CharField) - the location of the tracking log
+        - Description (TextField) - the description of the tracking log
+        - API response (JSONField) - the API response of the tracking log
+============================================================================='''
 class ShipmentTrackingLog(TimeStampedModel):
-    """
-    Shipment Tracking Log - Daraz Style Tracking Page
-    Shows customer: "Your package is in Karachi", "Out for delivery", etc.
-    """
-    
     shipment = models.ForeignKey(
         Shipment,
         on_delete=models.CASCADE,

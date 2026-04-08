@@ -1,136 +1,100 @@
 """
-===============================================================
-        USERS MODELS
-Purpose: User authentication and profile management
-        (Customer, Seller, Admin, Staff) 
-Author: Muhammad Nouman
-===============================================================
+=================================================================================
+    USER MODEL
+    Purpose: Custom user for authentication & role-based management
+    Author: Muhammad Nouman
+=================================================================================
 """
 
-''' ==================== IMPORTS ==================== '''
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.utils.translation import gettext_lazy as _
-from apps.utilities.models import BaseModel
-from .choices import UserRoleChoices, UserStatusChoices
-from .manager import UserManager
 from django.core.validators import RegexValidator
 
+from apps.utils.models import BaseModel
+from .choices import UserRoleChoices, UserStatusChoices
+from .manager import UserManager
+
 
 '''
-===================================================
-    1. USER MODEL IMPLEMENTATION
-    Purpose: User authentication and profile management
-    Features: 
-        - Email and Phone verification
-        - Role based access control
-        - Profile management
-        - Account status management
-        - Last login IP tracking
-        - Custom manager for user authentication
-        - Email as username (not using username field)
-        - Phone number field (unique and required)
-        - Profile picture field (optional)
-        - Email and Phone verification fields (boolean)
-        - Account status field (choices)
-        - Last login IP tracking field (optional)
-===================================================
+=================================================================================
+    USER MODEL IMPLEMENTATION
+    Purpose: Custom user for authentication & role-based management
+    Author: Muhammad Nouman
+=================================================================================
 '''
 class User(AbstractUser, BaseModel):
-    
-    #    Custom User Model
-    #    Remove username field because 
-    #    we are using email as username
-    username = None 
+    username = None  # use email as username
+
     email = models.EmailField(
         unique=True,
         verbose_name=_("Email Address"),
         help_text=_("Used for login and communication")
     )
+
     phone_validator = RegexValidator(
         regex=r'^\+?1?\d{9,15}$',
         message=_("Phone number must be entered in the format: '+923001234567'. Up to 15 digits allowed.")
     )
     phone = models.CharField(
         validators=[phone_validator],
-        max_length=11,
+        max_length=15,
         unique=True,
         verbose_name=_("Phone Number")
     )
-    # Role Management here so user can be customer, seller, admin, staff
+
     role = models.CharField(
         max_length=20,
         choices=UserRoleChoices.choices,
         default=UserRoleChoices.CUSTOMER,
         verbose_name=_("User Role")
     )
-    first_name = models.CharField(
-        max_length=150,
-        blank=True,
-        verbose_name=_("First Name")
-    )
-    last_name = models.CharField(
-        max_length=150,
-        blank=True,
-        verbose_name=_("Last Name")
-    )
+
     profile_picture = models.ImageField(
         upload_to='profile_pics/%Y/%m/',
         null=True,
         blank=True,
         verbose_name=_("Profile Picture")
     )
-    # here we are using boolean fields to check if 
-    # the user is verified or not not use email again and again  
-    email_verified = models.BooleanField(
-        default=False,
-        verbose_name=_("Email Verified")
-    )
-    phone_verified = models.BooleanField(
-        default=False,
-        verbose_name=_("Phone Verified")
-    )
+
+    email_verified = models.BooleanField(default=False, verbose_name=_("Email Verified"))
+    phone_verified = models.BooleanField(default=False, verbose_name=_("Phone Verified"))
+
     account_status = models.CharField(
         max_length=20,
         choices=UserStatusChoices.choices,
-        default=UserStatusChoices.ACTIVE,
+        default=UserStatusChoices.PENDING,
         verbose_name=_("Account Status")
     )
-    last_login_ip = models.GenericIPAddressField(
-        null=True,
-        blank=True,
-        verbose_name=_("Last Login IP")
-    )
-    # here we are using custom manager for user model authentication
+
+    last_login_ip = models.GenericIPAddressField(null=True, blank=True, verbose_name=_("Last Login IP"))
+
+    # Authentication settings
     USERNAME_FIELD = "email"
-    REQUIRED_FIELDS = ["phone", "first_name", "last_name"]
+    REQUIRED_FIELDS = ["phone"]
+
     objects = UserManager()
-    
+
     class Meta:
         verbose_name = _("User")
         verbose_name_plural = _("Users")
         indexes = [
-            models.Index(fields=['email']),
-            models.Index(fields=['phone']),
             models.Index(fields=['role']),
             models.Index(fields=['account_status']),
         ]
-    
+
     def __str__(self):
         return f"{self.email} ({self.get_role_display()})"
-    
+
     def get_full_name(self):
-        """Return full name"""
         if self.first_name or self.last_name:
             return f"{self.first_name} {self.last_name}".strip()
         return self.email
-    
+
     @property
     def is_customer(self):
-        """Check if user is a customer"""
         return self.role == UserRoleChoices.CUSTOMER
-    
+
     @property
     def is_seller(self):
-        """Check if user is an approved seller"""
         return self.role == UserRoleChoices.SELLER

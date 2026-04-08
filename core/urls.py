@@ -54,13 +54,14 @@ urlpatterns = [
     path('admin/', admin.site.urls),
 
     # ===== App APIs =====
-    path('utils/', include('apps.utils.urls')),
-    path('accounts/', include('apps.accounts.urls')),
-    path('products/', include('apps.products.urls')),
-    path('inventory/', include('apps.inventory_tracking.urls')),
-    path('orders/', include('apps.order_fulfillment.urls')),
+    path('utils/', include('apps.utils.urls')), # Utility APIs
+    path('accounts/', include('apps.accounts.urls')), # Account APIs
+    path('products/', include('apps.products.urls')), # Product APIs
+    path('inventory/', include('apps.inventory_tracking.urls')), # Inventory APIs
+    path('orders/', include('apps.order_fulfillment.urls')), # Order APIs
     path('shipments/', include('apps.shipment_monitoring.urls')),
     path('cart/', include('apps.cart.urls')),
+    path('supply-chain/', include('apps.supplychain.urls')),
     # path('', include('apps.main.urls')),
     # path('accounts/', include('apps.accounts.urls')),
     # path('dashboard/', include('apps.dashboard.urls')),

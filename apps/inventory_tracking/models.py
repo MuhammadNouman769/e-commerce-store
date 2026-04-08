@@ -1,13 +1,12 @@
 """
 =================================================================================
-INVENTORY TRACKING MODELS - B.Store Stock Management
-=================================================================================
-Purpose: Warehouse management, stock tracking, inventory levels
-Author: Muhammad Nouman
-=================================================================================
+    INVENTORY TRACKING MODELS - BTR Mall Stock Management
+    Author: Muhammad Nouman
+    Purpose: Warehouse management, stock tracking, inventory levels
+    Author: Muhammad Nouman
+================================================================================
 """
 
-''' ------------ IMPORTS ------------ '''
 from django.db import models
 from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
@@ -19,19 +18,20 @@ import uuid
 
 '''
 =================================================================================
-  1. WAREHOUSE MODEL INFORMATION
+  1. WAREHOUSE MODEL IMPLEMENTATION
       Purpose: Physical or virtual warehouses where stock is stored
-      Features: Multiple warehouses per product, location tracking
+      Features:
+        - Shop (ForeignKey to Shop model) - the shop that owns the warehouse
+        - Name (CharField) - the name of the warehouse
+        - Code (UUIDField) - the code of the warehouse
+        - City (CharField) - the city of the warehouse
+        - Province (CharField) - the province of the warehouse
+        - Postal code (CharField) - the postal code of the warehouse
+        - Is main (BooleanField) - whether the warehouse is the main warehouse
 =================================================================================
 '''
 
 class Warehouse(BaseModel):
-    """
-    Every shop can have multiple warehouses.
-    Example:
-    - Lahore Warehouse
-    - Karachi Hub
-    """
     shop = models.ForeignKey(
         Shop,
         on_delete=models.CASCADE,
@@ -74,20 +74,19 @@ class Warehouse(BaseModel):
 
 '''
 =================================================================================
-  2. INVENTORY LEVEL MODEL INFORMATION
+  2. INVENTORY LEVEL MODEL IMPLEMENTATION
       Purpose: Track stock levels for each variant in each warehouse
-      Features: Available stock, incoming stock, stock movements
+      Features:
+        - Variant (ForeignKey to ProductVariant model) - the variant that is in the inventory level
+        - Warehouse (ForeignKey to Warehouse model) - the warehouse that the inventory level is in
+        - Available quantity (PositiveIntegerField) - the available quantity of the variant in the warehouse
+        - Reserved quantity (PositiveIntegerField) - the reserved quantity of the variant in the warehouse
+        - Total quantity (PositiveIntegerField) - the total quantity of the variant in the warehouse
 =================================================================================
 '''
 
 class InventoryLevel(BaseModel):
     
-   # Every stock of product is tracked in every warehouse like:
-   # product shoes size 42
-   # warehouse Lahore may 10
-   # warehouse Karachi may 20
-   # total stock = 30
-
     variant = models.ForeignKey(
         ProductVariant,
         on_delete=models.CASCADE,
@@ -170,9 +169,13 @@ class InventoryLevel(BaseModel):
 
 '''
 =================================================================================
-  3. STOCK MOVEMENT MODEL INFORMATION
-      Purpose: Track all stock movements (inbound, outbound, adjustments)
-      Features: Complete audit trail, reason tracking
+  3. STOCK MOVEMENT MODEL IMPLEMENTATION
+      Purpose: Track all stock movements (sale, return, adjustment)
+      Features:
+        - Inventory level (ForeignKey to InventoryLevel model) - the inventory level that the stock movement is in
+        - Movement type (CharField) - the type of the stock movement (sale, return, adjustment)
+        - Quantity (IntegerField) - the quantity of the stock movement
+        - Note (TextField) - the note of the stock movement
 =================================================================================
 '''
 

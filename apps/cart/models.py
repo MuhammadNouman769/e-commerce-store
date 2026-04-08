@@ -1,9 +1,8 @@
 """
 ================================================================================
-                    CART MODELS - B.Store Shopping Cart
-================================================================================
-Purpose: Shopping cart management for authenticated and guest users
-Author: Muhammad Nouman
+    CART MODELS BTR Mall Shopping Cart
+    Purpose: Shopping cart management for authenticated and guest users
+    Author: Muhammad Nouman
 ================================================================================
 """
 from django.db import models
@@ -16,11 +15,15 @@ from apps.products.models import Product, ProductVariant
 
 '''
  ==================================================================================
-    1. CART MODEL INFORMATION
+  1. CART MODEL IMPLEMENTATION
     Purpose: Shopping cart management for authenticated and guest users
-    When to use: When user adds items to cart
-    Features: Supports both authenticated and guest users, coupon codes, discounts
- ==================================================================================
+      Features:
+        - User (ForeignKey to User model) - the user who owns the cart
+        - Session key (CharField) - the session key for guest users
+        - Status (CharField) - the status of the cart (active, abandoned, converted to order)
+        - Coupon code (CharField) - the coupon code applied to the cart
+        - Discount amount (DecimalField) - the discount amount applied to the cart
+=================================================================================
  '''
 class Cart(BaseModel):
     """Shopping Cart Model - supports both authenticated and guest users"""
@@ -167,12 +170,19 @@ class Cart(BaseModel):
 
 
 '''
- =============================================================================
-    2. CART ITEM MODEL INFORMATION
-       Purpose: Individual items in shopping cart
-       When to use: When user adds items to cart
-       Features: Supports both authenticated and guest users, coupon codes, discounts
- =============================================================================
+=================================================================================
+  2. CART ITEM MODEL IMPLEMENTATION
+      Purpose: Individual items in shopping cart
+      Features:
+        - Cart (ForeignKey to Cart model) - the cart this item belongs to
+        - Product (ForeignKey to Product model) - the product in this item
+        - Variant (ForeignKey to ProductVariant model) - the variant in this item
+        - Product name (CharField) - the name of the product
+        - Variant name (CharField) - the name of the variant
+        - SKU (CharField) - the SKU of the product
+        - Quantity (PositiveIntegerField) - the quantity of the product
+        - Price (DecimalField) - the price of the product
+=================================================================================
  '''
 class CartItem(BaseModel):
     """Individual items in shopping cart"""
@@ -283,12 +293,23 @@ class CartItem(BaseModel):
 
 
 '''
- =============================================================================
-    3. SHIPPING ADDRESS MODEL INFORMATION
+=================================================================================
+  3. SHIPPING ADDRESS MODEL IMPLEMENTATION
        Purpose: User shipping addresses
-       When to use: When user adds items to cart
-       Features: Supports both authenticated and guest users, coupon codes, discounts
- =============================================================================
+      Features:
+        - User (ForeignKey to User model) - the user who owns the address
+        - Address type (CharField) - the type of the address (home, work, other)
+        - Full name (CharField) - the full name of the user
+        - Phone number (CharField) - the phone number of the user
+        - Alternate phone (CharField) - the alternate phone number of the user
+        - Street address (TextField) - the street address of the user
+        - Landmark (CharField) - the landmark of the user
+        - Country (ForeignKey to Country model) - the country of the user
+        - Province (ForeignKey to Region model) - the province of the user
+        - City (ForeignKey to City model) - the city of the user
+        - Postal code (CharField) - the postal code of the user
+        - Is default (BooleanField) - whether the address is the default address
+=================================================================================
  '''
 class ShippingAddress(BaseModel):
     """User shipping addresses"""
