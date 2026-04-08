@@ -1,6 +1,6 @@
 from django.apps import AppConfig
 
 
-class LogisticsConfig(AppConfig):
+class SupplyChainConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
-    name = 'apps.logistics'
+    name = 'apps.supplychain'

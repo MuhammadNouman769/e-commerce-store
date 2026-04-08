@@ -19,6 +19,15 @@ from .manager import UserManager
 '''
 =================================================================================
     USER MODEL IMPLEMENTATION
+    Features:
+        - Email (EmailField) - the email of the user
+        - Phone (CharField) - the phone number of the user
+        - Role (CharField) - the role of the user
+        - Profile Picture (ImageField) - the profile picture of the user
+        - Email Verified (BooleanField) - whether the email is verified
+        - Phone Verified (BooleanField) - whether the phone is verified
+        - Account Status (CharField) - the status of the account
+        - Last Login IP (GenericIPAddressField) - the IP address of the last login
     Purpose: Custom user for authentication & role-based management
     Author: Muhammad Nouman
 =================================================================================

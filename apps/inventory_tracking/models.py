@@ -10,7 +10,7 @@
 from django.db import models
 from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
-from apps.utilities.models import BaseModel
+from apps.utils.models import BaseModel
 from apps.products.models import ProductVariant, Shop
 from django.db import transaction
 from django.db.models import F

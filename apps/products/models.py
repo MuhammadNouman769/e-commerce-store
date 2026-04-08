@@ -19,8 +19,8 @@ from .choices import ProductStatus
 from apps.utils.models import(
     BaseModel, 
     OrderedModel, 
-    SluggedModel, 
-    TimeStampedModel
+    SluggedModel,
+    UUIDBaseModel
     )
 
 '''
@@ -38,19 +38,13 @@ from apps.utils.models import(
         - Is verified (BooleanField) - whether the shop is verified
 =========================================================================
 '''
-class Shop(BaseModel, SluggedModel):
-    owner = models.OneToOneField(
-        User, 
+class Shop(SluggedModel):
+    owner = models.OneToOneField(settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
         null=False, 
-        blank=False, 
-        related_name="shop",
+        blank=False
         )
-    name = models.CharField(
-        max_length=255,
-        null=False,
-        blank=False,
-        )
+    name = models.CharField(max_length=255)
     handle = models.SlugField(
         max_length=255, 
         unique=True, 
@@ -190,7 +184,8 @@ class Category(OrderedModel, SluggedModel):
         - Average rating (DecimalField) - the average rating of the product
 =========================================================================
 '''
-class Product(BaseModel, SluggedModel):
+
+class Product(SluggedModel):
 
     title = models.CharField(
         max_length=255

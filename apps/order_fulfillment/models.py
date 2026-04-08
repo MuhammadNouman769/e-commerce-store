@@ -15,7 +15,7 @@ from django.utils.translation import gettext_lazy as _
 from decimal import Decimal
 
 from apps.cart.models import Cart, ShippingAddress
-from apps.utilities.models import BaseModel
+from apps.utils.models import BaseModel
 from apps.products.models import Product, ProductVariant
 
 

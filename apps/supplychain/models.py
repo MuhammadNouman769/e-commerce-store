@@ -8,7 +8,7 @@ Author: Muhammad Noman
 """
 from django.db import models
 from django.utils.translation import gettext_lazy as _
-from apps.utilities.models import BaseModel
+from apps.utils.models import BaseModel
 
 '''
 ================================================================================

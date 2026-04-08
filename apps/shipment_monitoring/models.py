@@ -10,7 +10,7 @@
 from django.db import models
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
-from apps.utilities.models import BaseModel, TimeStampedModel
+from apps.utils.models import BaseModel
 from apps.order_fulfillment.models import Order
 from apps.products.models import ProductVariant
 from apps.inventory_tracking.models import InventoryLevel
@@ -29,7 +29,7 @@ from apps.inventory_tracking.models import InventoryLevel
         - Estimated delivery date (DateField) - the estimated delivery date of the shipment
         - Shipped date (DateTimeField) - the date and time the shipment was shipped
 '''
-class Shipment(TimeStampedModel, BaseModel):
+class Shipment(BaseModel):
 
     class ShipmentStatus(models.TextChoices):
         PENDING = "pending", _("Pending Dispatch")
@@ -144,7 +144,7 @@ class Shipment(TimeStampedModel, BaseModel):
         - Description (TextField) - the description of the tracking log
         - API response (JSONField) - the API response of the tracking log
 ============================================================================='''
-class ShipmentTrackingLog(TimeStampedModel):
+class ShipmentTrackingLog(BaseModel):
     shipment = models.ForeignKey(
         Shipment,
         on_delete=models.CASCADE,

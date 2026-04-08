@@ -54,7 +54,6 @@ urlpatterns = [
     path('admin/', admin.site.urls),
 
     # ===== App APIs =====
-    path('utils/', include('apps.utils.urls')), # Utility APIs
     path('accounts/', include('apps.accounts.urls')), # Account APIs
     path('products/', include('apps.products.urls')), # Product APIs
     path('inventory/', include('apps.inventory_tracking.urls')), # nventory APIs
@@ -65,7 +64,6 @@ urlpatterns = [
     # path('', include('apps.main.urls')),
     # path('accounts/', include('apps.accounts.urls')),
     # path('dashboard/', include('apps.dashboard.urls')),
-    # path('logistics/', include('apps.logistics.urls')),
     
     # ===== API Documentation =====
     path('swagger/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
