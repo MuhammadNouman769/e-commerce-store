@@ -57,7 +57,7 @@ urlpatterns = [
     path('utils/', include('apps.utils.urls')), # Utility APIs
     path('accounts/', include('apps.accounts.urls')), # Account APIs
     path('products/', include('apps.products.urls')), # Product APIs
-    path('inventory/', include('apps.inventory_tracking.urls')), # Inventory APIs
+    path('inventory/', include('apps.inventory_tracking.urls')), # nventory APIs
     path('orders/', include('apps.order_fulfillment.urls')), # Order APIs
     path('shipments/', include('apps.shipment_monitoring.urls')),
     path('cart/', include('apps.cart.urls')),
