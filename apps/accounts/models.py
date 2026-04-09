@@ -65,17 +65,12 @@ class User(AbstractUser, BaseModel):
         blank=True,
         verbose_name=_("Profile Picture")
     )
-
-    email_verified = models.BooleanField(default=False, verbose_name=_("Email Verified"))
-    phone_verified = models.BooleanField(default=False, verbose_name=_("Phone Verified"))
-
     account_status = models.CharField(
         max_length=20,
         choices=UserStatusChoices.choices,
         default=UserStatusChoices.PENDING,
         verbose_name=_("Account Status")
     )
-
     last_login_ip = models.GenericIPAddressField(null=True, blank=True, verbose_name=_("Last Login IP"))
 
     # Authentication settings
