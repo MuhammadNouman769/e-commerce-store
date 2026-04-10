@@ -2,17 +2,41 @@
 Django settings for core project.
 Author: Muhammad Noman
 """
-
 from pathlib import Path
-import os
+from decouple import config
 
-'''# =============== BASE & SECURITY CONFIGURATION ==============='''
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY = 'django-insecure-p=3-93xin6_y494m)=*xg!ros5qoq8*8(c3^h2==!82*l97z0i'
-DEBUG = True
-ALLOWED_HOSTS = ['localhost', '127.0.0.1']
+# ================= SECURITY =================
+SECRET_KEY = config("SECRET_KEY")
 
+DEBUG = config("DEBUG", cast=bool)
+
+ALLOWED_HOSTS = config(
+    "ALLOWED_HOSTS",
+    cast=lambda v: [i.strip() for i in v.split(",")]
+)
+
+# ================= EMAIL =================
+EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+
+EMAIL_HOST = config("EMAIL_HOST")
+EMAIL_PORT = config("EMAIL_PORT", cast=int)
+EMAIL_USE_TLS = config("EMAIL_USE_TLS", cast=bool)
+
+EMAIL_HOST_USER = config("EMAIL_HOST_USER")
+EMAIL_HOST_PASSWORD = config("EMAIL_HOST_PASSWORD")
+
+# ================= REDIS =================
+CACHES = {
+    "default": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": config("REDIS_URL"),
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+        },
+    }
+}
 # =============== APPLICATION DEFINITION ===============
 INSTALLED_APPS = [
     'jazzmin',
@@ -41,7 +65,7 @@ INSTALLED_APPS = [
     'apps.order_fulfillment',
     'apps.products',
     'apps.shipment_monitoring',
-    'apps.accounts',
+    'apps.users',
     'apps.utils',
     'apps.cart',
 ]
@@ -75,7 +99,7 @@ REST_FRAMEWORK = {
 }
 
 # =============== CUSTOM USER MODEL ===============
-AUTH_USER_MODEL = 'accounts.User'
+AUTH_USER_MODEL = 'users.User'
 
 # =============== MIDDLEWARE ===============
 MIDDLEWARE = [
@@ -130,17 +154,6 @@ AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator'},
 ]
 
-CACHES = {
-    "default": {
-        "BACKEND": "django_redis.cache.RedisCache",
-        "LOCATION": "redis://localhost:6379/1",
-        "OPTIONS": {
-            "CLIENT_CLASS": "django_redis.client.DefaultClient",
-        },
-    }
-}
-
-
 # =============== INTERNATIONALIZATION ===============
 LANGUAGE_CODE = 'en-us'
 TIME_ZONE = 'Asia/Karachi'  # Changed to Pakistan time
@@ -163,23 +176,12 @@ LOGIN_URL = '/users/login/'
 LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/'
 
-# =============== EMAIL CONFIGURATION ===============
-# Add for password reset and notifications
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'  # For development
-# For production use:
-# EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-# EMAIL_HOST = 'smtp.gmail.com'
-# EMAIL_PORT = 587
-# EMAIL_USE_TLS = True
-# EMAIL_HOST_USER = 'your-email@gmail.com'
-# EMAIL_HOST_PASSWORD = 'your-password'
-
 # =============== JAZZMIN ADMIN ===============
 JAZZMIN_SETTINGS = {
-    "site_title": "Footwear Admin",
-    "site_header": "Footwear Dashboard",
-    "welcome_sign": "Welcome to Footwear Management System",
-    "site_brand": "Footwear",
+    "site_title": "BTR Mall Admin Dashboard",
+    "site_header": "BTR Mall Dashboard",
+    "welcome_sign": "Welcome to BTR Mall Management System",
+    "site_brand": "BTR Mall Admin",
     "copyright": "© 2025 Muhammad Noman",
     "site_logo": None,
     "login_logo": None,

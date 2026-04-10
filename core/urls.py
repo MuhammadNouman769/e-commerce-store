@@ -55,7 +55,7 @@ urlpatterns = [
 
     # ===== App APIs =====
     path('', include('apps.main.urls')), # Main app APIs
-    path('accounts/', include('apps.accounts.urls')), # Account APIs
+    path('api/', include('apps.users.urls')), # Account APIs
     path('products/', include(('apps.products.urls', 'products'), namespace='products')), # Product APIs
     path('inventory/', include('apps.inventory_tracking.urls')), # nventory APIs
     path('orders/', include('apps.order_fulfillment.urls')), # Order APIs
@@ -67,8 +67,8 @@ urlpatterns = [
     # path('dashboard/', include('apps.dashboard.urls')),
     
     # ===== API Documentation =====
-    path('swagger/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
-    path('redoc/', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
+    path('api/swagger/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
+    path('api/redoc/', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
     path('api/schema.json', schema_view.without_ui(cache_timeout=0), name='schema-json'),
 ]
 

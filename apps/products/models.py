@@ -10,12 +10,13 @@
 
 ''' ================ IMPORTING MODELS ================ '''
 import os
+from django.core.validators import RegexValidator
 from django.db import models
 from django.utils.text import slugify
 from django.core.exceptions import ValidationError
 from django.conf import settings
-from apps.accounts.models import User
-from .choices import ProductStatus
+from apps.users.models.users import User
+from .choices import ProductStatus, ShopStatusChoices
 from apps.utils.models import(
     BaseModel, 
     OrderedModel, 
@@ -38,67 +39,96 @@ from apps.utils.models import(
         - Is verified (BooleanField) - whether the shop is verified
 =========================================================================
 '''
+
 class Shop(SluggedModel):
+    #  Owner
     owner = models.OneToOneField(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
-        null=False, 
-        blank=False
-        )
+        related_name="shop"
+    )
+
+    #  Basic Info
     name = models.CharField(max_length=255)
-    handle = models.SlugField(
-        max_length=255, 
-        unique=True, 
-        blank=True
-        )
-    description = models.TextField(
-        blank=True
-        )
+    handle = models.SlugField(max_length=255, unique=True, blank=True)
+    description = models.TextField(blank=True)
+
+    #  Branding (Images)
     logo = models.ImageField(
-        upload_to="shop_logos/%Y/%m/", 
-        blank=True, 
-        null=True
-        )
-    banner = models.ImageField(
-        upload_to="shop_banners/%Y/%m/", 
-        blank=True, 
-        null=True
-        )
-    rating = models.DecimalField(
-        max_digits=3, 
-        decimal_places=2, 
-        default=0,
+        upload_to="shop/logos/%Y/%m/",
         null=True,
-        blank=True,
-        )
-    is_verified = models.BooleanField(
-        default=False,
-        null=False,
-        blank=False,
-        )
+        blank=True
+    )
+
+    banner = models.ImageField(
+        upload_to="shop/banners/%Y/%m/",
+        null=True,
+        blank=True
+    )
+
+    #  Verification Documents (CNIC / ID Card)
+    cnic_validator = RegexValidator(
+        regex=r'^\d{13}$',
+        message="CNIC number must be exactly 13 digits."
+    )
+    cnic_number = models.CharField(max_length=13, validators=[cnic_validator], null=True, blank=True)
+
+    cnic_front = models.ImageField(
+        upload_to="shop/cnic/front/%Y/%m/",
+        null=True,
+        blank=True
+    )
+
+    cnic_back = models.ImageField(
+        upload_to="shop/cnic/back/%Y/%m/",
+        null=True,
+        blank=True
+    )
+
+    #  Status / Choices
+    status = models.CharField(
+        max_length=20,
+        choices=ShopStatusChoices.choices,
+        default=ShopStatusChoices.PENDING
+    )
+
+    #  Metrics
+    rating = models.DecimalField(
+        max_digits=4,
+        decimal_places=2,
+        default=0
+    )
+
+    is_verified = models.BooleanField(default=False)
 
     class Meta:
         verbose_name = "Shop"
         verbose_name_plural = "Shops"
-        indexes = [models.Index(fields=["handle"]), models.Index(fields=["owner"])]
+        indexes = [
+            models.Index(fields=["handle"]),
+            models.Index(fields=["owner"]),
+            models.Index(fields=["status"]),
+        ]
 
     def __str__(self):
         return self.name
-
+    
+    #  Handle generator
     def generate_handle(self):
         base = slugify(self.name)
         slug = base
         counter = 1
+
         while Shop.objects.filter(handle=slug).exclude(pk=self.pk).exists():
             slug = f"{base}-{counter}"
             counter += 1
+
         return slug
 
     def save(self, *args, **kwargs):
         if not self.handle:
-            self.handle = self.generate_slug()
+            self.handle = self.generate_handle()
         super().save(*args, **kwargs)
-
 
 
 '''
