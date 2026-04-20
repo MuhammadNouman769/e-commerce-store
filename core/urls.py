@@ -1,79 +1,47 @@
-""" ===============================================================
-    URL configuration for core (Supply Chain / FootwareStore) project.
-
-    The `urlpatterns` list routes URLs to views.
-    For more information, see:
-        https://docs.djangoproject.com/en/5.2/topics/http/urls/
-
-    Author: Muhammad Nouman
-    Version: v1.0
 """
-""" ==============================
-    Project URL Configuration
-    Auto-generated API Docs using drf-yasg
-================================ """
-
-""" ================ Imports ================ """
+===============================================================
+    URL configuration for core (Supply Chain / FootwareStore)
+===============================================================
+"""
 
 from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
-from rest_framework import permissions
-from drf_yasg.views import get_schema_view
-from drf_yasg import openapi
 
-
-""" ================== Documentation Details ===================== """
-
-schema_view = get_schema_view(
-    openapi.Info(
-        title="Supply Chain Management API",
-        default_version='v1',
-        description=(
-            " **Auto-generated API documentation for the Supply Chain System.**\n\n"
-            "### Modules Covered:\n"
-            "-  User Management\n"
-            "-  Inventory Tracking\n"
-            "-  Order Fulfillment\n"
-            "-  Shipment & Supplier Monitoring\n"
-            "-  Product Management\n\n"
-            "Use the Swagger or ReDoc interface to test API endpoints interactively."
-        ),
-        contact=openapi.Contact(email="nomannisar769@gmail.com"),
-        license=openapi.License(name="MIT License"),
-    ),
-    public=True,
-    permission_classes=(permissions.AllowAny,),
+#  NEW: drf-spectacular imports
+from drf_spectacular.views import (
+    SpectacularAPIView,
+    SpectacularSwaggerView,
+    SpectacularRedocView
 )
 
 
-""" ================= MAIN URLS ===================== """
+# ================= MAIN URLS =====================
 
 urlpatterns = [
     path('admin/', admin.site.urls),
 
     # ===== App APIs =====
-    path('', include('apps.main.urls')), # Main app APIs
-    path('api/', include('apps.users.urls')), # Account APIs
-    path('products/', include(('apps.products.urls', 'products'), namespace='products')), # Product APIs
-    path('inventory/', include('apps.inventory_tracking.urls')), # nventory APIs
-    path('orders/', include('apps.order_fulfillment.urls')), # Order APIs
+    path('', include('apps.main.urls')),  # Main app APIs
+    path('api/', include('apps.users.urls')),  # Account APIs
+    path('products/', include(('apps.products.urls', 'products'), namespace='products')),
+    path('inventory/', include('apps.inventory_tracking.urls')),
+    path('orders/', include('apps.order_fulfillment.urls')),
     path('shipments/', include('apps.shipment_monitoring.urls')),
     path('cart/', include('apps.cart.urls')),
     path('supply-chain/', include('apps.supplychain.urls')),
-    # path('', include('apps.main.urls')),
-    # path('accounts/', include('apps.accounts.urls')),
-    # path('dashboard/', include('apps.dashboard.urls')),
-    
-    # ===== API Documentation =====
-    path('api/swagger/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
-    path('api/redoc/', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
-    path('api/schema.json', schema_view.without_ui(cache_timeout=0), name='schema-json'),
+
+    # ===== API DOCUMENTATION (NEW SYSTEM) =====
+    path('api/schema/', SpectacularAPIView.as_view(), name='schema'),
+
+    path('api/swagger/', SpectacularSwaggerView.as_view(url_name='schema'), name='swagger-ui'),
+
+    path('api/redoc/', SpectacularRedocView.as_view(url_name='schema'), name='redoc'),
 ]
 
 
-""" ============ Static & Media Serving (Development Only) ============ """
+# ============ Static & Media Serving (Development Only) ============
 
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

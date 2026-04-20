@@ -7,19 +7,60 @@ from .models.users import User
 class CustomUserAdmin(UserAdmin):
     model = User
 
-    # What you see in user list table
-    list_display = ("email", "phone", "role", "is_active", "is_staff")
-    list_filter = ("role", "is_staff", "is_active")
-
-    # Fields shown when editing a user
-    fieldsets = (
-        (None, {"fields": ("email", "phone", "password")}),
-        ("Personal Info", {"fields": ("first_name", "last_name")}),
-        ("Permissions", {"fields": ("is_active", "is_staff", "is_superuser", "groups", "user_permissions")}),
-        ("Role Data", {"fields": ("role",)}),
+    # ================= LIST PAGE =================
+    list_display = (
+        "email",
+        "phone",
+        "role",
+        "email_verified",
+        "phone_verified",
+        "is_active",
+        "is_staff",
     )
 
-    # Fields shown when creating a new user from admin
+    list_filter = (
+        "role",
+        "is_active",
+        "is_staff",
+        "email_verified",
+        "phone_verified",
+    )
+
+    search_fields = ("email", "phone")
+    ordering = ("email",)
+
+    # ================= DETAIL PAGE =================
+    fieldsets = (
+        (None, {"fields": ("email", "phone", "password")}),
+
+        ("Personal Info", {
+            "fields": ("first_name", "last_name", "profile_picture")
+        }),
+
+        ("Verification", {
+            "fields": ("email_verified", "phone_verified")
+        }),
+
+        ("Role & Status", {
+            "fields": ("role", "account_status")
+        }),
+
+        ("Permissions", {
+            "fields": (
+                "is_active",
+                "is_staff",
+                "is_superuser",
+                "groups",
+                "user_permissions"
+            )
+        }),
+
+        ("System Info", {
+            "fields": ("last_login", "last_login_ip")
+        }),
+    )
+
+    # ================= ADD USER FORM =================
     add_fieldsets = (
         (None, {
             "classes": ("wide",),
@@ -34,6 +75,3 @@ class CustomUserAdmin(UserAdmin):
             ),
         }),
     )
-
-    search_fields = ("email", "phone")
-    ordering = ("email",)

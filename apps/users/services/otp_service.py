@@ -1,4 +1,7 @@
+# services/otp_service.py
+
 import random
+import hashlib
 from django.core.cache import cache
 from django.core.mail import send_mail
 from django.conf import settings
@@ -10,48 +13,50 @@ class OTPService:
     def generate_otp():
         return str(random.randint(100000, 999999))
 
-
     @staticmethod
     def send_otp(user):
         email = user.email
 
-        #  RESEND LIMIT CHECK (1 minute)
-        if cache.get(f"otp_resend_{email}"):
-            return False, "Please wait before requesting another OTP"
+        if cache.get(f"otp:resend:{email}"):
+            return False, "Wait before retry"
 
         otp = OTPService.generate_otp()
 
-        #  SAVE OTP (5 minutes)
-        cache.set(f"otp_{email}", otp, timeout=300)
+        hashed_otp = hashlib.sha256(otp.encode()).hexdigest()
 
-        #  RESEND LOCK (1 min)
-        cache.set(f"otp_resend_{email}", True, timeout=60)
+        cache.set(f"otp:{email}", hashed_otp, timeout=180)
+        cache.set(f"otp:attempt:{email}", 0, timeout=180)
+        cache.set(f"otp:resend:{email}", True, timeout=60)
 
-        #  SEND EMAIL
         send_mail(
-            "Your OTP Code",
-            f"Your OTP is {otp}. It expires in 5 minutes.",
+            "OTP Verification",
+            f"Your OTP is {otp}",
             settings.EMAIL_HOST_USER,
             [email],
-            fail_silently=False
         )
 
-        return True, "OTP sent successfully"
-
+        return True, "OTP sent"
 
     @staticmethod
     def verify_otp(user, code):
         email = user.email
 
-        stored_otp = cache.get(f"otp_{email}")
+        stored = cache.get(f"otp:{email}")
+        attempts = cache.get(f"otp:attempt:{email}", 0)
 
-        if not stored_otp:
+        if not stored:
             return False, "OTP expired"
 
-        if str(stored_otp) != str(code):
+        if attempts >= 5:
+            return False, "Too many attempts"
+
+        hashed_input = hashlib.sha256(code.encode()).hexdigest()
+
+        if stored != hashed_input:
+            cache.set(f"otp:attempt:{email}", attempts + 1, timeout=180)
             return False, "Invalid OTP"
 
-        #  DELETE AFTER USE
-        cache.delete(f"otp_{email}")
+        cache.delete(f"otp:{email}")
+        cache.delete(f"otp:attempt:{email}")
 
-        return True, "OTP verified"
+        return True, "Verified"

@@ -1,18 +1,10 @@
-from ..models.otp import OTP
-from ..common.utils.email import send_otp_email
-
+# services/auth_service.py
 
 class AuthService:
 
     @staticmethod
     def create_user(serializer):
         return serializer.save()
-
-    @staticmethod
-    def send_otp(user):
-        otp = OTP.objects.create(user=user)
-        send_otp_email(user.email, otp.code)
-        return otp
 
     @staticmethod
     def activate_user(user):

@@ -2,14 +2,15 @@
 Django settings for core project.
 Author: Muhammad Noman
 """
+
 from pathlib import Path
 from decouple import config
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+
 # ================= SECURITY =================
 SECRET_KEY = config("SECRET_KEY")
-
 DEBUG = config("DEBUG", cast=bool)
 
 ALLOWED_HOSTS = config(
@@ -17,9 +18,9 @@ ALLOWED_HOSTS = config(
     cast=lambda v: [i.strip() for i in v.split(",")]
 )
 
+
 # ================= EMAIL =================
 EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
-
 EMAIL_HOST = config("EMAIL_HOST")
 EMAIL_PORT = config("EMAIL_PORT", cast=int)
 EMAIL_USE_TLS = config("EMAIL_USE_TLS", cast=bool)
@@ -27,7 +28,8 @@ EMAIL_USE_TLS = config("EMAIL_USE_TLS", cast=bool)
 EMAIL_HOST_USER = config("EMAIL_HOST_USER")
 EMAIL_HOST_PASSWORD = config("EMAIL_HOST_PASSWORD")
 
-# ================= REDIS =================
+
+# ================= REDIS CACHE =================
 CACHES = {
     "default": {
         "BACKEND": "django_redis.cache.RedisCache",
@@ -37,27 +39,32 @@ CACHES = {
         },
     }
 }
-# =============== APPLICATION DEFINITION ===============
+
+
+# ================= APPLICATION DEFINITION =================
 INSTALLED_APPS = [
     'jazzmin',
+
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    
-    # Third-Party Apps
+
+    # Third-party
     'rest_framework',
     'crispy_forms',
-    'crispy_tailwind',  # For tailwind with crispy
+    'crispy_tailwind',
     'tailwind',
-    'drf_yasg',
     'django_countries',
-    'phonenumber_field',  # Uncomment this
+    'phonenumber_field',
     'cities_light',
-    
-    # Custom Apps
+
+    # API DOCS (NEW - SPECTACULAR)
+    'drf_spectacular',
+
+    # Custom apps
     'apps.dashboard',
     'apps.inventory_tracking',
     'apps.supplychain',
@@ -70,38 +77,54 @@ INSTALLED_APPS = [
     'apps.cart',
 ]
 
-# =============== TAILWIND CONFIGURATION ===============
-TAILWIND_APP_NAME = 'theme'  # Create this app with: python manage.py tailwind init theme
-INTERNAL_IPS = ['127.0.0.1']
-NPM_BIN_PATH = r'C:\Program Files\nodejs\npm.cmd'  # Windows path, change for your OS
 
-# =============== CRISPY FORMS ===============
+# ================= TAILWIND =================
+TAILWIND_APP_NAME = 'theme'
+INTERNAL_IPS = ['127.0.0.1']
+NPM_BIN_PATH = r'C:\Program Files\nodejs\npm.cmd'
+
+
+# ================= CRISPY FORMS =================
 CRISPY_ALLOWED_TEMPLATE_PACKS = "tailwind"
 CRISPY_TEMPLATE_PACK = "tailwind"
 
-# =============== CITIES LIGHT CONFIG ===============
+
+# ================= CITIES LIGHT =================
 CITIES_LIGHT_TRANSLATION_LANGUAGES = ['en']
-CITIES_LIGHT_INCLUDE_COUNTRIES = ['PK', 'US', 'GB', 'AE', 'SA']  # Focus on relevant countries
+CITIES_LIGHT_INCLUDE_COUNTRIES = ['PK', 'US', 'GB', 'AE', 'SA']
 CITIES_LIGHT_INCLUDE_REGIONS = ['ALL']
 CITIES_LIGHT_INCLUDE_CITIES = ['ALL']
-CITIES_LIGHT_CITY_SOURCES = ["http://download.geonames.org/export/dump/cities5000.zip"]
 
-# =============== DJANGO REST FRAMEWORK ===============
+
+# ================= DJANGO REST FRAMEWORK =================
 REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.AllowAny',
     ],
-    'DEFAULT_SCHEMA_CLASS': 'rest_framework.schemas.coreapi.AutoSchema',
+
+    #  SPECTACULAR SCHEMA
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
+
     'DEFAULT_RENDERER_CLASSES': [
         'rest_framework.renderers.JSONRenderer',
         'rest_framework.renderers.BrowsableAPIRenderer',
     ],
 }
 
-# =============== CUSTOM USER MODEL ===============
+
+# ================= SPECTACULAR SETTINGS =================
+SPECTACULAR_SETTINGS = {
+    'TITLE': 'Supply Chain Management API',
+    'DESCRIPTION': 'API documentation for Supply Chain system',
+    'VERSION': '1.0.0',
+}
+
+
+# ================= AUTH =================
 AUTH_USER_MODEL = 'users.User'
 
-# =============== MIDDLEWARE ===============
+
+# ================= MIDDLEWARE =================
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -112,9 +135,12 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-# =============== URL & TEMPLATES ===============
+
+# ================= URLS =================
 ROOT_URLCONF = 'core.urls'
 
+
+# ================= TEMPLATES =================
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
@@ -126,16 +152,17 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
-                'django.template.context_processors.media',  # Add this
-              #  'apps.cart.context_processors.cart_total',  # Custom context processor
+                'django.template.context_processors.media',
             ],
         },
     },
 ]
 
+
 WSGI_APPLICATION = 'core.wsgi.application'
 
-# =============== DATABASE ===============
+
+# ================= DATABASE =================
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
@@ -146,7 +173,8 @@ DATABASES = {
     }
 }
 
-# =============== PASSWORD VALIDATION ===============
+
+# ================= PASSWORD VALIDATION =================
 AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator'},
     {'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator'},
@@ -154,93 +182,60 @@ AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator'},
 ]
 
-# =============== INTERNATIONALIZATION ===============
+
+# ================= INTERNATIONALIZATION =================
 LANGUAGE_CODE = 'en-us'
-TIME_ZONE = 'Asia/Karachi'  # Changed to Pakistan time
+TIME_ZONE = 'Asia/Karachi'
 USE_I18N = True
 USE_TZ = True
 
-# =============== STATIC & MEDIA FILES ===============
+
+# ================= STATIC & MEDIA =================
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [BASE_DIR / "static"]
-STATIC_ROOT = BASE_DIR / 'staticfiles'  # For production
+STATIC_ROOT = BASE_DIR / 'staticfiles'
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
-# =============== DEFAULT AUTO FIELD ===============
+
+# ================= DEFAULT AUTO FIELD =================
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# =============== AUTHENTICATION ===============
+
+# ================= AUTH REDIRECTS =================
 LOGIN_URL = '/users/login/'
 LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/'
 
-# =============== JAZZMIN ADMIN ===============
+
+# ================= JAZZMIN ADMIN =================
 JAZZMIN_SETTINGS = {
     "site_title": "BTR Mall Admin Dashboard",
     "site_header": "BTR Mall Dashboard",
     "welcome_sign": "Welcome to BTR Mall Management System",
     "site_brand": "BTR Mall Admin",
     "copyright": "© 2025 Muhammad Noman",
-    "site_logo": None,
-    "login_logo": None,
-    "site_icon": None,
-    
+
+    "show_sidebar": True,
+    "navigation_expanded": True,
+
     "topmenu_links": [
-        {"name": "Dashboard", "url": "admin:index", "permissions": ["auth.view_user"]},
+        {"name": "Dashboard", "url": "admin:index"},
         {"app": "users"},
         {"app": "products"},
         {"app": "order_fulfillment"},
         {"app": "inventory_tracking"},
         {"app": "shipment_monitoring"},
-        {"app": "supplier_monitoring"},
+        {"app": "supplychain"},
     ],
-    
-    "show_sidebar": True,
-    "navigation_expanded": True,
-    "hide_models": [],
-    "order_with_respect_to": [
-        "users",
-        "products",
-        "inventory_tracking",
-        "order_fulfillment",
-        "shipment_monitoring",
-        "supplier_monitoring",
-        "supplychain",
-    ],
-    
-    "icons": {
-        "auth": "fas fa-users-cog",
-        "users.User": "fas fa-user",
-        "users.Profile": "fas fa-id-card",
-        "users.Address": "fas fa-map-marker-alt",
-        "products": "fas fa-boxes",
-        "products.Product": "fas fa-box",
-        "products.Category": "fas fa-tags",
-        "order_fulfillment": "fas fa-shopping-cart",
-        "inventory_tracking": "fas fa-warehouse",
-        "shipment_monitoring": "fas fa-shipping-fast",
-        "supplier_monitoring": "fas fa-industry",
-        "supplychain": "fas fa-project-diagram",
-    },
-    
-    "custom_css": "css/admin_custom.css",
-    "custom_js": None,
-    "related_modal_active": True,
 }
+
 
 JAZZMIN_UI_TWEAKS = {
     "theme": "flatly",
     "dark_mode_theme": "darkly",
-    "navbar": "navbar-dark bg-dark",
-    "sidebar": "sidebar-dark-primary",
-    "brand_colour": "navbar-dark",
-    "accent": "accent-info",
     "navbar_fixed": True,
     "sidebar_fixed": True,
-    "footer_fixed": False,
-    "body_small_text": False,
-    "sidebar_collapse": False,
-    "actions_sticky_top": True,
+    "accent": "accent-info",
 }

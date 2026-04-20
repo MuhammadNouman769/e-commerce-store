@@ -9,8 +9,6 @@ class UserSignupSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ["email", "phone", "password", "role"]
-        
-        ref_name = "UserRegister"
 
     def validate(self, data):
         if User.objects.filter(email=data["email"]).exists():
@@ -26,6 +24,7 @@ class UserSignupSerializer(serializers.ModelSerializer):
 
         user = User(**validated_data)
         user.set_password(password)
+        user.account_status = "pending"
         user.save()
 
         return user
