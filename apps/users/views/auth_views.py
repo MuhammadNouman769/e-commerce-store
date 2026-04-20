@@ -71,3 +71,24 @@ class SignupAPIView(APIView):
             )
 
         return Response({"errors": serializer.errors}, status=400)
+    
+    
+from django.contrib.auth import authenticate, login
+from rest_framework.views import APIView
+from rest_framework.response import Response
+
+
+class LoginAPIView(APIView):
+
+    def post(self, request):
+        email = request.data.get("email")
+        password = request.data.get("password")
+
+        user = authenticate(request, email=email, password=password)
+
+        if not user:
+            return Response({"error": "Invalid credentials"}, status=400)
+
+        login(request, user)  #  IMPORTANT (session create)
+
+        return Response({"message": "Logged in successfully"})    

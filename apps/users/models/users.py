@@ -60,6 +60,7 @@ class User(AbstractUser, BaseModel):
     def __str__(self):
         return self.email
 
+    # ================= ROLE HELPERS =================
     @property
     def is_customer(self):
         return self.role == UserRoleChoices.CUSTOMER
@@ -67,3 +68,17 @@ class User(AbstractUser, BaseModel):
     @property
     def is_seller(self):
         return self.role == UserRoleChoices.SELLER
+
+    # ================= SELLER STATUS =================
+    @property
+    def has_shop(self):
+        return hasattr(self, "shop")
+
+    @property
+    def is_seller_active(self):
+        return (
+            self.is_seller and
+            self.email_verified and
+            self.has_shop and
+            self.shop.status == "approved"
+        )
