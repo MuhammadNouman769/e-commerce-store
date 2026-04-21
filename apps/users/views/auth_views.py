@@ -2,59 +2,19 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 
-from drf_spectacular.utils import extend_schema, OpenApiResponse, OpenApiExample
+from django.contrib.auth import authenticate, login
 
 from ..serializers.auth_serializer import UserSignupSerializer
 from ..services.auth_service import AuthService
 from ..services.otp_service import OTPService
 
+#  IMPORT SCHEMAS
+from ..schemas.auth_schema import signup_schema, login_schema
+
 
 class SignupAPIView(APIView):
 
-    @extend_schema(
-        summary="User Signup",
-        description="Register user and send OTP to email",
-
-        request=UserSignupSerializer,
-
-        examples=[
-            OpenApiExample(
-                "Signup Example",
-                value={
-                    "email": "user@gmail.com",
-                    "phone": "03001234567",
-                    "password": "strongpassword123",
-                    "role": "customer"
-                },
-                request_only=True,
-            )
-        ],
-
-        responses={
-            201: OpenApiResponse(
-                description="User created successfully",
-                response={
-                    "type": "object",
-                    "properties": {
-                        "message": {"type": "string"},
-                        "email": {"type": "string"}
-                    }
-                }
-            ),
-
-            400: OpenApiResponse(
-                description="Validation error",
-                response={
-                    "type": "object",
-                    "properties": {
-                        "errors": {"type": "object"}
-                    }
-                }
-            )
-        },
-
-        tags=["Authentication"]
-    )
+    @signup_schema
     def post(self, request):
         serializer = UserSignupSerializer(data=request.data)
 
@@ -71,15 +31,11 @@ class SignupAPIView(APIView):
             )
 
         return Response({"errors": serializer.errors}, status=400)
-    
-    
-from django.contrib.auth import authenticate, login
-from rest_framework.views import APIView
-from rest_framework.response import Response
 
 
 class LoginAPIView(APIView):
 
+    @login_schema
     def post(self, request):
         email = request.data.get("email")
         password = request.data.get("password")
@@ -89,6 +45,6 @@ class LoginAPIView(APIView):
         if not user:
             return Response({"error": "Invalid credentials"}, status=400)
 
-        login(request, user)  #  IMPORTANT (session create)
+        login(request, user)
 
-        return Response({"message": "Logged in successfully"})    
+        return Response({"message": "Logged in successfully"})

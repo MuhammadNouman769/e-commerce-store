@@ -1,6 +1,6 @@
 from django.urls import path
 from .views.auth_views import LoginAPIView, SignupAPIView
-from .views.user_views import VerifyOTPAPIView, ResendOTPAPIView
+from .views.otp_views import VerifyOTPAPIView, ResendOTPAPIView
 
 urlpatterns = [
     path("signup/", SignupAPIView.as_view(), name="signup"),

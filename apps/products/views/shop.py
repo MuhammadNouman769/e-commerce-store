@@ -1,13 +1,14 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework import status
 
 from ..serializers.shop_serializer import ShopCreateSerializer
 from ..services.seller_service import SellerService
+from ..schemas.shop_schema import create_shop_schema
 
 
 class CreateShopAPIView(APIView):
 
+    @create_shop_schema
     def post(self, request):
 
         serializer = ShopCreateSerializer(data=request.data)
