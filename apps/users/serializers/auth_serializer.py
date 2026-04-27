@@ -5,12 +5,19 @@ User = get_user_model()
 
 
 class UserSignupSerializer(serializers.ModelSerializer):
+    confirm_password = serializers.CharField(write_only=True)
 
     class Meta:
         model = User
-        fields = ["email", "phone", "password", "role"]
+        fields = ["email", "phone", "password", "confirm_password", "role"]
+        extra_kwargs = {
+            "password": {"write_only": True}
+        }
 
     def validate(self, data):
+        if data["password"] != data["confirm_password"]:
+            raise serializers.ValidationError("Passwords do not match")
+
         if User.objects.filter(email=data["email"]).exists():
             raise serializers.ValidationError("Email already exists")
 
@@ -20,11 +27,11 @@ class UserSignupSerializer(serializers.ModelSerializer):
         return data
 
     def create(self, validated_data):
+        validated_data.pop("confirm_password")  #  remove
         password = validated_data.pop("password")
 
         user = User(**validated_data)
         user.set_password(password)
-        user.account_status = "pending"
         user.save()
 
         return user
