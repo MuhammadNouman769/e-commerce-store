@@ -117,8 +117,14 @@ SPECTACULAR_SETTINGS = {
     'TITLE': 'Supply Chain Management API',
     'DESCRIPTION': 'API documentation for Supply Chain system',
     'VERSION': '1.0.0',
-}
 
+    #  IMPORTANT IMPROVEMENTS
+    'SERVE_INCLUDE_SCHEMA': False,
+
+    'SWAGGER_UI_SETTINGS': {
+        'persistAuthorization': True,
+    },
+}
 
 # ================= AUTH =================
 AUTH_USER_MODEL = 'users.User'
