@@ -33,7 +33,7 @@ signup_schema = extend_schema(
             response={
                 "type": "object",
                 "properties": {
-                    "message": {"type": "string"},
+                    "otp": {"type": "string"},
                     "email": {"type": "string"}
                 }
             }
