@@ -5,25 +5,17 @@ from apps.users.serializers import (
     ErrorResponseSerializer
 )
 
+""" ====================== Login Schema ====================== """
+
 login_schema = extend_schema(
     summary="User Login",
+    description="Authenticate user using email and password",
 
     request=LoginRequestSerializer,
 
-    responses={
-        200: OpenApiResponse(
-            response=MessageResponseSerializer,
-            description="Login successful"
-        ),
-        400: OpenApiResponse(
-            response=ErrorResponseSerializer,
-            description="Invalid credentials"
-        )
-    },
-
     examples=[
         OpenApiExample(
-            "Login Example",
+            "Login Request Example",
             value={
                 "email": "user@gmail.com",
                 "password": "123456"
@@ -31,6 +23,15 @@ login_schema = extend_schema(
             request_only=True,
         )
     ],
+
+    responses={
+        200: OpenApiResponse(
+            response=MessageResponseSerializer
+        ),
+        400: OpenApiResponse(
+            response=ErrorResponseSerializer
+        )
+    },
 
     tags=["Authentication"]
 )

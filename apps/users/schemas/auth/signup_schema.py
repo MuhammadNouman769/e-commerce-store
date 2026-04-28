@@ -4,27 +4,16 @@ from apps.users.serializers import (
     SignupResponseSerializer,
     ErrorResponseSerializer
 )
-
+""" ================= SIGNUP SCHEMA ================= """
 signup_schema = extend_schema(
     summary="User Signup",
-    description="Register user & send OTP",
+    description="Register a new user and send OTP for email verification",
 
     request=UserSignupSerializer,
 
-    responses={
-        201: OpenApiResponse(
-            response=SignupResponseSerializer,
-            description="User created"
-        ),
-        400: OpenApiResponse(
-            response=ErrorResponseSerializer,
-            description="Validation error"
-        )
-    },
-
     examples=[
         OpenApiExample(
-            "Signup Example",
+            "Signup Request Example",
             value={
                 "email": "user@gmail.com",
                 "phone": "03001234567",
@@ -35,6 +24,17 @@ signup_schema = extend_schema(
             request_only=True,
         )
     ],
+
+    responses={
+        201: OpenApiResponse(
+            response=SignupResponseSerializer,
+            description="User created successfully"
+        ),
+        400: OpenApiResponse(
+            response=ErrorResponseSerializer,
+            description="Validation error"
+        )
+    },
 
     tags=["Authentication"]
 )
