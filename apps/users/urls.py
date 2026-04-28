@@ -1,7 +1,18 @@
 from django.urls import path
-from .views.auth_views import LoginAPIView, SignupAPIView, ForgotPasswordAPIView, ResetPasswordAPIView
-from .views.otp_views import VerifyOTPAPIView, ResendOTPAPIView
 
+from apps.users.views.otp.resend_view import ResendOTPAPIView
+from .views.auth.signup_view import  SignupAPIView
+from .views.auth.login_view import LoginAPIView
+from .views.auth.password_view import (
+    ForgotPasswordAPIView,
+    ResetPasswordAPIView,
+)
+from .views.auth.password_view import (
+    ForgotPasswordAPIView,
+    ResetPasswordAPIView,
+)
+from .views.otp.verify_view import VerifyOTPAPIView
+from .views.otp.resend_view import ResendOTPAPIView
 urlpatterns = [
     path("signup/", SignupAPIView.as_view(), name="signup"),
     path("login/", LoginAPIView.as_view(), name="login"),

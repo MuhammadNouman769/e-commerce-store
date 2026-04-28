@@ -1,62 +1,94 @@
-# services/otp_service.py
-
 import random
-import hashlib
 from django.core.cache import cache
-from django.core.mail import send_mail
-from django.conf import settings
+from django.contrib.auth.hashers import make_password, check_password
+
+from ..common.utils.email import send_otp_email
 
 
 class OTPService:
 
+    OTP_TIMEOUT = 180
+    RESEND_TIMEOUT = 60
+    MAX_ATTEMPTS = 5
+
+    # -------------------------
+    # Cache Keys Helpers
+    # -------------------------
+    @staticmethod
+    def _otp_key(email):
+        return f"otp:{email}"
+
+    @staticmethod
+    def _attempt_key(email):
+        return f"otp:attempt:{email}"
+
+    @staticmethod
+    def _resend_key(email):
+        return f"otp:resend:{email}"
+
+    # -------------------------
+    # Generate OTP
+    # -------------------------
     @staticmethod
     def generate_otp():
         return str(random.randint(100000, 999999))
 
+    # -------------------------
+    # SEND OTP
+    # -------------------------
     @staticmethod
     def send_otp(user):
         email = user.email
 
-        if cache.get(f"otp:resend:{email}"):
+        #  Resend protection
+        if cache.get(OTPService._resend_key(email)):
             return False, "Wait before retry"
 
         otp = OTPService.generate_otp()
 
-        hashed_otp = hashlib.sha256(otp.encode()).hexdigest()
+        #  Secure storage (hashed OTP)
+        hashed_otp = make_password(otp)
 
-        cache.set(f"otp:{email}", hashed_otp, timeout=180)
-        cache.set(f"otp:attempt:{email}", 0, timeout=180)
-        cache.set(f"otp:resend:{email}", True, timeout=60)
+        # Cache save
+        cache.set(OTPService._otp_key(email), hashed_otp, timeout=OTPService.OTP_TIMEOUT)
+        cache.set(OTPService._attempt_key(email), 0, timeout=OTPService.OTP_TIMEOUT)
+        cache.set(OTPService._resend_key(email), True, timeout=OTPService.RESEND_TIMEOUT)
 
-        send_mail(
-            "OTP Verification",
-            f"Your OTP is {otp}",
-            settings.EMAIL_HOST_USER,
-            [email],
-        )
+        #  EMAIL SEND (clean utility use)
+        success, msg = send_otp_email(email, otp)
+
+        if not success:
+            return False, "Failed to send OTP"
 
         return True, "OTP sent"
 
+    # -------------------------
+    # VERIFY OTP
+    # -------------------------
     @staticmethod
     def verify_otp(user, code):
         email = user.email
 
-        stored = cache.get(f"otp:{email}")
-        attempts = cache.get(f"otp:attempt:{email}", 0)
+        stored = cache.get(OTPService._otp_key(email))
+        attempts = cache.get(OTPService._attempt_key(email), 0)
 
         if not stored:
             return False, "OTP expired"
 
-        if attempts >= 5:
+        if attempts >= OTPService.MAX_ATTEMPTS:
             return False, "Too many attempts"
 
-        hashed_input = hashlib.sha256(code.encode()).hexdigest()
-
-        if stored != hashed_input:
-            cache.set(f"otp:attempt:{email}", attempts + 1, timeout=180)
+        #  Check OTP
+        if not check_password(code, stored):
+            cache.set(
+                OTPService._attempt_key(email),
+                attempts + 1,
+                timeout=OTPService.OTP_TIMEOUT
+            )
             return False, "Invalid OTP"
 
-        cache.delete(f"otp:{email}")
-        cache.delete(f"otp:attempt:{email}")
+        #  SUCCESS → cleanup
+        cache.delete(OTPService._otp_key(email))
+        cache.delete(OTPService._attempt_key(email))
 
         return True, "Verified"
