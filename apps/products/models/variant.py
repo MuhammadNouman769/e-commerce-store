@@ -1,29 +1,11 @@
 from django.db import models
-
+import os
 from apps.utils.models import BaseModel
 from .product import Product
 from .option import ProductOptionValue
+from apps.utils.models import OrderedModel
 
-
-"""
-=========================================================================
-2. PRODUCT VARIANT MODEL IMPLEMENTATION
-   Usage: Represents a variant of a product with different options and pricing
-   Features:
-        - Product (ForeignKey to Product model) - the product that the variant belongs to
-        - Sku (CharField) - the stock keeping unit of the variant
-        - Barcode (CharField) - the barcode of the variant
-        - Option1 (ForeignKey to ProductOptionValue model) - the first option of the variant
-        - Option2 (ForeignKey to ProductOptionValue model) - the second option of the variant
-        - Option3 (ForeignKey to ProductOptionValue model) - the third option of the variant
-        - Price (DecimalField) - the price of the variant
-        - Compare at price (DecimalField) - the compare at price of the variant
-        - Stock quantity (PositiveIntegerField) - the stock quantity of the variant
-        - Track inventory (BooleanField) - whether the inventory is tracked for the variant
-        - Allow backorder (BooleanField) - whether the backorder is allowed for the variant
-        - Position (PositiveSmallIntegerField) - the position of the variant
-=========================================================================
-"""
+""" =================== Product Variant Model ====================== """
 
 class ProductVariant(BaseModel):
     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name="variants")
@@ -58,3 +40,30 @@ class ProductVariant(BaseModel):
 
     def __str__(self):
         return f"{self.product.title} - {self.get_variant_name() or self.sku or 'Base'}"
+
+
+
+
+""" ====================== Variant ===================== """ 
+
+class VariantImage(OrderedModel):
+    variant = models.ForeignKey(ProductVariant, on_delete=models.CASCADE, related_name="variant_images")
+    image = models.ImageField(upload_to="variants/gallery/%Y/%m/")
+    alt_text = models.CharField(max_length=255, blank=True)
+    is_main = models.BooleanField(default=False)
+
+    class Meta:
+        ordering = ["position"]
+
+    def save(self, *args, **kwargs):
+        if self.is_main:
+            VariantImage.objects.filter(
+                variant=self.variant,
+                is_main=True
+            ).exclude(pk=self.pk).update(is_main=False)
+        super().save(*args, **kwargs)
+
+    def delete(self, *args, **kwargs):
+        if self.image and os.path.isfile(self.image.path):
+            os.remove(self.image.path)
+        super().delete(*args, **kwargs)        

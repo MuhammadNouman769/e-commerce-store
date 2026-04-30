@@ -3,7 +3,8 @@ from apps.utils.models import OrderedModel, BaseModel
 
 from .product import Product
 from .variant import ProductVariant
-from .product_image import ProductImage, VariantImage
+from .product_image import ProductImage
+from .variant import VariantImage
 from apps.users.models.users import User
 
 

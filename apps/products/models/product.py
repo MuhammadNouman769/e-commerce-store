@@ -6,32 +6,9 @@ from .shop import Shop
 from .category import Category
 from ..choices.product_status_choices import ProductStatus
 from ..choices.product_status_choices import ProductStatus
-"""
-=========================================================================
-4. PRODUCT MODEL IMPLEMENTATION
-   Usage: Represents a product with different options and pricing
-   Features:
-        - Shop (ForeignKey to Shop model) - the shop that the product belongs to
-        - Title (CharField) - the title of the product
-        - Short description (CharField) - the short description of the product
-        - Description (TextField) - the description of the product
-        - Categories (ManyToManyField to Category model) - the categories that the product belongs to
-        - Brand (CharField) - the brand of the product
-        - Status (CharField) - the status of the product
-        - Handle (SlugField) - the handle of the product
-        - Meta title (CharField) - the meta title of the product
-        - Meta description (TextField) - the meta description of the product
-        - Meta keywords (CharField) - the meta keywords of the product
-        - Total views (PositiveIntegerField) - the total views of the product
-        - Total sold (PositiveIntegerField) - the total sold of the product
-        - Total reviews (PositiveIntegerField) - the total reviews of the product
-        - Average rating (DecimalField) - the average rating of the product
-        - Is featured (BooleanField) - whether the product is featured
-        - Is best seller (BooleanField) - whether the product is a best seller
-        - Is new (BooleanField) - whether the product is new
-        - Is on sale (BooleanField) - whether the product is on sale
-=========================================================================
-"""
+
+
+""" =================== Product Model ====================== """
 
 class Product(SluggedModel):
     shop = models.ForeignKey(Shop, on_delete=models.CASCADE, related_name="products")
