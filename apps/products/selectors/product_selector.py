@@ -1,16 +1,13 @@
-from products.models.product import Product
+from apps.products.models import Product
+from django.db.models import Prefetch
+
 
 class ProductSelector:
-    
+
     @staticmethod
     def list_products():
-        return Product.objects.prefetch_related("images", "variants")
-
-    @staticmethod
-    def get_product(pk):
         return Product.objects.prefetch_related(
             "images",
-            "varinants"
-        ).get(pk=pk)
-        
-
+            "variants",
+            "categories"
+        ).select_related("shop")

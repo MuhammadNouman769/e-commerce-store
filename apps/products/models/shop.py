@@ -44,6 +44,9 @@ class Shop(SluggedModel):
 
     cnic_front = models.ImageField(upload_to="shop/cnic/front/%Y/%m/", null=True, blank=True)
     cnic_back = models.ImageField(upload_to="shop/cnic/back/%Y/%m/", null=True, blank=True)
+    # shop.py
+    verified_at = models.DateTimeField(null=True, blank=True)
+    rejection_reason = models.TextField(blank=True)
 
     status = models.CharField(
         max_length=20,
