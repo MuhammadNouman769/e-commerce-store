@@ -44,20 +44,13 @@ class OTPService:
 
         otp = OTPService.generate_otp()
 
-        # store OTP in Redis (plain + TTL)
-        cache.set(OTPService.otp_key(email), otp, timeout=OTPService.OTP_TIMEOUT)
-
-        # reset attempts
-        cache.set(OTPService.attempt_key(email), 0, timeout=OTPService.OTP_TIMEOUT)
-
-        # resend lock
-        cache.set(OTPService.resend_key(email), True, timeout=OTPService.RESEND_TIMEOUT)
-
-        # send email
         success, msg = send_otp_email(email, otp)
-
         if not success:
-            return False, "Failed to send OTP"
+            return False, msg or "Failed to send OTP"
+
+        cache.set(OTPService.otp_key(email), otp, timeout=OTPService.OTP_TIMEOUT)
+        cache.set(OTPService.attempt_key(email), 0, timeout=OTPService.OTP_TIMEOUT)
+        cache.set(OTPService.resend_key(email), True, timeout=OTPService.RESEND_TIMEOUT)
 
         return True, "OTP sent"
 

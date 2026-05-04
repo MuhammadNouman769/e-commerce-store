@@ -16,12 +16,18 @@ class SignupAPIView(APIView):
         serializer.is_valid(raise_exception=True)
 
         user = AuthService.create_user(serializer)
-        OTPService.send_otp(user)
+        success, msg = OTPService.send_otp(user)
 
-        return Response(
-            {
-                "message": "User created. OTP sent.",
-                "email": user.email
-            },
-            status=status.HTTP_201_CREATED
-        )
+        payload = {
+            "message": (
+                "User created. OTP sent."
+                if success
+                else "User created but the verification email could not be sent. Use resend OTP."
+            ),
+            "email": user.email,
+            "otp_sent": success,
+        }
+        if not success:
+            payload["detail"] = msg
+
+        return Response(payload, status=status.HTTP_201_CREATED)
