@@ -1,6 +1,5 @@
 from django.utils import timezone
-from apps.products.choices.shop_status_choices import ShopStatusChoices
-
+from apps.common.enums import ShopStatusChoices
 
 class ShopVerificationService:
 

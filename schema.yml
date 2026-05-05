@@ -729,15 +729,6 @@ components:
           maxLength: 500
         description_html:
           type: string
-        categories:
-          type: array
-          items:
-            type: integer
-        brand:
-          type: string
-          maxLength: 255
-        product_status:
-          $ref: '#/components/schemas/ProductStatusEnum'
         is_featured:
           type: boolean
         is_best_seller:
@@ -789,15 +780,6 @@ components:
           maxLength: 500
         description_html:
           type: string
-        categories:
-          type: array
-          items:
-            type: integer
-        brand:
-          type: string
-          maxLength: 255
-        product_status:
-          $ref: '#/components/schemas/ProductStatusEnum'
         is_featured:
           type: boolean
         is_best_seller:
@@ -823,15 +805,6 @@ components:
           maxLength: 500
         description_html:
           type: string
-        categories:
-          type: array
-          items:
-            type: integer
-        brand:
-          type: string
-          maxLength: 255
-        product_status:
-          $ref: '#/components/schemas/ProductStatusEnum'
         is_featured:
           type: boolean
         is_best_seller:
@@ -867,18 +840,6 @@ components:
       - main_image
       - price
       - title
-    ProductStatusEnum:
-      enum:
-      - draft
-      - active
-      - archived
-      - out_of_stock
-      type: string
-      description: |-
-        * `draft` - Draft
-        * `active` - Active
-        * `archived` - Archived
-        * `out_of_stock` - Out of Stock
     ResendOTPRequest:
       type: object
       properties:

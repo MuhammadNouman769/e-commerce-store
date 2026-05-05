@@ -9,7 +9,7 @@ from apps.products.schemas.shop.create_schema import shop_create_schema
 from drf_spectacular.utils import extend_schema_view
 
 from rest_framework.permissions import IsAuthenticated
-from apps.users.choices.role_choices import UserRoleChoices
+from apps.common.enums import UserRoleChoices
 
 
 

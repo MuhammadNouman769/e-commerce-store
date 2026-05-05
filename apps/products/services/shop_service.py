@@ -1,6 +1,6 @@
 from apps.products.models import Shop
-from apps.products.choices.shop_status_choices import ShopStatusChoices
-from apps.users.choices.role_choices import UserRoleChoices
+from apps.common.enums import ShopStatusChoices
+from apps.common.enums import UserRoleChoices
 from rest_framework.exceptions import ValidationError
 
 

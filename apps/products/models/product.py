@@ -4,9 +4,7 @@ from django.utils.text import slugify
 from apps.utils.models import SluggedModel
 from .shop import Shop
 from .category import Category
-from ..choices.product_status_choices import ProductStatus
-from ..choices.product_status_choices import ProductStatus
-
+from apps.common.enums import ProductStatus
 
 """ =================== Product Model ====================== """
 

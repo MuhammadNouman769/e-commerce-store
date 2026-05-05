@@ -5,8 +5,7 @@ from django.core.validators import RegexValidator
 from django.utils.text import slugify
 
 from apps.utils.models import SluggedModel
-from ..choices.shop_status_choices import ShopStatusChoices
-from ..choices.product_status_choices import ProductStatus
+from apps.common.enums import ShopStatusChoices
 
 """
 =========================================================================

@@ -151,12 +151,13 @@ SPECTACULAR_SETTINGS = {
     ],
 
     # ================= ENUM CLEANUP =================
-     "ENUM_NAME_OVERRIDES": {
+    "ENUM_NAME_OVERRIDES": {
         "apps.products.choices.shop_status_choices.ShopStatusChoices": "ShopStatusEnum",
         "apps.products.choices.product_status_choices.ProductStatus": "ProductStatusEnum",
         "apps.users.choices.role_choices.UserRoleChoices": "UserRoleEnum",
         "apps.users.choices.status_choices.UserStatusChoices": "UserStatusEnum",
     },
+
 
     # ================= SCHEMA QUALITY =================
     'COMPONENT_SPLIT_REQUEST': True,
