@@ -9,7 +9,6 @@ class ProductCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Product
         fields = [
-            "shop",
             "title",
             "short_description",
             "description_html",

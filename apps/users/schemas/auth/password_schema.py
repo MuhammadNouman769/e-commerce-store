@@ -27,7 +27,7 @@ forgot_password_schema = extend_schema(
         200: OpenApiResponse(response=MessageResponseSerializer)
     },
 
-    tags=["Authentication"]
+    tags=["Auth"]
 )
 
 
@@ -55,5 +55,5 @@ reset_password_schema = extend_schema(
         400: OpenApiResponse(response=ErrorResponseSerializer),
     },
 
-    tags=["Authentication"]
+    tags=["Auth"]
 )

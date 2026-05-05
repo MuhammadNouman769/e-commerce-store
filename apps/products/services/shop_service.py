@@ -9,25 +9,23 @@ class ShopService:
     @staticmethod
     def create_shop(user, validated_data):
 
-        # Authentication check
         if not user or not user.is_authenticated:
             raise ValidationError("Login required to create shop")
 
-        # Role check
         if user.role != UserRoleChoices.SELLER:
             raise ValidationError("Only sellers can create a shop")
 
-        # One shop per user rule
         if Shop.objects.filter(owner=user).exists():
             raise ValidationError("User already has a shop")
 
-        # Create shop
-        return Shop.objects.create(
+        shop = Shop.objects.create(
             owner=user,
-            status=ShopStatusChoices.PENDING,
+            shop_status=ShopStatusChoices.PENDING, 
             is_verified=False,
             **validated_data
         )
+
+        return shop
 
     @staticmethod
     def update_shop(instance, validated_data):

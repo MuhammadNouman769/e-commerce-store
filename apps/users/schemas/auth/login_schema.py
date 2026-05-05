@@ -33,5 +33,5 @@ login_schema = extend_schema(
         ),
     },
 
-    tags=["Authentication"]
+    tags=["Auth"]
 )

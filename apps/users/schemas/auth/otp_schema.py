@@ -30,7 +30,7 @@ verify_otp_schema = extend_schema(
         400: OpenApiResponse(response=ErrorResponseSerializer),
     },
 
-    tags=["Authentication"]
+    tags=["Auth"]
 )
 
 
@@ -55,5 +55,5 @@ resend_otp_schema = extend_schema(
         400: OpenApiResponse(response=ErrorResponseSerializer),
     },
 
-    tags=["Authentication"]
+    tags=["Auth"]
 )
