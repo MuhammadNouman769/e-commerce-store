@@ -1,4 +1,5 @@
 from rest_framework.generics import ListAPIView
+
 from apps.products.serializers.response.shop_response import ShopListSerializer
 from apps.products.selectors.shop_selector import ShopSelector
 from apps.products.schemas.shop.list_schema import shop_list_schema

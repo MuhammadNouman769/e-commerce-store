@@ -10,7 +10,6 @@ from apps.users.schemas import verify_otp_schema
 
 User = get_user_model()
 
-
 class VerifyOTPAPIView(APIView):
 
     @verify_otp_schema
@@ -21,13 +20,18 @@ class VerifyOTPAPIView(APIView):
         data = serializer.validated_data
 
         user = User.objects.filter(email=data["email"]).first()
+
         if not user:
             return Response({"error": "User not found"}, status=400)
 
         success, msg = OTPService.verify_otp(user, data["otp"])
+
         if not success:
             return Response({"error": msg}, status=400)
 
         AuthService.activate_user(user)
 
-        return Response({"message": "Account verified"})
+        return Response(
+            {"message": "Account verified successfully"},
+            status=200
+        )

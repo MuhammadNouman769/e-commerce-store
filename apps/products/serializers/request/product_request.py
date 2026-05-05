@@ -14,7 +14,7 @@ class ProductCreateSerializer(serializers.ModelSerializer):
             "description_html",
             "categories",
             "brand",
-            "status",
+            "product_status",
             "is_featured",
             "is_best_seller",
             "is_new",

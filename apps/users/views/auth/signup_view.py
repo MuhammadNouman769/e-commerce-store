@@ -7,7 +7,6 @@ from apps.users.services.auth_service import AuthService
 from apps.users.services.otp_service import OTPService
 from apps.users.schemas import signup_schema
 
-
 class SignupAPIView(APIView):
 
     @signup_schema
@@ -18,16 +17,12 @@ class SignupAPIView(APIView):
         user = AuthService.create_user(serializer)
         success, msg = OTPService.send_otp(user)
 
-        payload = {
-            "message": (
-                "User created. OTP sent."
-                if success
-                else "User created but the verification email could not be sent. Use resend OTP."
-            ),
-            "email": user.email,
-            "otp_sent": success,
-        }
-        if not success:
-            payload["detail"] = msg
-
-        return Response(payload, status=status.HTTP_201_CREATED)
+        return Response(
+            {
+                "message": "User created successfully",
+                "email": user.email,
+                "otp_sent": success,
+                "otp_status": msg
+            },
+            status=status.HTTP_201_CREATED
+        )

@@ -11,7 +11,7 @@ from .request.password_serializer import (
 # response
 from .response.auth_serializer import (
     SignupResponseSerializer,
-    MessageResponseSerializer,
     ErrorResponseSerializer,
+    MessageResponseSerializer,
 )
 from .response.user_serializer import UserSerializer

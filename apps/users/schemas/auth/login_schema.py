@@ -1,36 +1,36 @@
-from drf_spectacular.utils import extend_schema, OpenApiResponse, OpenApiExample
-from apps.users.serializers import (
-    LoginRequestSerializer,
-    MessageResponseSerializer,
-    ErrorResponseSerializer
-)
+from drf_spectacular.utils import extend_schema, OpenApiExample, OpenApiResponse
 
-""" ====================== Login Schema ====================== """
+from apps.users.serializers.request.login_serializer import LoginRequestSerializer
+from apps.users.serializers.response.auth_serializer import LoginResponseSerializer, ErrorResponseSerializer
+
 
 login_schema = extend_schema(
+    operation_id="auth_login",
     summary="User Login",
-    description="Authenticate user using email and password",
+    description="Authenticate user using email & password and return JWT tokens",
 
     request=LoginRequestSerializer,
 
     examples=[
         OpenApiExample(
-            "Login Request Example",
+            "Login Example",
             value={
                 "email": "user@gmail.com",
-                "password": "123456"
+                "password": "strongpassword123"
             },
-            request_only=True,
+            request_only=True
         )
     ],
 
     responses={
         200: OpenApiResponse(
-            response=MessageResponseSerializer
+            response=LoginResponseSerializer,
+            description="Login successful"
         ),
         400: OpenApiResponse(
-            response=ErrorResponseSerializer
-        )
+            response=ErrorResponseSerializer,
+            description="Invalid credentials"
+        ),
     },
 
     tags=["Authentication"]

@@ -1,0 +1,1191 @@
+openapi: 3.0.3
+info:
+  title: Supply Chain Management API
+  version: 1.0.0
+  description: Professional eCommerce / Marketplace API (Shop, Product, Seller System)
+paths:
+  /api/forgot-password/:
+    post:
+      operationId: api_forgot_password_create
+      description: Send OTP to email for password reset
+      summary: Forgot Password
+      tags:
+      - Authentication
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ForgotPasswordRequest'
+            examples:
+              ForgotPasswordExample:
+                value:
+                  email: user@gmail.com
+                summary: Forgot Password Example
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ForgotPasswordRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ForgotPasswordRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+          description: ''
+  /api/login/:
+    post:
+      operationId: auth_login
+      description: Authenticate user using email & password and return JWT tokens
+      summary: User Login
+      tags:
+      - Authentication
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequestRequest'
+            examples:
+              LoginExample:
+                value:
+                  email: user@gmail.com
+                  password: strongpassword123
+                summary: Login Example
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/LoginRequestRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/LoginRequestRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginResponse'
+          description: Login successful
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Invalid credentials
+  /api/logout/:
+    post:
+      operationId: api_logout_create
+      description: Blacklist refresh token and logout user
+      summary: User Logout
+      tags:
+      - Auth
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LogoutRequestRequest'
+            examples:
+              LogoutRequest:
+                value:
+                  refresh: refresh_token_here
+                summary: Logout Request
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/LogoutRequestRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/LogoutRequestRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '205':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: ''
+  /api/resend-otp/:
+    post:
+      operationId: api_resend_otp_create
+      description: Resend OTP to user's email
+      summary: Resend OTP
+      tags:
+      - Authentication
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ResendOTPRequest'
+            examples:
+              ResendOTPExample:
+                value:
+                  email: user@gmail.com
+                summary: Resend OTP Example
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ResendOTPRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ResendOTPRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: ''
+  /api/reset-password/:
+    post:
+      operationId: api_reset_password_create
+      description: Verify OTP and reset password
+      summary: Reset Password
+      tags:
+      - Authentication
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ResetPasswordRequest'
+            examples:
+              ResetPasswordExample:
+                value:
+                  email: user@gmail.com
+                  otp: '123456'
+                  password: newpassword123
+                  confirm_password: newpassword123
+                summary: Reset Password Example
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ResetPasswordRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ResetPasswordRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: ''
+  /api/signup/:
+    post:
+      operationId: auth_signup
+      description: Register new user and send OTP for email verification
+      summary: User Signup
+      tags:
+      - Authentication
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserSignupRequest'
+            examples:
+              SignupExample:
+                value:
+                  email: user@gmail.com
+                  phone: '03001234567'
+                  password: strongpassword123
+                  confirm_password: strongpassword123
+                  role: customer
+                summary: Signup Example
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/UserSignupRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/UserSignupRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SignupResponse'
+          description: User registered successfully
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Validation error
+  /api/verify-otp/:
+    post:
+      operationId: auth_verify_otp
+      description: Verify OTP for email verification or password reset
+      summary: Verify OTP
+      tags:
+      - Authentication
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VerifyOTPRequest'
+            examples:
+              VerifyOTPExample:
+                value:
+                  email: user@gmail.com
+                  otp: '123456'
+                summary: Verify OTP Example
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/VerifyOTPRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/VerifyOTPRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: ''
+  /products/{id}/:
+    get:
+      operationId: products_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - products
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductList'
+          description: ''
+  /products/{id}/delete/:
+    delete:
+      operationId: products_delete_destroy
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - products
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '204':
+          description: No response body
+  /products/{id}/update/:
+    put:
+      operationId: products_update_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - products
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProductCreateRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ProductCreateRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ProductCreateRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductCreate'
+          description: ''
+    patch:
+      operationId: products_update_partial_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - products
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedProductCreateRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedProductCreateRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedProductCreateRequest'
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductCreate'
+          description: ''
+  /products/create/:
+    post:
+      operationId: products_create_create
+      summary: Create Product
+      tags:
+      - Products
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProductCreateRequest'
+            examples:
+              CreateProductExample:
+                value:
+                  shop: 1
+                  title: iPhone 15 Pro
+                  short_description: Latest iPhone
+                  description_html: <p>Best phone</p>
+                  categories:
+                  - 1
+                  - 2
+                  brand: Apple
+                  status: draft
+                  is_featured: true
+                  is_best_seller: false
+                  is_new: true
+                  is_on_sale: false
+                summary: Create Product Example
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ProductCreateRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ProductCreateRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Product created successfully
+                  id:
+                    type: integer
+                    example: 1
+              examples:
+                CreateProductExample:
+                  value:
+                    shop: 1
+                    title: iPhone 15 Pro
+                    short_description: Latest iPhone
+                    description_html: <p>Best phone</p>
+                    categories:
+                    - 1
+                    - 2
+                    brand: Apple
+                    status: draft
+                    is_featured: true
+                    is_best_seller: false
+                    is_new: true
+                    is_on_sale: false
+                  summary: Create Product Example
+          description: ''
+  /products/list/:
+    get:
+      operationId: products_list_list
+      description: List all products with main image and price
+      summary: Product List
+      tags:
+      - Products
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ProductList'
+          description: ''
+  /shops/{id}/:
+    get:
+      operationId: shops_retrieve
+      summary: Shop Detail
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - Shop
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ShopDetail'
+          description: ''
+  /shops/{id}/delete/:
+    delete:
+      operationId: shops_delete_destroy
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - shops
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '204':
+          description: No response body
+  /shops/{id}/update/:
+    put:
+      operationId: shops_update_update
+      summary: Update Shop
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - Shop
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ShopCreateRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ShopCreateRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ShopCreateRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+          description: ''
+    patch:
+      operationId: shops_update_partial_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - shops
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedShopCreateRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedShopCreateRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedShopCreateRequest'
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ShopCreate'
+          description: ''
+  /shops/create/:
+    post:
+      operationId: shops_create_create
+      summary: Create Shop
+      tags:
+      - Shop
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ShopCreateRequest'
+            examples:
+              CreateShopExample:
+                value:
+                  name: BTR Store
+                  description: Best store
+                  cnic_number: '1234567890123'
+                summary: Create Shop Example
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ShopCreateRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ShopCreateRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                type: object
+              examples:
+                CreateShopExample:
+                  value:
+                    name: BTR Store
+                    description: Best store
+                    cnic_number: '1234567890123'
+                  summary: Create Shop Example
+          description: ''
+  /shops/list/:
+    get:
+      operationId: shops_list_list
+      summary: Shop List
+      tags:
+      - Shop
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ShopList'
+          description: ''
+components:
+  schemas:
+    AccountStatusEnum:
+      enum:
+      - active
+      - inactive
+      - suspended
+      - pending
+      type: string
+      description: |-
+        * `active` - Active
+        * `inactive` - Inactive
+        * `suspended` - Suspended
+        * `pending` - Pending Verification
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+      required:
+      - error
+    ForgotPasswordRequest:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+          minLength: 1
+      required:
+      - email
+    LoginRequestRequest:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+          minLength: 1
+        password:
+          type: string
+          writeOnly: true
+          minLength: 1
+      required:
+      - email
+      - password
+    LoginResponse:
+      type: object
+      properties:
+        message:
+          type: string
+        access:
+          type: string
+        refresh:
+          type: string
+        user:
+          $ref: '#/components/schemas/User'
+      required:
+      - access
+      - message
+      - refresh
+      - user
+    LogoutRequestRequest:
+      type: object
+      properties:
+        refresh:
+          type: string
+          minLength: 1
+      required:
+      - refresh
+    MessageResponse:
+      type: object
+      properties:
+        message:
+          type: string
+      required:
+      - message
+    PatchedProductCreateRequest:
+      type: object
+      properties:
+        shop:
+          type: integer
+        title:
+          type: string
+          minLength: 1
+          maxLength: 255
+        short_description:
+          type: string
+          maxLength: 500
+        description_html:
+          type: string
+        categories:
+          type: array
+          items:
+            type: integer
+        brand:
+          type: string
+          maxLength: 255
+        product_status:
+          $ref: '#/components/schemas/ProductStatusEnum'
+        is_featured:
+          type: boolean
+        is_best_seller:
+          type: boolean
+        is_new:
+          type: boolean
+        is_on_sale:
+          type: boolean
+    PatchedShopCreateRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 255
+        description:
+          type: string
+        logo:
+          type: string
+          format: binary
+          nullable: true
+        banner:
+          type: string
+          format: binary
+          nullable: true
+        cnic_number:
+          type: string
+          nullable: true
+          pattern: ^\d{13}$
+          maxLength: 13
+        cnic_front:
+          type: string
+          format: binary
+          nullable: true
+        cnic_back:
+          type: string
+          format: binary
+          nullable: true
+    ProductCreate:
+      type: object
+      properties:
+        shop:
+          type: integer
+        title:
+          type: string
+          maxLength: 255
+        short_description:
+          type: string
+          maxLength: 500
+        description_html:
+          type: string
+        categories:
+          type: array
+          items:
+            type: integer
+        brand:
+          type: string
+          maxLength: 255
+        product_status:
+          $ref: '#/components/schemas/ProductStatusEnum'
+        is_featured:
+          type: boolean
+        is_best_seller:
+          type: boolean
+        is_new:
+          type: boolean
+        is_on_sale:
+          type: boolean
+      required:
+      - shop
+      - title
+    ProductCreateRequest:
+      type: object
+      properties:
+        shop:
+          type: integer
+        title:
+          type: string
+          minLength: 1
+          maxLength: 255
+        short_description:
+          type: string
+          maxLength: 500
+        description_html:
+          type: string
+        categories:
+          type: array
+          items:
+            type: integer
+        brand:
+          type: string
+          maxLength: 255
+        product_status:
+          $ref: '#/components/schemas/ProductStatusEnum'
+        is_featured:
+          type: boolean
+        is_best_seller:
+          type: boolean
+        is_new:
+          type: boolean
+        is_on_sale:
+          type: boolean
+      required:
+      - shop
+      - title
+    ProductList:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        title:
+          type: string
+          maxLength: 255
+        short_description:
+          type: string
+          maxLength: 500
+        main_image:
+          type: string
+          readOnly: true
+        price:
+          type: number
+          format: double
+          readOnly: true
+      required:
+      - id
+      - main_image
+      - price
+      - title
+    ProductStatusEnum:
+      enum:
+      - draft
+      - active
+      - archived
+      - out_of_stock
+      type: string
+      description: |-
+        * `draft` - Draft
+        * `active` - Active
+        * `archived` - Archived
+        * `out_of_stock` - Out of Stock
+    ResendOTPRequest:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+          minLength: 1
+      required:
+      - email
+    ResetPasswordRequest:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+          minLength: 1
+        otp:
+          type: string
+          minLength: 1
+        password:
+          type: string
+          writeOnly: true
+          minLength: 1
+        confirm_password:
+          type: string
+          writeOnly: true
+          minLength: 1
+      required:
+      - confirm_password
+      - email
+      - otp
+      - password
+    RoleEnum:
+      enum:
+      - customer
+      - seller
+      - admin
+      - staff
+      type: string
+      description: |-
+        * `customer` - Customer
+        * `seller` - Seller
+        * `admin` - Admin
+        * `staff` - Staff
+    ShopCreate:
+      type: object
+      properties:
+        name:
+          type: string
+          maxLength: 255
+        description:
+          type: string
+        logo:
+          type: string
+          format: uri
+          nullable: true
+        banner:
+          type: string
+          format: uri
+          nullable: true
+        cnic_number:
+          type: string
+          nullable: true
+          pattern: ^\d{13}$
+          maxLength: 13
+        cnic_front:
+          type: string
+          format: uri
+          nullable: true
+        cnic_back:
+          type: string
+          format: uri
+          nullable: true
+      required:
+      - name
+    ShopCreateRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 255
+        description:
+          type: string
+        logo:
+          type: string
+          format: binary
+          nullable: true
+        banner:
+          type: string
+          format: binary
+          nullable: true
+        cnic_number:
+          type: string
+          nullable: true
+          pattern: ^\d{13}$
+          maxLength: 13
+        cnic_front:
+          type: string
+          format: binary
+          nullable: true
+        cnic_back:
+          type: string
+          format: binary
+          nullable: true
+      required:
+      - name
+    ShopDetail:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+        is_deleted:
+          type: boolean
+        slug:
+          type: string
+          maxLength: 255
+          pattern: ^[-a-zA-Z0-9_]+$
+        name:
+          type: string
+          maxLength: 255
+        handle:
+          type: string
+          maxLength: 255
+          pattern: ^[-a-zA-Z0-9_]+$
+        description:
+          type: string
+        logo:
+          type: string
+          format: uri
+          nullable: true
+        banner:
+          type: string
+          format: uri
+          nullable: true
+        cnic_number:
+          type: string
+          nullable: true
+          pattern: ^\d{13}$
+          maxLength: 13
+        cnic_front:
+          type: string
+          format: uri
+          nullable: true
+        cnic_back:
+          type: string
+          format: uri
+          nullable: true
+        verified_at:
+          type: string
+          format: date-time
+          nullable: true
+        rejection_reason:
+          type: string
+        shop_status:
+          $ref: '#/components/schemas/ShopStatusEnum'
+        rating:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,2}(?:\.\d{0,2})?$
+        is_verified:
+          type: boolean
+        owner:
+          type: integer
+      required:
+      - created_at
+      - id
+      - name
+      - owner
+      - updated_at
+    ShopList:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        name:
+          type: string
+          maxLength: 255
+        handle:
+          type: string
+          maxLength: 255
+          pattern: ^[-a-zA-Z0-9_]+$
+        logo:
+          type: string
+          format: uri
+          nullable: true
+        rating:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,2}(?:\.\d{0,2})?$
+        is_verified:
+          type: boolean
+      required:
+      - id
+      - name
+    ShopStatusEnum:
+      enum:
+      - pending
+      - under_review
+      - approved
+      - suspended
+      - rejected
+      type: string
+      description: |-
+        * `pending` - Pending Review
+        * `under_review` - Under Review
+        * `approved` - Approved
+        * `suspended` - Suspended
+        * `rejected` - Rejected
+    SignupResponse:
+      type: object
+      properties:
+        message:
+          type: string
+        email:
+          type: string
+          format: email
+      required:
+      - email
+      - message
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        email:
+          type: string
+          format: email
+          maxLength: 254
+        phone:
+          type: string
+          maxLength: 15
+        role:
+          $ref: '#/components/schemas/RoleEnum'
+        account_status:
+          $ref: '#/components/schemas/AccountStatusEnum'
+        email_verified:
+          type: boolean
+      required:
+      - email
+      - id
+      - phone
+    UserSignupRequest:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+          minLength: 1
+          maxLength: 254
+        phone:
+          type: string
+          minLength: 1
+          maxLength: 15
+        password:
+          type: string
+          writeOnly: true
+          minLength: 1
+          maxLength: 128
+        confirm_password:
+          type: string
+          writeOnly: true
+          minLength: 1
+        role:
+          $ref: '#/components/schemas/RoleEnum'
+      required:
+      - confirm_password
+      - email
+      - password
+      - phone
+    VerifyOTPRequest:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+          minLength: 1
+        otp:
+          type: string
+          minLength: 1
+      required:
+      - email
+      - otp
+  securitySchemes:
+    jwtAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+tags:
+- name: Auth
+  description: Authentication & OTP
+- name: Users
+  description: User management & roles
+- name: Shop
+  description: Seller shop management
+- name: Products
+  description: Product & inventory system
+- name: Orders
+  description: Order processing system

@@ -64,6 +64,8 @@ INSTALLED_APPS = [
     'django_countries',
     'phonenumber_field',
     'cities_light',
+    'rest_framework_simplejwt.token_blacklist',
+
 
     # API DOCS (NEW - SPECTACULAR)
     'drf_spectacular',
@@ -101,35 +103,67 @@ CITIES_LIGHT_INCLUDE_CITIES = ['ALL']
 
 
 # ================= DJANGO REST FRAMEWORK =================
+from datetime import timedelta
+
 REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ),
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.AllowAny',
     ],
-
-    #  SPECTACULAR SCHEMA
     'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
-
-    'DEFAULT_RENDERER_CLASSES': [
-        'rest_framework.renderers.JSONRenderer',
-        'rest_framework.renderers.BrowsableAPIRenderer',
-    ],
 }
 
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=15),
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
 
+    'AUTH_HEADER_TYPES': ('Bearer',),
+
+    'ROTATE_REFRESH_TOKENS': True,
+    'BLACKLIST_AFTER_ROTATION': True,
+}
 # ================= SPECTACULAR SETTINGS =================
 SPECTACULAR_SETTINGS = {
+    # ================= BASIC INFO =================
     'TITLE': 'Supply Chain Management API',
-    'DESCRIPTION': 'API documentation for Supply Chain system',
+    'DESCRIPTION': 'Professional eCommerce / Marketplace API (Shop, Product, Seller System)',
     'VERSION': '1.0.0',
 
-    #  IMPORTANT IMPROVEMENTS
+    # ================= SCHEMA CONTROL =================
     'SERVE_INCLUDE_SCHEMA': False,
 
+    # ================= SWAGGER UI =================
     'SWAGGER_UI_SETTINGS': {
         'persistAuthorization': True,
+        'displayRequestDuration': True,
+        'filter': True,
     },
-}
 
+    # ================= TAG ORGANIZATION =================
+    'TAGS': [
+        {'name': 'Auth', 'description': 'Authentication & OTP'},
+        {'name': 'Users', 'description': 'User management & roles'},
+        {'name': 'Shop', 'description': 'Seller shop management'},
+        {'name': 'Products', 'description': 'Product & inventory system'},
+        {'name': 'Orders', 'description': 'Order processing system'},
+    ],
+
+    # ================= ENUM CLEANUP =================
+     "ENUM_NAME_OVERRIDES": {
+        "apps.products.choices.shop_status_choices.ShopStatusChoices": "ShopStatusEnum",
+        "apps.products.choices.product_status_choices.ProductStatus": "ProductStatusEnum",
+        "apps.users.choices.role_choices.UserRoleChoices": "UserRoleEnum",
+        "apps.users.choices.status_choices.UserStatusChoices": "UserStatusEnum",
+    },
+
+    # ================= SCHEMA QUALITY =================
+    'COMPONENT_SPLIT_REQUEST': True,
+    'COMPONENT_SPLIT_RESPONSE': True,
+
+    'SORT_OPERATIONS': True,
+}
 # ================= AUTH =================
 AUTH_USER_MODEL = 'users.User'
 

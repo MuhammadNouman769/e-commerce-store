@@ -14,5 +14,5 @@ class UserSerializer(serializers.ModelSerializer):
             "phone",
             "role",
             "account_status",
-            "email_verified"
+            "email_verified",
         ]

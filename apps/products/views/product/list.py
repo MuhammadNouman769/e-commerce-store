@@ -6,7 +6,7 @@ from drf_spectacular.utils import extend_schema_view
 from apps.products.schemas.product.list_schema import product_list_schema
 
 
-@extend_schema_view(post=product_list_schema)
+@extend_schema_view(get=product_list_schema)
 class ProductListAPIView(ListAPIView):
     serializer_class = ProductListSerializer
 

@@ -49,4 +49,7 @@ class ResetPasswordAPIView(APIView):
         user.set_password(data["password"])
         user.save()
 
-        return Response({"message": "Password reset successful"})
+        return Response(
+            {"message": "Password reset successful"},
+            status=status.HTTP_200_OK
+        )

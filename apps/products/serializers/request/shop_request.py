@@ -7,7 +7,6 @@ class ShopCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Shop
         fields = [
-            "owner",
             "name",
             "description",
             "logo",
@@ -18,6 +17,5 @@ class ShopCreateSerializer(serializers.ModelSerializer):
         ]
 
         extra_kwargs = {
-            "owner": {"required": True},
             "name": {"required": True},
         }

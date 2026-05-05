@@ -137,7 +137,7 @@ class OrderedModel(BaseModel):
 '''
 class SluggedModel(BaseModel):
     slug = models.SlugField(max_length=255, unique=True, blank=True)
-    SLUG_FIELD = "name"  # override in child model
+    SLUG_FIELD = "n"  # override in child model
 
     class Meta:
         abstract = True

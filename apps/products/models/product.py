@@ -11,6 +11,8 @@ from ..choices.product_status_choices import ProductStatus
 """ =================== Product Model ====================== """
 
 class Product(SluggedModel):
+    SLUG_FIELD = "title"
+
     shop = models.ForeignKey(Shop, on_delete=models.CASCADE, related_name="products")
 
     title = models.CharField(max_length=255)
@@ -20,7 +22,7 @@ class Product(SluggedModel):
     categories = models.ManyToManyField(Category, related_name="products", blank=True)
     brand = models.CharField(max_length=255, blank=True)
 
-    status = models.CharField(
+    product_status = models.CharField(
         max_length=20,
         choices=ProductStatus.choices,
         default=ProductStatus.DRAFT

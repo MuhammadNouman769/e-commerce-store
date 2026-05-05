@@ -48,7 +48,7 @@ class Shop(SluggedModel):
     verified_at = models.DateTimeField(null=True, blank=True)
     rejection_reason = models.TextField(blank=True)
 
-    status = models.CharField(
+    shop_status = models.CharField(
         max_length=20,
         choices=ShopStatusChoices.choices,
         default=ShopStatusChoices.PENDING

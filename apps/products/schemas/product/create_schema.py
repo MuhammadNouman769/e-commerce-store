@@ -1,10 +1,9 @@
-# schemas/product/create_schema.py
-
 from drf_spectacular.utils import extend_schema, OpenApiExample
 from apps.products.serializers.request.product_request import ProductCreateSerializer
 
-
 product_create_schema = extend_schema(
+    tags=["Products"],
+    summary="Create Product",
     request=ProductCreateSerializer,
     responses={
         201: {
