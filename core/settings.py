@@ -152,10 +152,10 @@ SPECTACULAR_SETTINGS = {
 
     # ================= ENUM CLEANUP =================
     "ENUM_NAME_OVERRIDES": {
-        "apps.products.choices.shop_status_choices.ShopStatusChoices": "ShopStatusEnum",
-        "apps.products.choices.product_status_choices.ProductStatus": "ProductStatusEnum",
-        "apps.users.choices.role_choices.UserRoleChoices": "UserRoleEnum",
-        "apps.users.choices.status_choices.UserStatusChoices": "UserStatusEnum",
+        "ShopStatusEnum": "apps.products.choices.shop_status_choices.ShopStatusChoices",
+        "ProductStatusEnum": "apps.products.choices.product_status_choices.ProductStatus",
+        "UserRoleEnum": "apps.users.choices.role_choices.UserRoleChoices",
+        "UserStatusEnum": "apps.users.choices.status_choices.UserStatusChoices",
     },
 
 
