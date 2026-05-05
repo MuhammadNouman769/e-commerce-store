@@ -225,14 +225,14 @@ body.loading::after {
         <a class="navbar-brand" href="{% url 'home' %}">
             <img src="{% static 'img/logo-1.png' %}" style="height:40px;">
         </a>
-        <a class="nav-link" href="{% url 'home' %}">Home</a>
-        <a class="nav-link" href="{% url 'products:product_list' %}">Products</a>
-        <a class="nav-link" href="{% url 'contact_us' %}">Contact</a>
+        <a class="nav-link" href="#">Home</a>
+        <a class="nav-link" href="#">Products</a>
+        <a class="nav-link" href="#">Contact</a>
     </div>
     <!-- CENTER SEARCH  -->
     <div class="search-box">
-        <form method="GET" action="{% url 'products:product_list' %}">
-    <input type="text" name="q" placeholder="Search products..." value="{{ request.GET.q|default:'' }}">
+        <form method="GET" action="#">
+    <input type="text" name="q" placeholder="Search products..." value="#">
     <button type="submit">
         <i class="fas fa-search"></i>
     </button>
@@ -240,9 +240,9 @@ body.loading::after {
     </div>
     <!-- RIGHT -->
     <div class="nav-right">
-        <a href="{% url 'cart' %}" class="cart-wrapper">
+        <a href="#" class="cart-wrapper">
             <i class="fas fa-shopping-cart"></i>
-            <span id="cart-count" class="cart-count">{{ cart_count|default:"0" }}</span>
+            <span id="cart-count" class="cart-count">"#"</span>
         </a>
         {% if request.user.is_authenticated %}
         <div class="user-menu">
@@ -252,7 +252,7 @@ body.loading::after {
             </button>
             <div class="dropdown-box">
                 {% if request.user.role == 'seller' %}
-                <a href="{% url 'products:product_list' %}">
+                <a href="#">
                     <i class="fas fa-store"></i> Dashboard
                 </a>
                 {% endif %}
