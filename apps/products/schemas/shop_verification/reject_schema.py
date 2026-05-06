@@ -1,6 +1,7 @@
 from drf_spectacular.utils import extend_schema, OpenApiExample
 from apps.products.serializers.request.shop_verification_request import ShopRejectSerializer
-from apps.products.serializers.response.shop_verification_response import ShopRejectResponseSerializer
+from apps.products.serializers.response.shop_verification_response import ShopActionResponseSerializer
+
 
 reject_shop_schema = extend_schema(
     summary="Reject Shop",
@@ -21,6 +22,6 @@ reject_shop_schema = extend_schema(
     ],
 
     responses={
-        200: ShopRejectResponseSerializer
+        200: ShopActionResponseSerializer
     }
 )

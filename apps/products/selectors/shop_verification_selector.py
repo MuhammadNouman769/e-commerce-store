@@ -20,25 +20,25 @@ class ShopVerificationSelector:
     @staticmethod
     def pending_shops():
         return ShopVerificationSelector.base_queryset().filter(
-            status=ShopStatusChoices.PENDING
+            shop_status=ShopStatusChoices.PENDING
         )
 
     @staticmethod
     def under_review_shops():
         return ShopVerificationSelector.base_queryset().filter(
-            status=ShopStatusChoices.UNDER_REVIEW
+            shop_status=ShopStatusChoices.UNDER_REVIEW
         )
 
     @staticmethod
     def approved_shops():
         return ShopVerificationSelector.base_queryset().filter(
-            status=ShopStatusChoices.APPROVED
+            shop_status=ShopStatusChoices.APPROVED
         )
 
     @staticmethod
     def rejected_shops():
         return ShopVerificationSelector.base_queryset().filter(
-            status=ShopStatusChoices.REJECTED
+            shop_status=ShopStatusChoices.REJECTED
         )
 
 
@@ -50,7 +50,7 @@ class ShopVerificationSelector:
         queryset = ShopVerificationSelector.base_queryset()
 
         if status:
-            return queryset.filter(status=status)
+            return queryset.filter(shop_status=status)
 
         return queryset
 

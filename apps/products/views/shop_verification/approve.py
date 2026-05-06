@@ -7,11 +7,12 @@ from rest_framework import status
 from apps.products.models import Shop
 from apps.products.services.shop_verification_service import ShopVerificationService
 from apps.products.schemas.shop_verification.approve_schema import approve_shop_schema
-from apps.products.serializers.response.shop_verification_response import ShopApproveResponseSerializer
+from apps.products.serializers.response.shop_verification_response import ShopActionResponseSerializer
+
 
 class ApproveShopAPIView(APIView):
     permission_classes = [IsAdminUser]
-    serializer_class = ShopApproveResponseSerializer
+    serializer_class = ShopActionResponseSerializer
 
     @approve_shop_schema
     def post(self, request, id):
@@ -19,15 +20,12 @@ class ApproveShopAPIView(APIView):
 
         shop = ShopVerificationService.approve_shop(shop, request.user)
 
-        return Response(
-            {
-                "message": "Shop approved successfully",
-                "data": {
-                    "id": shop.id,
-                    "status": shop.status,
-                    "is_verified": shop.is_verified,
-                    "verified_at": shop.verified_at
-                }
-            },
-            status=status.HTTP_200_OK
-        )
+        return Response({
+            "message": "Shop approved successfully",
+            "shop": {
+                "id": shop.id,
+                "name": shop.name,
+                "status": shop.status,
+                "is_verified": shop.is_verified
+            }
+        }, status=status.HTTP_200_OK)

@@ -1,5 +1,6 @@
 from drf_spectacular.utils import extend_schema
-from apps.products.serializers.response.shop_verification_response import ShopCoreResponseSerializer
+from apps.products.serializers.response.shop_verification_response import ShopListResponseSerializer
+
 
 pending_shop_list_schema = extend_schema(
     summary="Pending Shops List",
@@ -7,5 +8,5 @@ pending_shop_list_schema = extend_schema(
 
     tags=["Shop Verification"],
 
-    responses=ShopCoreResponseSerializer(many=True)
+    responses=ShopListResponseSerializer(many=True)
 )
