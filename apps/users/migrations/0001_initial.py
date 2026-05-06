@@ -31,7 +31,7 @@ class Migration(migrations.Migration):
                 ('is_deleted', models.BooleanField(default=False, verbose_name='Is Deleted')),
                 ('email', models.EmailField(help_text='Used for login and communication', max_length=254, unique=True, verbose_name='Email Address')),
                 ('phone', models.CharField(max_length=15, unique=True, validators=[django.core.validators.RegexValidator(message="Phone number must be entered in the format: '+923001234567'. Up to 15 digits allowed.", regex='^\\+?1?\\d{9,15}$')], verbose_name='Phone Number')),
-                ('role', models.CharField(choices=[('customer', 'Customer'), ('seller', 'Seller'), ('admin', 'Admin'), ('staff', 'Staff')], default='customer', max_length=20, verbose_name='User Role')),
+                ('role', models.CharField(choices=[('customer', 'Customer'), ('seller', 'Seller'), ('admin', 'admin'), ('staff', 'Staff')], default='customer', max_length=20, verbose_name='User Role')),
                 ('profile_picture', models.ImageField(blank=True, null=True, upload_to='profile_pics/%Y/%m/', verbose_name='Profile Picture')),
                 ('email_verified', models.BooleanField(default=False, verbose_name='Email Verified')),
                 ('phone_verified', models.BooleanField(default=False, verbose_name='Phone Verified')),

@@ -103,7 +103,6 @@ CITIES_LIGHT_INCLUDE_CITIES = ['ALL']
 
 
 # ================= DJANGO REST FRAMEWORK =================
-from datetime import timedelta
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
@@ -115,14 +114,34 @@ REST_FRAMEWORK = {
     'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
 }
 
+from datetime import timedelta
+
 SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=15),
-    'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
+    # ================= TOKEN LIFETIME =================
+    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=15),
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=1),
 
-    'AUTH_HEADER_TYPES': ('Bearer',),
+    # ================= AUTH HEADER =================
+    "AUTH_HEADER_TYPES": ("Bearer",),
 
-    'ROTATE_REFRESH_TOKENS': True,
-    'BLACKLIST_AFTER_ROTATION': True,
+    # ================= SECURITY =================
+    "ROTATE_REFRESH_TOKENS": True,
+    "BLACKLIST_AFTER_ROTATION": True,
+
+    # ================= BEST PRACTICE ADDITIONS =================
+    "UPDATE_LAST_LOGIN": True,
+
+    "ALGORITHM": "HS256",
+
+    "SIGNING_KEY": SECRET_KEY,
+
+    "AUTH_TOKEN_CLASSES": (
+        "rest_framework_simplejwt.tokens.AccessToken",
+    ),
+
+    "TOKEN_TYPE_CLAIM": "token_type",
+
+    "JTI_CLAIM": "jti",
 }
 # ================= SPECTACULAR SETTINGS =================
 SPECTACULAR_SETTINGS = {
@@ -256,10 +275,10 @@ LOGOUT_REDIRECT_URL = '/'
 
 # ================= JAZZMIN ADMIN =================
 JAZZMIN_SETTINGS = {
-    "site_title": "BTR Mall Admin Dashboard",
+    "site_title": "BTR Mall admin Dashboard",
     "site_header": "BTR Mall Dashboard",
     "welcome_sign": "Welcome to BTR Mall Management System",
-    "site_brand": "BTR Mall Admin",
+    "site_brand": "BTR Mall admin",
     "copyright": "© 2025 Muhammad Noman",
 
     "show_sidebar": True,

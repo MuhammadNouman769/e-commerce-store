@@ -26,7 +26,9 @@ urlpatterns = [
     path('', include('apps.main.urls')),  # Main app APIs
     path('api/', include('apps.users.urls')),  # Account APIs
     path('api/products/',include('apps.products.urls.product_urls')),
+    path('api/products/category/', include('apps.products.urls.category_urls')),
     path('api/shops/', include('apps.products.urls.shop_urls')),
+    path("api/shop-verification/", include("apps.products.urls.shop_verification_urls")),
     path('inventory/', include('apps.inventory_tracking.urls')),
     path('orders/', include('apps.order_fulfillment.urls')),
     path('shipments/', include('apps.shipment_monitoring.urls')),

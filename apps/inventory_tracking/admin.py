@@ -3,7 +3,7 @@
 
 
 
-# # ===== Warehouse Admin =====
+# # ===== Warehouse admin =====
 # class WarehouseAdmin(admin.ModelAdmin):
 #     list_display = ("name", "address")
 #     search_fields = ("name",)
@@ -11,7 +11,7 @@
 # admin.site.register(Warehouse, WarehouseAdmin)
 
 
-# # ===== Inventory Item Admin =====
+# # ===== Inventory Item admin =====
 # class InventoryItemAdmin(admin.ModelAdmin):
 #     list_display = ("variant", "tracked", "cost_price")
 #     list_filter = ("tracked",)
@@ -20,7 +20,7 @@
 # admin.site.register(InventoryItem, InventoryItemAdmin)
 
 
-# # ===== Inventory Level Admin =====
+# # ===== Inventory Level admin =====
 # class InventoryLevelAdmin(admin.ModelAdmin):
 #     list_display = ("inventory_item", "warehouse", "available_quantity", "incoming_quantity")
 #     list_filter = ("warehouse",)

@@ -9,5 +9,5 @@ class UserRoleChoices(models.TextChoices):
     """User role choices for the platform"""
     CUSTOMER = 'customer', _('Customer')
     SELLER = 'seller', _('Seller')
-    ADMIN = 'admin', _('Admin')
+    ADMIN = 'admin', _('admin')
     STAFF = 'staff', _('Staff')

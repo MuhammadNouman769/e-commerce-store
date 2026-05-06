@@ -3,6 +3,7 @@ from apps.products.models import Shop
 
 
 class ShopListSerializer(serializers.ModelSerializer):
+    owner_email = serializers.CharField(source="owner.email", read_only=True)
 
     class Meta:
         model = Shop
@@ -10,12 +11,12 @@ class ShopListSerializer(serializers.ModelSerializer):
             "id",
             "name",
             "handle",
-            "logo",
-            "rating",
+            "owner_email",
+            "shop_status",
             "is_verified",
-            
+            "rating",
+            "created_at",
         ]
-
 
 class ShopDetailSerializer(serializers.ModelSerializer):
 

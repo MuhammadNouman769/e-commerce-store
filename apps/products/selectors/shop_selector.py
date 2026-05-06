@@ -5,7 +5,7 @@ class ShopSelector:
 
     @staticmethod
     def list_shops():
-        return Shop.objects.select_related("owner")
+        return Shop.objects.select_related("owner").all()
 
     @staticmethod
     def get_shop_by_id(shop_id):

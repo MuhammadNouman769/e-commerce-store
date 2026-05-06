@@ -74,7 +74,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='user',
             name='role',
-            field=models.CharField(choices=[('customer', 'Customer'), ('seller', 'Seller'), ('admin', 'Admin'), ('staff', 'Staff')], default='customer', max_length=20),
+            field=models.CharField(choices=[('customer', 'Customer'), ('seller', 'Seller'), ('admin', 'admin'), ('staff', 'Staff')], default='customer', max_length=20),
         ),
         migrations.AddField(
             model_name='otp',

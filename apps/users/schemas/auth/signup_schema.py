@@ -1,19 +1,25 @@
-from drf_spectacular.utils import extend_schema, OpenApiExample, OpenApiResponse
+from drf_spectacular.utils import (
+    extend_schema,
+    OpenApiExample,
+    OpenApiResponse
+)
 
 from apps.users.serializers.request.signup_serializer import UserSignupSerializer
-from apps.users.serializers.response.auth_serializer import SignupResponseSerializer, ErrorResponseSerializer
-
+from apps.users.serializers.response.auth_serializer import (
+    SignupResponseSerializer,
+    ErrorResponseSerializer
+)
 
 signup_schema = extend_schema(
     operation_id="auth_signup",
     summary="User Signup",
-    description="Register new user and send OTP for email verification",
+    description="Register a new user and send OTP for email verification",
 
     request=UserSignupSerializer,
 
     examples=[
         OpenApiExample(
-            "Signup Example",
+            name="Signup Request Example",
             value={
                 "email": "user@gmail.com",
                 "phone": "03001234567",
@@ -36,5 +42,7 @@ signup_schema = extend_schema(
         ),
     },
 
-    tags=["Auth"]
+    tags=["Auth"],
+
+    auth= []
 )

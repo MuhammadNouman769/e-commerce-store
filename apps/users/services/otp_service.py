@@ -5,8 +5,8 @@ from ..common.utils.email import send_otp_email
 
 class OTPService:
 
-    OTP_TIMEOUT = 180
-    RESEND_TIMEOUT = 60
+    OTP_TIMEOUT = 280
+    RESEND_TIMEOUT = 100
     MAX_ATTEMPTS = 5
 
     # -------------------------
